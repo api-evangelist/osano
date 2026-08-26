@@ -1,0 +1,136 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Osano Unified Consent Core API
+  version: 1.0.0
+extends: ../openapi/osano-unified-consent-core-api-openapi.yml
+x-provenance:
+  generated: '2026-08-26'
+  method: generated
+  source: >-
+    Authored by API Evangelist against the provider's own published spec
+    (https://developers.osano.com/redocusaurus/unified-consent-core-api.yaml, retrieved 2026-08-26,
+    HTTP 200). This spec is machine-generated (Fastify/TypeBox) and ships with NO operationIds, NO
+    tags and anonymous def-N schemas, which makes it hard for a client generator or an agent to
+    address. This overlay adds operationIds and tags derived from each path+method and from the
+    operation descriptions in the spec itself — no operation is invented. The original spec is never
+    mutated.
+actions:
+- target: $.info
+  description: Add contact, terms and reference metadata the published spec omits.
+  update:
+    contact:
+      name: Osano Support
+      url: https://docs.osano.com/en-US/osano/directories
+    termsOfService: https://osano.trusthub.com/terms
+    x-api-reference: https://developers.osano.com/uc/core-api/openapi
+    x-regional-distribution: >-
+      Requests originating from the United States are processed in us-east-1; requests from all other
+      regions are processed in eu-central-1.
+- target: $
+  description: Declare tags this spec omits entirely.
+  update:
+    tags:
+    - name: consents
+      description: Submit, check and read unified consent for a subject.
+    - name: subjects
+      description: Create, verify, read and merge consent subjects.
+    - name: collections
+      description: Privacy protocol collections resolved by config and jurisdiction.
+    - name: config
+      description: Unified Consent configuration and sessions.
+    - name: system
+      description: Health and token operations.
+    externalDocs:
+      description: Osano Unified Consent documentation
+      url: https://developers.osano.com/uc/
+- target: $.paths['/v2/consents'].post
+  description: Name and tag the consent submission operation; record that it is append-only.
+  update:
+    operationId: createConsent
+    tags: [consents]
+    x-reversible: false
+    x-reversal-operation: null
+    x-write-semantics: append-only
+    x-note: No delete/revoke/withdraw operation exists. A change of mind is a new consent record.
+- target: $.paths['/v2/consents/gpc'].post
+  description: Name and tag the Global Privacy Control consent submission.
+  update:
+    operationId: createGpcConsent
+    tags: [consents]
+    x-domain-standard: Global Privacy Control
+    x-reversible: false
+- target: $.paths['/v2/consents/check/{subjectId}'].get
+  update:
+    operationId: checkConsent
+    tags: [consents]
+- target: $.paths['/v2/consents/unified/{subjectRef}'].get
+  update:
+    operationId: getUnifiedConsent
+    tags: [consents]
+- target: $.paths['/v2/consent-profiles/{hashedSubjectId}'].get
+  update:
+    operationId: getConsentProfile
+    tags: [consents]
+- target: $.paths['/v2/collections'].get
+  update:
+    operationId: listCollections
+    tags: [collections]
+- target: $.paths['/v2/collections/{collectionId}'].get
+  update:
+    operationId: getCollection
+    tags: [collections]
+- target: $.paths['/v2/config'].get
+  update:
+    operationId: getUcConfig
+    tags: [config]
+- target: $.paths['/v2/sessions/{sessionId}'].get
+  update:
+    operationId: getSession
+    tags: [config]
+- target: $.paths['/v2/subjects/{subjectRef}'].get
+  update:
+    operationId: getSubject
+    tags: [subjects]
+- target: $.paths['/v2/subjects/{id}/profile'].get
+  update:
+    operationId: getSubjectProfile
+    tags: [subjects]
+- target: $.paths['/v2/subjects/profile'].post
+  update:
+    operationId: createSubjectProfile
+    tags: [subjects]
+- target: $.paths['/v2/subjects/profile/verification-code'].post
+  update:
+    operationId: createProfileVerificationCode
+    tags: [subjects]
+- target: $.paths['/v2/subjects/profile/verify'].post
+  update:
+    operationId: verifySubjectProfileByEmail
+    tags: [subjects]
+- target: $.paths['/v2/subjects/profile/verify/sms'].post
+  update:
+    operationId: verifySubjectProfileBySms
+    tags: [subjects]
+- target: $.paths['/v2/subjects/send-code'].post
+  update:
+    operationId: sendVerificationEmail
+    tags: [subjects]
+- target: $.paths['/v2/subjects/send-code/sms'].post
+  update:
+    operationId: sendVerificationSms
+    tags: [subjects]
+- target: $.paths['/v2/subjects/merge'].post
+  description: Name the merge operation and record that it has no documented unmerge.
+  update:
+    operationId: mergeSubjects
+    tags: [subjects]
+    x-reversible: false
+    x-agent-confirmation-required: true
+- target: $.paths['/v2/token/create'].post
+  update:
+    operationId: createUcToken
+    tags: [system]
+- target: $.paths['/'].get
+  update:
+    operationId: healthCheck
+    tags: [system]

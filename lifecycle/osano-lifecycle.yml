@@ -1,0 +1,92 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://developers.osano.com/customer-rest-api/developer-api-doc (Versioning),
+  https://developers.osano.com/uc/core-api/openapi (Versioning), https://status.osano.com/,
+  https://developers.osano.com/cmp/mobile-sdks/ios/changelog,
+  https://developers.osano.com/cmp/mobile-sdks/android/changelog,
+  https://developers.osano.com/cmp/mobile-sdks/react-native/changelog
+versioning:
+  scheme: semver-major-in-uri
+  current_versions:
+    Osano Customer REST API: v1
+    Osano Unified Consent Core API: v2
+  backwards_compatibility: >-
+    Stated: major versions maintain backwards compatibility; minor versions never break it but may
+    add resources, enhancements and new schema fields. Consumers are told not to error on unexpected
+    data.
+  breaking_change_channel: >-
+    "We will make a best effort to notify users when we release new major versions." No named
+    channel, no mailing list, no dated API changelog.
+deprecation:
+  policy_published: true
+  policy_verbatim: >-
+    "We will make a best effort to notify users when we release new major versions. We will deprecate
+    the previous major version. Major versions may have breaking changes from previous versions such
+    as schema changes or resource removal. All users should upgrade to the new major version in a
+    timely manner."
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  notice_period: null
+  note: >-
+    A deprecation policy exists in prose and is published on both API references, but it commits to
+    no notice period and no machine-readable signal. Neither OpenAPI marks a single operation or
+    schema `deprecated: true`, and no Sunset or Deprecation response header (RFC 8594) is documented
+    or observed. "Best effort" notification is the whole commitment.
+deprecated_operations: []
+status_page:
+  url: https://status.osano.com/
+  status: 200
+  title: Osano Status
+  machine_readable_feed: unknown
+  note: >-
+    A dedicated status host is published and reachable, and is listed in Osano's own llms.txt under
+    Documentation & Developers. Uptime history/components render client-side.
+sla:
+  published: true
+  url: https://osano.trusthub.com/sls
+  status: 200
+  title: Service Level Statement
+  note: >-
+    Osano publishes a Service Level Statement through its own TrustHub, alongside the DPA
+    (https://osano.trusthub.com/dpa), Subprocessors (https://osano.trusthub.com/subprocessors) and
+    two separate Terms of Service (self-service at /terms, enterprise/premier at /terms-enterprise).
+    The document renders client-side, so the numeric availability target was not read in this pass —
+    recorded as published-and-located, not as a quoted figure. Nothing on osano.com, the plans page
+    or developers.osano.com states an availability target; the FAQ only publishes volume figures
+    ("upwards of 3.5 Million consents per hour and 10 Million cookie reports per hour").
+changelogs:
+  api:
+    published: false
+    note: >-
+      No dated changelog for either REST API. Neither developers.osano.com nor the API references
+      carry a release history for v1 or v2.
+  sdks:
+    published: true
+    note: >-
+      Every mobile SDK ships a dated changelog. See changelog/osano-changelog.yml.
+    urls:
+    - https://developers.osano.com/cmp/mobile-sdks/ios/changelog
+    - https://developers.osano.com/cmp/mobile-sdks/android/changelog
+    - https://developers.osano.com/cmp/mobile-sdks/react-native/changelog
+    - https://developers.osano.com/uc/mobile-sdks/ios/changelog
+    - https://developers.osano.com/uc/mobile-sdks/android/changelog
+docs_defects:
+- finding: >-
+    The published Unified Consent Core API reference points readers at a NON-PRODUCTION console host.
+    Its Authentication section links the UC configuration list as
+    https://my.osano.dev/unified-consent/configs (a .dev host, HTTP 200) while the Cookie Consent
+    sections in the same document link https://my.osano.com/consent/panels and
+    https://my.osano.com/api-keys. A developer following the UC instructions lands on the wrong
+    environment.
+  evidence:
+  - url: https://developers.osano.com/redocusaurus/unified-consent-core-api.yaml
+    status: 200
+    detail: 'info.description, Authentication section: "https://my.osano.dev/unified-consent/configs".'
+  - url: https://my.osano.dev/unified-consent/configs
+    status: 200
+  note: >-
+    Recorded as a documentation defect, not as a published sandbox — Osano documents no test/sandbox
+    environment, no test keys and no test-vs-live key prefixes anywhere, so no sandbox artifact was
+    written.

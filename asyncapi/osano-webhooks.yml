@@ -1,0 +1,89 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://developers.osano.com/webhooks/, https://developers.osano.com/webhooks/variables,
+  https://developers.osano.com/webhooks/functions, https://developers.osano.com/webhooks/workflows,
+  https://developers.osano.com/webhooks/guides/ and https://github.com/osano/webhook-sample-apps
+asyncapi_spec: null
+asyncapi_probes:
+- url: https://developers.osano.com/asyncapi.yaml
+  status: 404
+- url: https://developers.osano.com/asyncapi.json
+  status: 404
+- url: https://api.osano.com/asyncapi.json
+  status: 404
+- url: https://developers.osano.com/redocusaurus/webhooks.yaml
+  status: 404
+note: >-
+  Osano ships a real outbound webhook surface but publishes NO AsyncAPI (or any other machine-
+  readable event contract) for it. The event catalog below is transcribed from the provider's own
+  Variables page, which is the only place the triggers are enumerated; the payload is
+  customer-authored — Osano webhooks are template-driven, where the body is a string the customer
+  writes and Osano substitutes {{variable}} tokens into. That is why there is no fixed schema to
+  capture: the payload shape is per-customer, not per-event. Consequently the variables below ARE
+  the event contract, and they are the only machine-relevant detail Osano publishes. Osano also
+  ships a sample consumer (github.com/osano/webhook-sample-apps: sample-dsar-handler,
+  sample-gladly-webhook-integration).
+delivery:
+  direction: outbound
+  transport: http
+  configuration: >-
+    Configured in the Osano app per event and endpoint. Headers and body content area are
+    customer-defined; string substitution of {{variables}} applies to the BODY only — the docs state
+    the supported hashing functions work "in the body of a webhook (content area), not the headers".
+  payload_schema: customer-defined-template
+  signature_verification: not-documented
+  retry_policy: not-documented
+  note: >-
+    No signing secret, HMAC signature header, replay-protection or retry/backoff policy is
+    documented. A consumer cannot verify that a delivery came from Osano beyond whatever static
+    header the customer configures. The hashing functions offered for the body are the closest thing
+    published.
+events:
+- domain: Data Mapping
+  docs: https://developers.osano.com/webhooks/variables
+  events:
+  - name: Data Store Sync Error
+    variables: [dataStoreName, discoProviderName, errorMessage, errorReceived, errorType]
+  - name: SSO Applications Discovered
+    variables: [numAppsDiscovered, ssoConnectionId, ssoConnectionName, ssoProviderName]
+  - name: SSO Applications Deactivated
+    variables: [numAppsDeactivated, ssoConnectionId, ssoConnectionName, ssoProviderName]
+- domain: Subject Rights
+  docs: https://developers.osano.com/webhooks/variables
+  events:
+  - name: Email Verified
+    variables: [dsarId, created, due, dsarDetails.email, dsarDetails.given-name, dsarDetails.family-name, dsarDetails.phone-number, dsaRequestSource, dsaRequestType, dsarFormName]
+  - name: Identity Verified
+    variables: [dsarId, created, due, dsarDetails.email, dsaRequestType, dsarFormName]
+  - name: Action Items Completed
+    variables: [dsarId, completedBy, completedTimestamp, actionItemStatus]
+  - name: Request Rejected
+    variables: [dsarId, rejectedBy, rejectedTimestamp, dsarDetails.email]
+  - name: Request Completed
+    variables: [dsarId, completedBy, completedTimestamp, dsarDetails.email]
+  - name: New Message from Requester
+    variables: [dsarId, messageSent, messageText, hasAttachment]
+  - name: Action Item Generated
+    variables: [dsarActionItemId, dsarId, requestedAction, dsarDue, actionItemStatus, completionType]
+  - name: Manual Action Item Generated
+    variables: [dsarActionItemId, dsarId, taskName, requestedAction, dsarDue, actionItemStatus]
+variables_reference:
+  docs: https://developers.osano.com/webhooks/variables
+  note: >-
+    Variables are documented per domain, not strictly per event; the per-event `variables` lists
+    above assign each documented variable to the event(s) whose description names it. Where an
+    assignment is inferred rather than stated, it is a semantic mapping of the provider's own
+    variable descriptions — no variable name here is invented.
+  all_variables:
+    data_mapping: [dataStoreName, discoProviderName, errorMessage, errorReceived, errorType, numAppsDiscovered, numAppsDeactivated, ssoConnectionId, ssoConnectionName, ssoProviderName]
+    subject_rights: [completedBy, completedTimestamp, created, 'dsarDetails.email', 'dsarDetails.given-name', 'dsarDetails.family-name', 'dsarDetails.phone-number', due, dsaRequestSource, dsaRequestType, dsarFormName, dsarId, hasAttachment, messageSent, messageText, rejectedBy, rejectedTimestamp, requestedAction, actionItemStatus, dsarDue, dsarActionItemId, completionType, taskName]
+pii_warning: >-
+  Subject Rights webhook variables carry direct identifiers of data subjects — email, given name,
+  family name and phone number. A consumer endpoint receiving these is processing personal data.
+closing_the_loop:
+  note: >-
+    The documented automation pattern pairs a webhook with the REST API: react to an action-item
+    event, then PATCH /v1/subject-rights/requests/{dsarId} with x-osano-api-key and a body such as
+    {"status": "COMPLETED"} (quoted from the Workflows guide).
+  operations: [updateDsar, updateDsarActionItem, addDsarSummary, postPortalMessage]

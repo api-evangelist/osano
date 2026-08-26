@@ -1,0 +1,71 @@
+generated: '2026-08-26'
+method: searched
+source: https://trust.osano.com/ and https://www.osano.com/faq
+evidence:
+- url: https://trust.osano.com/
+  status: 200
+  detail: >-
+    Vanta-hosted trust center, canonical https://trust.osano.com, title "Osano Trust Center",
+    description "At Osano, we take your privacy seriously. This Trust Center is designed to share
+    information that enables you to get information about how we handle data and how we will work
+    with you." Listed in Osano's own llms.txt under Optional.
+- url: https://trust.osano.com/subprocessors
+  status: 200
+- url: https://www.osano.com/faq
+  status: 200
+trust_center:
+  url: https://trust.osano.com/
+  platform: Vanta
+  machine_readable: false
+  note: >-
+    The trust center is a client-rendered Vanta application; the certification list, document
+    requests and subprocessor table are fetched by JavaScript, so no certification names could be
+    read from the served HTML. The certification claims below are quoted from Osano's OWN FAQ page,
+    which does serve them as text. Nothing here is inferred from the Vanta shell.
+certifications:
+- name: SOC 2
+  status: maintained
+  evidence_verbatim: >-
+    "Osano maintains an always current SOC2 report which is available upon request to customers on
+    any paid plan."
+  source: https://www.osano.com/faq
+  public_report: false
+  note: Report is gated behind a paid-customer request; type (I/II) is not stated on the public page.
+- name: Enterprise audit package
+  status: available-on-request
+  evidence_verbatim: >-
+    "If you are a current or prospective Enterprise customer, Osano can provide a full suite of
+    third-party audits, policies, documentation, code security reports, code coverage reports, and
+    architectural walkthroughs for your security team assessments."
+  source: https://www.osano.com/faq
+security_practices:
+- practice: vulnerability-scanning
+  evidence_verbatim: 'Osano infrastructure and systems are tested for vulnerabilities nightly'
+  source: https://www.osano.com/faq
+- practice: penetration-testing
+  evidence_verbatim: 'are routinely penetration tested'
+  source: https://www.osano.com/faq
+- practice: encryption
+  evidence_verbatim: >-
+    "all data is transferred (in transit) and stored (at rest) using modern encryption protocols such
+    as TLS1.3 and AES 256 respectively"
+  source: https://www.osano.com/faq
+- practice: per-customer-key-separation
+  evidence_verbatim: >-
+    "Personal data is encrypted using an encryption key which is unique to each customer. Most data
+    is stored using a per customer salt and SHA-512 hashing."
+  source: https://www.osano.com/faq
+- practice: eu-data-residency
+  evidence_verbatim: >-
+    "Osano stores de-identified data in our Dublin, Ireland data center and does not store
+    identifiable information about your visitors, nor do we transfer personal data outside of the
+    European Economic Area."
+  source: https://www.osano.com/faq
+corporate_status:
+- 'Certified B Corporation (per Osano llms.txt and www.osano.com/company/about)'
+- 'Public Benefit Corporation — the GitHub organization is registered as "Osano, Inc., A Public Benefit Corporation"'
+not_found:
+  iso_27001: Not named on any public Osano page reached in this pass.
+  pci_dss: Not named.
+  hipaa: Not named.
+  fedramp: Not named.

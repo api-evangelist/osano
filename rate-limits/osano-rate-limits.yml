@@ -1,0 +1,38 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://developers.osano.com/customer-rest-api (full Redoc reference and Introduction),
+  https://developers.osano.com/uc/core-api/openapi, https://www.osano.com/faq, and both published
+  OpenAPIs.
+limit_count: 0
+note: >-
+  Osano publishes NO numeric rate limits. Searched the Customer REST API reference, the Unified
+  Consent Core API reference, the developer-docs introduction/versioning/authentication sections and
+  the public FAQ: none states a requests-per-second/minute/hour figure, a burst allowance, a quota,
+  or a per-key/per-account scope. The only rate-limiting signal Osano publishes at all is the HTTP
+  status: 429 "Too Many Requests" is declared on exactly two operations (publishConfig and
+  createRules), returning the same untyped ErrorResponse envelope as every other error. No
+  RateLimit-*, X-RateLimit-* or Retry-After response header is documented anywhere, so an agent
+  cannot see how much budget it has left or how long to wait — it can only observe the failure after
+  the fact. The Introduction does say usage is bounded by contract rather than by a published
+  number: "You are bound by the Osano terms of service and limits placed by those terms."
+  Not probed live: every operation on both APIs requires an API key, so no anonymous response
+  headers are observable.
+limits: []
+exhaustion:
+  status_code: 429
+  body: application/json ErrorResponse with an optional message string
+  documented_on_operations:
+  - publishConfig  # POST /v1/cookie-consent/configs/{configId}/publish
+  - createRules    # POST /v1/cookie-consent/rules
+  retry_after_header: false
+response_headers:
+  documented: []
+  note: >-
+    None. Neither OpenAPI declares a response header on any operation, and the docs describe none.
+plan_quotas_are_not_api_limits:
+  note: >-
+    The self-service plans do publish product quotas (monthly visitors, users, domains — see
+    plans/osano-plans-pricing.yml) and the FAQ notes API access itself is tier-gated ("Open a ticket
+    with support to enable API access if you are on a tier that includes API access."), but those are
+    entitlements, not request-rate limits.

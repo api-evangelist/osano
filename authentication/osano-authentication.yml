@@ -1,0 +1,73 @@
+generated: '2026-08-26'
+method: searched
+source: openapi/osano-customer-rest-api-openapi.yml, openapi/osano-unified-consent-core-api-openapi.yml
+docs:
+- https://developers.osano.com/customer-rest-api/developer-api-doc
+- https://developers.osano.com/uc/core-api/openapi
+- https://my.osano.com/api-keys
+summary:
+  types:
+  - apiKey
+  api_key_in:
+  - header
+  oauth2: false
+  openid_connect: false
+  mutual_tls: false
+  http_basic: false
+  http_bearer: false
+note: >-
+  Both Osano APIs authenticate with a long-lived API key in a custom header. There is no OAuth 2.0,
+  no OpenID Connect, no bearer token and no mTLS on either surface, and no scopes of any kind — a key
+  carries whatever privileges its issuing user has, account-wide. The Unified Consent Core API is the
+  interesting case: it uses TWO different keys against the SAME host and the choice is
+  route-dependent rather than declared per-operation in the spec (the spec sets a blanket
+  `security: [{ ucApiKey: [] }]`), so an integrator must read the prose to know which key a route
+  wants. Getting a key is also not fully self-serve — Osano's FAQ says "Open a ticket with support to
+  enable API access if you are on a tier that includes API access."
+  Neither spec documents a 401 or 403 response on any operation.
+schemes:
+- name: ApiKeyAuth
+  type: apiKey
+  in: header
+  parameter: x-osano-api-key
+  display_name: Osano API key
+  issued_at: https://my.osano.com/api-keys
+  requires_privilege: >-
+    "You must be an admin or have the correct privileges to generate an API key."
+  applies_to:
+  - api: Osano Customer REST API
+    scope: All 43 operations.
+  - api: Osano Unified Consent Core API
+    scope: >-
+      "Routes that involve creating, updating, or merging subjects require the Osano API key."
+  expiry: >-
+    Keys are described as needing to be "valid, unexpired" — an expiry exists but no lifetime is
+    published.
+  sources:
+  - openapi/osano-customer-rest-api-openapi.yml
+  - openapi/osano-unified-consent-core-api-openapi.yml
+- name: ucApiKey
+  type: apiKey
+  in: header
+  parameter: x-uc-api-key
+  display_name: Unified Consent API key
+  description: Unified Consent API key
+  applies_to:
+  - api: Osano Unified Consent Core API
+    scope: >-
+      "All other routes require the Unified Consent API key" — i.e. everything except subject
+      create/update/merge.
+  browser_safe: >-
+    The UC JS SDK is documented as taking a `token` and `apiUrl` to "return a UnifiedConsentByOsano
+    Client with the ability to submit consents, but not manage subjects, which is suitable for use in
+    a browser environment" — so the UC key/token is the constrained credential by design.
+  sources:
+  - openapi/osano-unified-consent-core-api-openapi.yml
+example_verbatim:
+  customer_rest_api: "curl --header 'x-osano-api-key: myapikey' https://api.osano.com/v1/data-stores"
+  unified_consent: "curl --header 'x-uc-api-key: <API_KEY>' https://uc.api.osano.com/v2/consents/check/some-subject-id"
+scopes:
+  published: false
+  note: >-
+    No OAuth scopes and no API-key permission scopes are published. See scopes/ — no artifact was
+    written because there is nothing to derive.

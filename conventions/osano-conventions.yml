@@ -1,0 +1,185 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://developers.osano.com/customer-rest-api/developer-api-doc (Introduction, Versioning,
+  Authentication), https://developers.osano.com/uc/core-api/openapi (Introduction, Versioning,
+  Authentication, Submitting a consent), and both published OpenAPIs.
+authentication:
+  style: api-key-header
+  schemes:
+  - header: x-osano-api-key
+    name: Osano API key
+    scope: >-
+      Customer REST API (all operations) and the subject-mutating routes of the Unified Consent Core
+      API (create/update/merge subjects).
+    issued_at: https://my.osano.com/api-keys
+    requires: Admin or equivalent privilege on the Osano account.
+  - header: x-uc-api-key
+    name: Unified Consent API key
+    scope: All other Unified Consent Core API routes.
+  bearer_oauth: false
+  note: >-
+    No OAuth 2.0 and no OpenID Connect on either API. Osano's FAQ also states API access must be
+    enabled by support on qualifying tiers ("Open a ticket with support to enable API access if you
+    are on a tier that includes API access."), so a key is not purely self-serve.
+versioning:
+  style: uri-major-version
+  current:
+    customer_rest_api: v1
+    unified_consent_core_api: v2
+  policy_verbatim: >-
+    "All resources are versioned according to semantic versioning with the major version being
+    specified in the endpoints URI such as v1. All major versioning will maintain backwards
+    compatibility in that major version. Resources may add new minor versions that are not specified
+    in the URI. The minor versions will never break backward compatibility but may add new resources
+    or enhancements. The enhancements may include new data in the schema. We will never remove data
+    from a schema in the same major version. To prevent your scripts or applications from breaking
+    due to newly added data, do not error on unexpected data. We will make a best effort to notify
+    users when we release new major versions. We will deprecate the previous major version."
+  tolerant_reader_required: true
+pagination:
+  style: cursor
+  request_params:
+  - name: limit
+    in: query
+    default: 100
+    max: 500
+    note: Generic list parameter (limitParam). CMP configs allow max 1000; the CMP audit log defaults to 50 with max 200.
+  - name: next
+    in: query
+    note: >-
+      Opaque pagination token from the previous response. "Send it on its own to fetch the next page;
+      the original filters are encoded in the token."
+  - name: after
+    in: query
+    note: Present as a shared component parameter (afterParam) on some list operations.
+  response_fields:
+    note: >-
+      List responses wrap results and carry the forward token; there is no total count and no
+      Link header.
+  bidirectional: false
+filtering:
+  audit_log:
+    params: [startDate, endDate]
+    note: >-
+      startDate is inclusive ("Return events at or after this UTC ISO-8601 timestamp (inclusive)"),
+      endDate exclusive ("Return events strictly before this UTC ISO-8601 timestamp (exclusive)").
+      Filters are encoded into the `next` token, so they must not be re-sent when paging.
+field_expansion:
+  supported: false
+  note: No expand/fields/sparse-fieldset parameter in either spec.
+metadata:
+  supported: false
+  note: No customer-defined metadata object on any resource in either spec.
+request_id_tracing:
+  supported: unknown
+  note: >-
+    No request-id / correlation-id header is documented in either OpenAPI or on the developer docs.
+    Not observable anonymously because every operation requires a key.
+error_envelope:
+  media_type: application/json
+  shape: '{ "message": "..." } with additionalProperties true'
+  rfc9457: false
+  see: errors/osano-problem-types.yml
+rate_limit_signaling:
+  status_on_exhaustion: 429
+  headers_documented: []
+  retry_after: false
+  see: rate-limits/osano-rate-limits.yml
+  note: >-
+    429 "Too Many Requests" is declared on publishConfig and createRules only. No RateLimit-*,
+    X-RateLimit-* or Retry-After header is documented anywhere, so an agent has no runtime signal —
+    it can only observe the 429.
+idempotency:
+  supported: false
+  header: null
+  note: >-
+    Osano publishes NO idempotency key mechanism. Neither OpenAPI declares an Idempotency-Key (or
+    any equivalent) header, and the developer docs never mention idempotency. The nearest thing is
+    conflict-on-repeat semantics: sendSummaryNotification returns 409 "The summary notification has
+    already been sent for this request" and updateDsarActionItem returns 409 "Action item already
+    completed", which prevents those two specific double-fires but is not a general safe-retry
+    contract. POST /v1/subject-rights/requests (createDsars) and POST /v1/cookie-consent/configs
+    (createConfig) have no such guard: a retried request creates a second record.
+dry_run_mode:
+  supported: false
+  note: No preview/validate/dry-run parameter or endpoint in either spec.
+reversibility:
+  grade: documented
+  note: >-
+    Osano's write surface has real reversal paths and the spec names them plainly, but NO published
+    time window governs any of them, so this grades `documented` rather than `verified`. Do not infer
+    a window: none is stated anywhere in the OpenAPIs or on developers.osano.com. The consent surface
+    is the important asymmetry — a consent record, once submitted through POST /v2/consents, has no
+    delete or revoke operation in the public API at all; the documented way to change a subject's
+    position is to submit a NEW consent, and the prior record persists as the audit trail. That is
+    correct behaviour for a compliance system of record and an agent should treat consent writes as
+    append-only and irreversible.
+  surfaces:
+  - write_operation: createConfig
+    api: Osano Customer REST API
+    reversal: none
+    note: >-
+      No delete operation for a Cookie Consent Configuration exists in the spec. A created config
+      can be updated (updateConfig) but not removed via the API.
+  - write_operation: publishConfig
+    api: Osano Customer REST API
+    reversal: none
+    window: null
+    note: >-
+      Publishing a Cookie Consent Configuration is one-way in the API — there is no unpublish or
+      rollback operation. Re-publishing may return 409 Conflict.
+  - write_operation: createRules
+    api: Osano Customer REST API
+    reversal: deleteRule
+    reversal_path: DELETE /v1/cookie-consent/rules/{ruleId}
+    window: null
+    note: Full delete of a cookie consent rule. No stated window; 204 on success.
+  - write_operation: createDataStore
+    api: Osano Customer REST API
+    reversal: deleteDataStoreById
+    reversal_path: DELETE /v1/data-discovery/data-stores/{dataStoreId}
+    window: null
+    note: >-
+      Soft delete — the spec summary is "Deactivate a data store", so this deactivates rather than
+      destroys. No stated reactivation path or window.
+  - write_operation: updateDataStoreFields
+    api: Osano Customer REST API
+    reversal: deleteFieldById
+    reversal_path: DELETE /v1/data-discovery/data-stores/{dataStoreId}/fields/{fieldId}
+    window: null
+  - write_operation: createDsars
+    api: Osano Customer REST API
+    reversal: updateDsar
+    reversal_path: PATCH /v1/subject-rights/requests/{dsarId}
+    window: null
+    note: >-
+      A subject rights request cannot be deleted; it is state-transitioned (e.g. rejected/completed)
+      via PATCH. Regulatory records are retained by design.
+  - write_operation: sendSummaryNotification
+    api: Osano Customer REST API
+    reversal: none
+    window: null
+    note: >-
+      Irreversible — it packages a ZIP of the PDF summary and all associated files and delivers it to
+      the requestor. A second call returns 409. Treat as a one-shot send.
+  - write_operation: POST /v2/consents
+    api: Osano Unified Consent Core API
+    reversal: none
+    window: null
+    note: >-
+      Append-only. No delete/revoke/withdraw operation in the public spec; a change of mind is a new
+      consent record.
+  - write_operation: POST /v2/subjects/merge
+    api: Osano Unified Consent Core API
+    reversal: none
+    window: null
+    note: >-
+      Merging an anonymous subject into a verified one has no documented unmerge. Treat as
+      irreversible.
+cross_links:
+  errors: errors/osano-problem-types.yml
+  lifecycle: lifecycle/osano-lifecycle.yml
+  authentication: authentication/osano-authentication.yml
+  rate_limits: rate-limits/osano-rate-limits.yml
+  data_model: data-model/osano-data-model.yml

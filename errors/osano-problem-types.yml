@@ -1,0 +1,87 @@
+generated: '2026-08-26'
+method: derived
+source: >-
+  openapi/osano-customer-rest-api-openapi.yml and openapi/osano-unified-consent-core-api-openapi.yml
+  (4xx/5xx responses and the ErrorResponse schema), enriched with the operation descriptions that
+  state the conflict conditions.
+format: custom-json
+rfc9457: false
+note: >-
+  Osano does NOT use RFC 9457 problem+json. Every error on the Customer REST API is
+  application/json carrying the ErrorResponse schema — a single optional `message` string with
+  additionalProperties true, so the envelope is open-ended and untyped: there is no error code, no
+  machine-readable type URI and no field-level detail an agent can branch on. The Unified Consent
+  Core API is thinner still: only one documented failure shape (400), on two operations, with an
+  empty response body. There is no published error-code reference page on developers.osano.com.
+envelope:
+  media_type: application/json
+  schema: '#/components/schemas/ErrorResponse'
+  fields:
+  - name: message
+    type: string
+    required: false
+    note: Human-readable message. The only named field in the schema.
+  additional_properties: true
+  machine_readable_code: false
+problem_types:
+- status: 400
+  title: Bad Request
+  media_type: application/json
+  schema: ErrorResponse
+  occurrences: 41
+  api: Osano Customer REST API
+  remediation: >-
+    Validate the request body/query against the operation schema. The most common cause on this API
+    is a malformed filter or an out-of-range `limit` (max 200 on the audit log, 500 on the generic
+    list parameter, 1000 on CMP configs).
+- status: 404
+  title: Not Found
+  media_type: application/json
+  schema: ErrorResponse
+  occurrences: 26
+  api: Osano Customer REST API
+  remediation: >-
+    The addressed resource does not exist for the authenticated customer. On subject rights the spec
+    spells this out: "Not Found - The specified Subject Rights Request does not exist".
+- status: 409
+  title: Conflict
+  media_type: application/json
+  schema: ErrorResponse
+  occurrences: 4
+  api: Osano Customer REST API
+  conditions:
+  - operation: sendSummaryNotification
+    description: Conflict - The summary notification has already been sent for this request
+  - operation: updateDsarActionItem
+    description: Conflict - Action item already completed
+  - operation: publishConfig
+    description: Conflict
+  - operation: createRules
+    description: Conflict
+  remediation: >-
+    This is the natural idempotency signal on the write surface: re-sending a summary notification or
+    re-completing an action item is rejected rather than duplicated. Read current state before
+    retrying.
+- status: 429
+  title: Too Many Requests
+  media_type: application/json
+  schema: ErrorResponse
+  occurrences: 2
+  api: Osano Customer REST API
+  operations: [publishConfig, createRules]
+  remediation: >-
+    Back off and retry. The spec documents no Retry-After header and no RateLimit-* headers, and the
+    docs publish no numeric limit — see rate-limits/osano-rate-limits.yml.
+- status: 400
+  title: No consents found for the subject
+  media_type: none
+  occurrences: 2
+  api: Osano Unified Consent Core API
+  operations_paths: ['/v2/consents/unified/{subjectRef}', '/v2/consent-profiles/{hashedSubjectId}']
+  remediation: >-
+    The subject has no stored consent. Body is empty — the reason is only carried in the response
+    description, not in a payload.
+gaps:
+- No 401/403 response is documented on ANY operation of either API, although both require an API key.
+- No 500/503 response is documented anywhere.
+- No error code vocabulary, no error reference page, no Retry-After or RateLimit-* headers.

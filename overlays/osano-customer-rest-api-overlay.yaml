@@ -1,0 +1,62 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Osano Customer REST API
+  version: 1.0.0
+extends: ../openapi/osano-customer-rest-api-openapi.yml
+x-provenance:
+  generated: '2026-08-26'
+  method: generated
+  source: >-
+    Authored by API Evangelist against the provider's own published spec
+    (https://developers.osano.com/redocusaurus/customer-rest-api.yaml, retrieved 2026-08-26, HTTP
+    200). Adds contact/licence/terms metadata, external documentation, and machine-readable safety
+    annotations for the irreversible operations. The original spec is never mutated.
+actions:
+- target: $.info
+  description: Add contact and terms metadata the published spec omits.
+  update:
+    contact:
+      name: Osano Support
+      url: https://docs.osano.com/en-US/osano/directories
+    termsOfService: https://osano.trusthub.com/terms
+    x-status-page: https://status.osano.com/
+    x-api-reference: https://developers.osano.com/customer-rest-api
+- target: $
+  description: Attach external documentation to the root document.
+  update:
+    externalDocs:
+      description: Osano developer documentation
+      url: https://developers.osano.com/
+- target: $.paths['/v1/cookie-consent/configs/{configId}/publish'].post
+  description: >-
+    Flag publish as irreversible — there is no unpublish or rollback operation in this API and it
+    changes what live site visitors see.
+  update:
+    x-reversible: false
+    x-reversal-operation: null
+    x-agent-confirmation-required: true
+- target: $.paths['/v1/subject-rights/requests/{requestId}/summary-notification'].post
+  description: >-
+    Flag summary notification as a one-shot external send to a data subject. A second call returns
+    409 Conflict.
+  update:
+    x-reversible: false
+    x-reversal-operation: null
+    x-agent-confirmation-required: true
+    x-side-effect: Delivers a ZIP archive containing a PDF summary and all associated files to the requestor.
+- target: $.paths['/v1/subject-rights/requests'].post
+  description: >-
+    Flag DSAR creation as non-idempotent — the API publishes no idempotency key, so a retry creates a
+    second regulatory record.
+  update:
+    x-idempotent: false
+    x-agent-retry-safe: false
+- target: $.paths['/v1/data-discovery/data-stores/{dataStoreId}'].delete
+  description: Record that this is a soft delete (deactivation), per the operation summary.
+  update:
+    x-delete-semantics: soft
+- target: $.components.schemas.ErrorResponse
+  description: Record that this envelope is not RFC 9457 and carries no machine-readable code.
+  update:
+    x-rfc9457: false
+    x-error-code-field: null

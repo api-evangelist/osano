@@ -1,0 +1,29 @@
+generated: '2026-08-26'
+method: generated
+source: >-
+  Authored by API Evangelist from openapi/osano-customer-rest-api-openapi.yml and
+  openapi/osano-unified-consent-core-api-openapi.yml. Every operationId referenced in the Customer
+  REST API skills was grepped out of the spec; the Unified Consent spec publishes no operationIds,
+  so those skills address operations by verbatim method+path. No operation is invented.
+searched_for_provider_skills:
+  result: none
+  detail: >-
+    developers.osano.com publishes no AGENTS.md, no /skills directory and no agent-facing guidance.
+    Its sitemap (91 non-integration pages) was enumerated in full. Osano's llms.txt is a site map
+    for readers, not a tool contract.
+skills:
+- name: osano-handle-subject-rights-request
+  file: skills/osano-handle-subject-rights-request.md
+  api: Osano Customer REST API
+  operations: [getDsars, getDsar, getDsarActionItems, getDsarActionItem, addDsarSummary, updateDsarActionItem, getRequestSummaries, postRequestActivityLog, updateDsar]
+  danger_flagged: [sendSummaryNotification]
+- name: osano-manage-cookie-consent-configuration
+  file: skills/osano-manage-cookie-consent-configuration.md
+  api: Osano Customer REST API
+  operations: [getConfigs, getConfig, createConfig, updateConfig, publishConfig, getRules, createRules, updateRule, deleteRule, getTattles, getAuditLog]
+  danger_flagged: [publishConfig]
+- name: osano-submit-and-check-unified-consent
+  file: skills/osano-submit-and-check-unified-consent.md
+  api: Osano Unified Consent Core API
+  operations_by_path: true
+  danger_flagged: ['POST /v2/subjects/merge', 'POST /v2/subjects/send-code', 'POST /v2/consents']

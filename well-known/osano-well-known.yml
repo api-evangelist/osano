@@ -1,0 +1,114 @@
+generated: '2026-08-26'
+method: probed
+source: >-
+  Live unauthenticated GET of each /.well-known/ path against every Osano host named in apis.yml and
+  in the servers[] blocks of both published OpenAPIs, plus bots.osano.com, which the OsanoBot / Web
+  Bot Auth documentation (https://developers.osano.com/web-bot-auth/) names as the key directory host.
+note: >-
+  The five conventional discovery documents (security.txt, openid-configuration,
+  oauth-authorization-server, api-catalog, ai-plugin.json) 404 on every Osano host. Osano does serve
+  ONE real well-known document: an RFC 9421 / Web Bot Auth HTTP Message Signatures directory at
+  bots.osano.com, publishing the Ed25519 public key OsanoBot signs its crawler requests with. Osano's
+  own docs state it deliberately does NOT publish an IP allowlist, using cryptographic verification
+  instead. The 404 bodies on www.osano.com and developers.osano.com are genuine 404 status codes, not
+  SPA soft-200s.
+hosts:
+- host: bots.osano.com
+  documents:
+  - path: /.well-known/http-message-signatures-directory
+    status: 200
+    content_type: application/http-message-signatures-directory+json
+    file: well-known/osano-http-message-signatures-directory.json
+    standard: RFC 9421 HTTP Message Signatures (Web Bot Auth)
+    note: >-
+      One Ed25519 (OKP/crv Ed25519) signing key, use "sig". The RFC 7638 thumbprint of each key is
+      its keyid. OsanoBot also sends Signature-Agent "https://bots.osano.com".
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+- host: www.osano.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: api.osano.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: uc.api.osano.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: developers.osano.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: docs.osano.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+agent_card:
+  found: false
+  note: >-
+    No A2A Agent Card. /.well-known/agent-card.json and the legacy /.well-known/agent.json returned
+    404 on all six hosts probed. No card was authored on Osano's behalf.

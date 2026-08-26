@@ -1,0 +1,129 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  registry.npmjs.org metadata endpoints, github.com/osano repository + tag listings via api.github.com,
+  the Osano CocoaPods spec repository (github.com/osano/cocoapods-specs), and the Osano developer docs
+  install pages (developers.osano.com/cmp/mobile-sdks/*, /uc/js-sdk/).
+note: >-
+  Osano distributes client SDKs across five channels and only two of them are on a public registry.
+  The React Native CMP SDK is on npm under the @osano scope and is current (0.18.6, 2026-08-21). The
+  iOS SDK ships through Osano's OWN CocoaPods spec repo rather than the CocoaPods trunk — trunk
+  returns "No pod found with the specified name" for OsanoConsentManagerSDK — and the Android SDK
+  ships from a private Maven at libraries.osano.com/android, absent from Maven Central. Neither has a
+  queryable public registry metadata endpoint, so versions below are read from the provider's own
+  published spec/install pages and dated from the spec-repo commit. The Unified Consent JS SDK is
+  documented as an npm import (@osano/unified-consent-js-sdk) but returns "Not found" on the public
+  npm registry, so a developer reading the docs cannot install it from npm without further access.
+packages:
+- name: '@osano/osano-cmp-react-native'
+  registry: npm
+  url: https://www.npmjs.com/package/@osano/osano-cmp-react-native
+  official: true
+  language: JavaScript/TypeScript
+  product: Cookie Consent (CMP) — React Native
+  version: 0.18.6
+  published: '2026-08-21'
+  release_count: 26
+  maintainers: [arlogilbert, osanoinc, schristophe, ef_osano, asoucarosano]
+  note: Package and example for the react-native Osano CMP SDK. Still pre-1.0 after 26 releases.
+- name: cookieconsent
+  registry: npm
+  url: https://www.npmjs.com/package/cookieconsent
+  repository: https://github.com/osano/cookieconsent
+  official: true
+  language: JavaScript
+  product: Cookie Consent (open-source banner library)
+  version: 3.1.1
+  published: '2019-05-23'
+  maintainers: [arlogilbert, ef_osano, schristophe, osanoinc]
+  note: >-
+    Osano's open-source cookie consent library (3,568 GitHub stars). The npm release is seven years
+    old (3.1.1, 2019-05-23) even though the repository still receives commits (last push
+    2026-08-11) — a first-party package whose registry release long predates both the repo and the
+    commercial CMP it shares a name with. Not the same product as the hosted Osano CMP.
+- name: OsanoConsentManagerSDK
+  registry: cocoapods
+  url: https://github.com/osano/cocoapods-specs
+  official: true
+  language: Swift
+  product: Cookie Consent (CMP) — iOS
+  version: 3.6.14
+  published: '2026-08-20'
+  note: >-
+    Distributed from Osano's own CocoaPods spec repository, NOT the CocoaPods trunk
+    (trunk.cocoapods.org/api/v1/pods/OsanoConsentManagerSDK returns "No pod found with the specified
+    name"), so there is no public registry metadata endpoint. Version is the highest directory in
+    the spec repo; `published` is the commit date of that podspec. 39 versions published, 1.0.0
+    through 3.6.14. Changelog: developers.osano.com/cmp/mobile-sdks/ios/changelog dates 3.6.14 to
+    2026-08-18.
+- name: com.osano.android:consent-manager-sdk
+  registry: maven
+  url: https://libraries.osano.com/android
+  official: true
+  language: Kotlin/Java
+  product: Cookie Consent (CMP) — Android
+  version: 4.3.15
+  published: '2026-08-11'
+  note: >-
+    Served from Osano's own Maven repository at https://libraries.osano.com/android, not Maven
+    Central — a Maven Central search for "osano" returns only third-party webjars mirrors of the
+    open-source cookieconsent library. No public registry metadata endpoint, so the version is read
+    from the provider changelog (developers.osano.com/cmp/mobile-sdks/android/changelog, 4.3.15 on
+    2026-08-11); the install page pins the older 4.3.14. Requires Android API 23+, API 26+ for IAB
+    TCF 2.2.
+- name: '@osano/unified-consent-js-sdk'
+  registry: npm
+  url: https://developers.osano.com/uc/js-sdk/
+  official: true
+  language: JavaScript/TypeScript
+  product: Unified Consent — browser/Node JS SDK
+  version: null
+  published: null
+  note: >-
+    Documented in the Unified Consent JS SDK guide as `import { UnifiedConsentByOsanoSDK } from
+    '@osano/unified-consent-js-sdk'`, but registry.npmjs.org returns "Not found" for the package
+    (checked 2026-08-26). Checked, nothing to record — the package is not resolvable on the public
+    npm registry, so the documented install path does not work for an anonymous consumer.
+- name: unified-consent-spm
+  registry: swift-package-manager
+  url: https://github.com/osano/unified-consent-spm
+  official: true
+  language: Swift
+  product: Unified Consent — iOS (Swift Package Manager)
+  version: 1.0.0
+  published: '2025-05-01'
+  note: >-
+    Single tag (1.0.0); repository last pushed 2025-05-01. No registry metadata endpoint — SPM
+    resolves from the git tag directly.
+- name: gtm-template
+  registry: github
+  url: https://github.com/osano/gtm-template
+  official: true
+  language: Smarty
+  product: Osano Consent Manager Google Tag Manager Template
+  version: null
+  published: '2025-03-31'
+  note: >-
+    Distributed as a GTM community template / repository, not a package registry. No tagged releases,
+    so version is null; `published` is the last repository push date.
+- name: cookieconsent-wpplugin
+  registry: github
+  url: https://github.com/osano/cookieconsent-wpplugin
+  official: true
+  language: PHP
+  product: Cookie Consent WordPress plugin
+  version: null
+  published: '2021-07-12'
+  note: >-
+    Not published on the WordPress.org plugin directory under this repo; no tagged releases, so
+    version is null. Last repository push 2021-07-12 — five years stale.
+absent:
+  pypi: No first-party Osano package found on PyPI.
+  rubygems: No first-party Osano gem found on RubyGems.
+  nuget: No first-party Osano package found on NuGet.
+  crates: No first-party Osano crate found on crates.io.
+  go: No first-party Osano module found on pkg.go.dev / proxy.golang.org.
+  maven_central: >-
+    Absent. The only Maven Central hits for "osano" are org.webjars.npm
+    github-com-osano-cookieconsent (3.1.1) and org.webjars.bowergithub.osano cookieconsent (3.1.0),
+    both third-party mirrors of the open-source library, not Osano-published artifacts.

@@ -1,0 +1,85 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://developers.osano.com/cmp/mobile-sdks/ios/changelog and
+  https://developers.osano.com/cmp/mobile-sdks/android/changelog
+scheme: semver
+note: >-
+  Osano publishes dated changelogs for its client SDKs but NOT for its REST APIs. There is no
+  changelog for the Customer REST API (v1) or the Unified Consent Core API (v2) anywhere on
+  developers.osano.com, so an integrator has no record of what changed in the API surface. What
+  follows is the recent window of the two most actively released SDKs; the entries are quoted from
+  the provider's own changelog pages. Both lines ship monthly and track each other feature-for-
+  feature (jurisdiction getter, server-configured dialog layout, property-driven DNS opt-out land in
+  both within weeks), which is a genuine maintenance signal.
+components:
+- name: Osano CMP iOS SDK
+  url: https://developers.osano.com/cmp/mobile-sdks/ios/changelog
+  current_version: 3.6.14
+  current_date: '2026-08-18'
+  entries:
+  - version: 3.6.14
+    date: '2026-08-18'
+    breaking: false
+    highlights: DNS opt-out is now driven by property configuration, matching the web CMP.
+  - version: 3.6.13
+    date: '2026-08-07'
+    breaking: false
+    highlights: Fixes variant-specific timeout configuration for timer-based consent dialog variants.
+  - version: 3.6.12
+    date: '2026-07-29'
+    breaking: false
+    highlights: Adds support for server-configured consent dialog layout with default category states.
+  - version: 3.6.11
+    date: '2026-07-23'
+    breaking: false
+    highlights: Adds a debug-only consent expiration testing mode to ConsentManager, letting you shorten how long stored consent stays valid.
+  - version: 3.6.10
+    date: '2026-06-29'
+    breaking: false
+    highlights: Adds a public jurisdiction getter to ConsentManager so you can read the visitor's effective jurisdiction.
+  - version: 3.6.9
+    date: '2026-06-04'
+    breaking: false
+    highlights: Makes swipe-to-dismiss on the bottom sheet consent dialog behave like the close/X button.
+  - version: 3.6.8
+    date: '2026-05-01'
+    breaking: false
+    highlights: Fixed configuration caching to validate the most recent server configuration via headers.
+  - version: 3.6.7
+    date: '2026-04-23'
+    breaking: false
+    highlights: Fixed an issue where the internal translation variable was initialized to an empty string.
+  - version: 3.6.6
+    date: '2026-03-27'
+    breaking: false
+    highlights: Fixed the handling of the languageCode property initializer to correctly fallback to the default device language.
+  - version: 3.6.5
+    date: '2026-02-25'
+    breaking: false
+    highlights: Centralizes all translation keys, improves translation reliability for mobile apps.
+- name: Osano CMP Android SDK
+  url: https://developers.osano.com/cmp/mobile-sdks/android/changelog
+  current_version: 4.3.15
+  current_date: '2026-08-11'
+  entries:
+  - version: 4.3.15
+    date: '2026-08-11'
+    breaking: false
+    highlights: Do Not Sell (DNS) opt-out is now driven by property configuration instead of the visitor's region, matching the web.
+  - version: 4.3.14
+    date: '2026-08-06'
+    breaking: false
+    highlights: Fix defaulted dialog flash when sdk is retrieving variant config.
+  - version: 4.3.13
+    date: '2026-07-29'
+    breaking: false
+    highlights: Adds SDK support for a new server-configured consent dialog layout, including its associated default category states.
+  - version: 4.3.12
+    date: '2026-06-26'
+    breaking: false
+    highlights: Adds a public jurisdiction getter so you can read the visitor's effective jurisdiction as a single composite value, matching the web SDK's Osano.cm.jurisdiction.
+  - version: 4.3.11
+    date: '2026-06-18'
+    breaking: false
+    highlights: The consent banner now shows the correct layout variant, region, and country for the property after switching between properties.

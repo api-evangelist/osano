@@ -1,0 +1,164 @@
+generated: '2026-08-26'
+method: derived
+source: >-
+  openapi/osano-customer-rest-api-openapi.yml and openapi/osano-unified-consent-core-api-openapi.yml
+  (paths, schemas and field descriptions), plus
+  https://developers.osano.com/customer-rest-api/developer-api-doc,
+  https://developers.osano.com/web-bot-auth/, https://developers.osano.com/cmp/mobile-sdks/android/installation,
+  https://www.osano.com/hubfs/llms.txt and https://www.osano.com/faq.
+note: >-
+  Osano's market is data privacy compliance, and the domain standards for that market are visible in
+  the CONTRACT rather than only on the marketing pages: a dedicated Global Privacy Control consent
+  endpoint, a gpcSupport switch on the CMP configuration schema, and an IAB TCF interoperability
+  constraint written into a field description. Recorded here with the exact spec locations. Osano is
+  NOT an OAuth/OIDC provider and does not implement RFC 9457, JSON:API, OData, SCIM or FAPI, and it
+  is not penalised for standards its market does not use.
+conformance:
+- id: gpc
+  name: Global Privacy Control
+  conforms: true
+  domain_standard: true
+  evidence:
+  - spec: openapi/osano-unified-consent-core-api-openapi.yml
+    location: paths./v2/consents/gpc.post
+    detail: >-
+      Dedicated endpoint "Create and insert a gpc consent". The consent request body carries
+      `origin?: 'api' | 'gpc'` — "If submitting a GPC consent, use 'gpc', otherwise use 'api'" — so
+      the GPC signal is a first-class, distinguishable provenance value on every stored consent, not
+      an inference.
+  - spec: openapi/osano-customer-rest-api-openapi.yml
+    location: components.schemas.CmpConfig ... gpcSupport
+    detail: >-
+      "When set to `true`, the Global Privacy Control (GPC) signal is honored." Documented at
+      https://docs.osano.com/global-privacy-controls-gpc. The banner/widget palette additionally
+      exposes dedicated GPC opt-out indicator styling (dialogGpcBackgroundColor, gpcBorderColor and
+      siblings), i.e. GPC has its own rendered UI state.
+- id: iab-tcf
+  name: IAB Transparency & Consent Framework (TCF) 2.x / 2.2
+  conforms: partial
+  domain_standard: true
+  evidence:
+  - spec: openapi/osano-customer-rest-api-openapi.yml
+    location: components.schemas.CmpConfig (Microsoft UET field description)
+    detail: >-
+      "Please note that this signal is incompatible with the use of IAB TCF 2.x consent signals." —
+      the contract states an interoperability constraint against TCF 2.x, which only makes sense
+      because the CMP emits TCF signals.
+  - spec: openapi/osano-customer-rest-api-openapi.yml
+    location: paths./v1/cookie-consent/audit-log.get parameter changeType
+    detail: >-
+      `iab` is one of five enumerated audit-log change types (text_customization, style, iab,
+      setting, rule) — IAB configuration is a tracked, auditable dimension of a CMP configuration.
+  - docs: https://developers.osano.com/cmp/mobile-sdks/android/installation
+    detail: >-
+      "The SDK requires Android API 23 or higher, with API 26+ needed for IAB TCF 2.2 support."
+  note: >-
+    Marked `partial` deliberately: the public REST contract references TCF but exposes no TCF vendor
+    list, purpose, or TC-string field, so conformance is asserted by the CMP runtime rather than
+    demonstrable from the published spec.
+- id: google-consent-mode-v2
+  name: Google Consent Mode v2
+  conforms: true
+  domain_standard: true
+  evidence:
+  - spec: openapi/osano-customer-rest-api-openapi.yml
+    location: components.schemas.CmpConfig
+    detail: 'CMP configuration links Google Consent Mode documentation at https://docs.osano.com/google-consent.'
+  - docs: https://www.osano.com/hubfs/llms.txt
+    detail: >-
+      "Osano is a Google-certified consent management platform (CMP) with support for Google Consent
+      Mode v2."
+  - docs: https://developers.osano.com/cmp/mobile-sdks/ios/google-consent-mode
+    detail: Per-platform Google Consent Mode pages published for iOS, Android and React Native.
+- id: rfc9421-web-bot-auth
+  name: RFC 9421 HTTP Message Signatures (Web Bot Auth)
+  conforms: true
+  domain_standard: false
+  evidence:
+  - probe: https://bots.osano.com/.well-known/http-message-signatures-directory
+    status: 200
+    detail: >-
+      Serves a signed Ed25519 key directory (content-type
+      application/http-message-signatures-directory+json). OsanoBot signs its crawler requests per
+      RFC 9421 and sends Signature-Agent "https://bots.osano.com"; each key's RFC 7638 thumbprint is
+      its keyid. Osano's docs state it deliberately publishes no IP allowlist.
+    saved: well-known/osano-http-message-signatures-directory.json
+- id: iso-3166
+  name: ISO 3166-1 / ISO 3166-2 country and region codes
+  conforms: true
+  domain_standard: false
+  evidence:
+  - spec: openapi/osano-unified-consent-core-api-openapi.yml
+    location: paths./v2/consents/gpc.post parameters
+    detail: >-
+      x-country-code-override takes a "Valid ISO 3166-1 country code"; x-region-code-override takes a
+      "Valid ISO 3166-2 region code".
+- id: iso-8601
+  name: ISO 8601 / RFC 3339 timestamps
+  conforms: true
+  evidence:
+  - spec: openapi/osano-customer-rest-api-openapi.yml
+    location: paths./v1/cookie-consent/audit-log.get parameters startDate/endDate
+    detail: 'format: date-time; "Return events at or after this UTC ISO-8601 timestamp (inclusive)".'
+- id: semver
+  name: Semantic Versioning
+  conforms: true
+  evidence:
+  - docs: https://developers.osano.com/customer-rest-api/developer-api-doc
+    detail: >-
+      "All resources are versioned according to semantic versioning with the major version being
+      specified in the endpoints URI such as v1."
+- id: openapi
+  name: OpenAPI 3.0.3
+  conforms: true
+  evidence:
+  - spec: openapi/osano-customer-rest-api-openapi.yml
+    detail: 'openapi: 3.0.3, 29 paths / 43 operations, every operation has an operationId.'
+  - spec: openapi/osano-unified-consent-core-api-openapi.yml
+    detail: 'openapi: 3.0.3, 20 paths / 20 operations. NO operationIds and no tags — see the overlay.'
+- id: rfc9457
+  name: RFC 9457 Problem Details for HTTP APIs
+  conforms: false
+  evidence:
+  - spec: openapi/osano-customer-rest-api-openapi.yml
+    location: components.schemas.ErrorResponse
+    detail: >-
+      Errors are application/json with an untyped `{ message }` envelope, not application/problem+json.
+- id: oauth2
+  name: OAuth 2.0
+  conforms: false
+  evidence:
+  - detail: >-
+      Neither OpenAPI declares an oauth2 securityScheme; both APIs are API-key-in-header only
+      (x-osano-api-key, x-uc-api-key). /.well-known/oauth-authorization-server 404s on every host.
+- id: oidc
+  name: OpenID Connect
+  conforms: false
+  evidence:
+  - detail: >-
+      /.well-known/openid-configuration returns 404 on www.osano.com, api.osano.com,
+      uc.api.osano.com, developers.osano.com and docs.osano.com. Note this is about the API surface —
+      Osano separately documents consumer SSO for the DSAR/UC portals
+      (developers.osano.com/uc/consumer-sso/, /subject-rights/consumerSSO).
+- id: pagination
+  name: Cursor pagination
+  conforms: true
+  evidence:
+  - spec: openapi/osano-customer-rest-api-openapi.yml
+    location: components.parameters.limitParam / nextTokenParam / afterParam
+    detail: 'Opaque `next` token plus `limit`; filters are encoded in the token.'
+- id: idempotency
+  name: Idempotency keys
+  conforms: false
+  evidence:
+  - detail: >-
+      No Idempotency-Key header or equivalent in either spec or in the docs. Only two operations
+      guard against repeat via 409 Conflict. See conventions/osano-conventions.yml.
+compliance_programs:
+  note: >-
+    Osano's own compliance posture (as a vendor), distinct from the regulations its product helps
+    customers meet. See security/osano-trust-center.yml.
+  regulations_supported_by_product:
+  - GDPR
+  - CPRA / CCPA
+  - 'US state privacy laws (95+ laws across 50+ countries per Osano''s own llms.txt)'

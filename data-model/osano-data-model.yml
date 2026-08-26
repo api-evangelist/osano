@@ -1,0 +1,220 @@
+generated: '2026-08-26'
+method: derived
+source: >-
+  openapi/osano-customer-rest-api-openapi.yml (47 component schemas, $ref graph and id-reference
+  fields) and openapi/osano-unified-consent-core-api-openapi.yml (23 schemas, path parameters).
+note: >-
+  Derived strictly from the two published specs. Relationships are read from explicit id-reference
+  fields (dsarId, dsarActionItemId, connectorId, configId, ruleId, dataStoreId, fieldId, orgIds)
+  and from path nesting. The Unified Consent Core API's schemas are anonymous (`def-0` … `def-22`
+  from a Fastify/TypeBox generator), so its entities are named here from the paths and the request
+  body documentation rather than from schema titles — that is stated, not silently smoothed over.
+domains:
+- name: Cookie Consent (CMP)
+  api: Osano Customer REST API
+  entities: [CmpConfig, CmpRule, CmpDiscovery, CmpAuditEvent]
+- name: Subject Rights (DSAR)
+  api: Osano Customer REST API
+  entities: [Dsar, RequestType, DsarActionItem, DsarSummary, PortalMessage, ActivityLogEntry]
+- name: Data Discovery / Data Mapping
+  api: Osano Customer REST API
+  entities: [DataStore, DataStoreField, DataStoreLabel, Connector]
+- name: Customer Insights
+  api: Osano Customer REST API
+  entities: [CustomerInsights]
+- name: Unified Consent
+  api: Osano Unified Consent Core API
+  entities: [Subject, SubjectProfile, Consent, ConsentProfile, Collection, PrivacyProtocol, UcConfig, Session, UcToken]
+entities:
+- name: CmpConfig
+  api: Osano Customer REST API
+  identifier: configId
+  operations: [getConfigs, createConfig, getConfig, updateConfig, publishConfig]
+  key_fields: [name, mode, domains, orgIds, configuration]
+  note: >-
+    The `configuration` object is the CMP's whole surface — consent model, jurisdiction behaviour,
+    gpcSupport, Google Consent Mode, Microsoft UET, iframe/script blocking, and the full colour
+    palette for banner/drawer/DNS dialogs. It is also the id in the CMP script URL
+    (cmp.osano.com/{configId}/osano.js).
+- name: CmpRule
+  api: Osano Customer REST API
+  identifier: ruleId
+  operations: [getRules, createRules, updateRule, deleteRule]
+  key_fields: [title, rule, ruleType, classification, disclosure, vendorName]
+- name: CmpDiscovery
+  api: Osano Customer REST API
+  operations: [getTattles]
+  note: Cookies/scripts Osano observed on the customer's site for a given configuration.
+- name: CmpAuditEvent
+  api: Osano Customer REST API
+  operations: [getAuditLog]
+  key_fields: [eventTypes, 'metadata.changeType', actor, timestamp]
+  note: 'changeType enum: text_customization, style, iab, setting, rule.'
+- name: Dsar
+  api: Osano Customer REST API
+  identifier: dsarId
+  operations: [getDsars, createDsars, getDsar, updateDsar, updateIdentityFile]
+  key_fields: [dsarDetails, requestType, status, due, created, formId, requestSource, notifyEmail, rejectionReasonCode]
+  pii: true
+  note: 'dsarDetails carries direct identifiers: email, given-name, family-name, phone-number.'
+- name: RequestType
+  api: Osano Customer REST API
+  operations: [getRequestTypes]
+  key_fields: [requestType, requestTypeCategory, applicableLaws]
+  note: applicableLaws links a request type to the ApplicableLaw / Jurisdiction vocabulary.
+- name: DsarActionItem
+  api: Osano Customer REST API
+  identifier: dsarActionItemId
+  operations: [getDsarActionItems, getDsarActionItem, updateDsarActionItem, postActionItemActivityLog]
+  key_fields: [dsarId, actionItemType, assignees, dataStore, task, status, requestStatus, completionType, due]
+- name: DsarSummary
+  api: Osano Customer REST API
+  identifier: dsarSummaryId
+  operations: [getRequestSummaries, getDsarSummariesByActionItem, addDsarSummary, updateDsarSummary]
+  key_fields: [dsarId, dataStore, task, fileName, fileType, manual, created]
+- name: PortalMessage
+  api: Osano Customer REST API
+  identifier: messageId
+  operations: [getPortalMessages, postPortalMessage, patchPortalMessage]
+  key_fields: [content]
+- name: DataStore
+  api: Osano Customer REST API
+  identifier: dataStoreId
+  operations: [getDataStores, createDataStore, getDataStoreById, updateDataStoreById, deleteDataStoreById]
+  key_fields: [name, alias, description, connectorId, owners]
+- name: DataStoreField
+  api: Osano Customer REST API
+  identifier: fieldId
+  operations: [getDataStoreFields, updateDataStoreFields, updateFieldById, deleteFieldById]
+  key_fields: [name, path, classification]
+- name: Connector
+  api: Osano Customer REST API
+  identifier: connectorId
+  operations: [getConnectors]
+  key_fields: [productName, authType]
+- name: Subject
+  api: Osano Unified Consent Core API
+  identifier: subjectRef / subjectId / hashedSubjectId
+  operations_paths:
+  - GET /v2/subjects/{subjectRef}
+  - POST /v2/subjects/merge
+  - GET /v2/subjects/{id}/profile
+  - POST /v2/subjects/profile
+  pii: true
+  note: >-
+    Addressed three ways — a subject reference, a raw subject id, and a hashed subject id for the
+    consent-profile lookup, which is how a browser can read a profile without transmitting the raw
+    identifier.
+- name: Consent
+  api: Osano Unified Consent Core API
+  operations_paths:
+  - POST /v2/consents
+  - POST /v2/consents/gpc
+  - GET /v2/consents/check/{subjectId}
+  - GET /v2/consents/unified/{subjectRef}
+  key_fields: [collections, tags, attributes, origin, jurisdiction]
+  note: >-
+    origin is 'api' | 'gpc'. attributes auto-populates ipAddress and userAgent (values passed for
+    those keys are overwritten). Append-only — no delete/revoke operation exists.
+- name: Collection
+  api: Osano Unified Consent Core API
+  identifier: collectionId
+  operations_paths: [GET /v2/collections, 'GET /v2/collections/{collectionId}']
+  note: A collection of privacy protocols, resolved per configId and jurisdiction.
+- name: UcConfig
+  api: Osano Unified Consent Core API
+  operations_paths: [GET /v2/config]
+- name: Session
+  api: Osano Unified Consent Core API
+  identifier: sessionId
+  operations_paths: ['GET /v2/sessions/{sessionId}']
+relationships:
+- from: CmpConfig
+  to: CmpRule
+  type: has_many
+  via: configId (GET /v1/cookie-consent/configs/{configId}/rules)
+- from: CmpConfig
+  to: CmpDiscovery
+  type: has_many
+  via: configId (GET /v1/cookie-consent/configs/{configId}/discoveries)
+- from: Dsar
+  to: DsarActionItem
+  type: has_many
+  via: dsarId
+- from: DsarActionItem
+  to: Dsar
+  type: belongs_to
+  via: dsarId
+- from: Dsar
+  to: DsarSummary
+  type: has_many
+  via: 'dsarId / requestId (GET /v1/subject-rights/requests/{requestId}/summaries)'
+- from: DsarActionItem
+  to: DsarSummary
+  type: has_many
+  via: 'actionItemId (GET /v1/subject-rights/action-items/{actionItemId}/summaries)'
+- from: Dsar
+  to: PortalMessage
+  type: has_many
+  via: 'requestId (GET /v1/subject-rights/requests/{requestId}/portal-messages)'
+- from: Dsar
+  to: ActivityLogEntry
+  type: has_many
+  via: 'requestId (POST /v1/subject-rights/requests/{requestId}/activity-log)'
+- from: DsarActionItem
+  to: ActivityLogEntry
+  type: has_many
+  via: 'actionItemId (POST /v1/subject-rights/action-items/{actionItemId}/activity-log)'
+- from: Dsar
+  to: RequestType
+  type: has_one
+  via: requestType
+- from: RequestType
+  to: ApplicableLaw
+  type: has_many
+  via: applicableLaws
+- from: DataStore
+  to: DataStoreField
+  type: has_many
+  via: 'dataStoreId (GET /v1/data-discovery/data-stores/{dataStoreId}/fields)'
+- from: DataStore
+  to: Connector
+  type: belongs_to
+  via: connectorId
+- from: DataStore
+  to: DataStoreLabel
+  type: has_many
+  via: labels
+- from: DsarActionItem
+  to: DataStore
+  type: has_one
+  via: dataStore
+- from: Subject
+  to: Consent
+  type: has_many
+  via: 'subjectRef (GET /v2/consents/unified/{subjectRef})'
+- from: Subject
+  to: SubjectProfile
+  type: has_one
+  via: 'id (GET /v2/subjects/{id}/profile)'
+- from: Subject
+  to: ConsentProfile
+  type: has_one
+  via: 'hashedSubjectId (GET /v2/consent-profiles/{hashedSubjectId})'
+- from: Consent
+  to: Collection
+  type: has_many
+  via: collections
+- from: Collection
+  to: PrivacyProtocol
+  type: has_many
+  via: collectionId
+- from: UcConfig
+  to: Collection
+  type: has_many
+  via: configId
+id_prefixes:
+  note: >-
+    No id-prefix convention is documented and none is visible in the specs — identifiers are opaque
+    and untyped (no `dsar_` / `cfg_` style prefixes). An agent cannot tell an entity type from an id
+    alone.

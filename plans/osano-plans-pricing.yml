@@ -1,0 +1,64 @@
+generated: '2026-08-26'
+method: searched
+source: https://www.osano.com/plans/cookie-consent
+also_probed:
+- url: https://www.osano.com/plans
+  status: 200
+  note: Landing page; routes self-service buyers to /plans/cookie-consent and everyone else to a demo request.
+plan_count: 3
+currency: USD
+billing_period: monthly
+note: >-
+  Osano publishes public self-service pricing for Cookie Consent only. The other four products
+  (Subject Rights, Data Mapping, Assessments, Vendor Privacy Risk Management) are sales-gated —
+  the plans page routes to "consult with an Osano expert"/demo request rather than a price. Quotas
+  are stated as included allowances; NO overage rate is published for any tier, so what happens past
+  5,000 or 30,000 monthly visitors is not disclosed. API access is separately gated: the FAQ says
+  "Open a ticket with support to enable API access if you are on a tier that includes API access."
+plans:
+- name: Free
+  price: 0
+  currency: USD
+  period: month
+  limits:
+    users: 1
+    domains: 1
+    monthly_visitors: 5000
+  overage: null
+  note: Consent management for individuals and solo founders.
+- name: Plus
+  price: 199
+  currency: USD
+  period: month
+  limits:
+    users: 2
+    domains: 3
+    monthly_visitors: 30000
+  overage: null
+  includes:
+  - Everything in Free
+  - Privacy and Legal Templates
+  - UK and GDPR Representative
+- name: Basic Privacy
+  price: null
+  price_model: contact-sales
+  currency: USD
+  period: null
+  limits:
+    users: unlimited
+    domains: unlimited
+    monthly_visitors: null
+  overage: null
+  includes:
+  - Everything in Plus
+  - Compliance Check
+  - Basic Subject Rights
+  - 'No Fines Guarantee (up to $500,000 coverage)'
+  - Guided Onboarding & Support
+  note: Marked "Popular" on the pricing page. No published price.
+enterprise:
+  available: true
+  price_model: contact-sales
+  note: >-
+    Subject Rights, Data Mapping and Assessments are sold through a demo/consultation flow with no
+    published price.

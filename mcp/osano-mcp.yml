@@ -1,0 +1,153 @@
+generated: '2026-08-26'
+method: derived
+status: candidate
+source: >-
+  Derived from openapi/osano-customer-rest-api-openapi.yml after searching for a first-party Osano
+  MCP server and finding none.
+search_evidence:
+- query: Osano MCP server model context protocol
+  result: No Osano-published MCP server found on osano.com, developers.osano.com, docs.osano.com, github.com/osano or the public MCP directories.
+- url: https://developers.osano.com/sitemap.xml
+  status: 200
+  detail: >-
+    Full developer-docs sitemap enumerated (91 non-integration pages). No MCP, agent, or tool-calling
+    page exists. The only agent-adjacent surface Osano publishes is OsanoBot / Web Bot Auth
+    (developers.osano.com/web-bot-auth/), which is Osano's own outbound crawler identity, not an
+    inbound agent interface.
+- url: https://www.osano.com/hubfs/llms.txt
+  status: 200
+  detail: Osano's own llms.txt lists no MCP endpoint under Documentation & Developers.
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: unknown
+  verified: searched
+note: >-
+  Nobody ships an Osano MCP server — not hosted, not stdio. What follows is a CANDIDATE tool list
+  derived from real operationIds in the published Customer REST API, so it describes what an MCP
+  server WOULD expose if Osano (or anyone) built one. It is not a callable surface and no endpoint
+  URL has been invented. Every tool below inherits its input schema from the named operation's
+  parameters and requestBody in openapi/osano-customer-rest-api-openapi.yml.
+candidate_tools:
+- name: list_cookie_consent_configs
+  operation: getConfigs
+  method_path: GET /v1/cookie-consent/configs
+  category: cookie-consent
+  read_only: true
+- name: get_cookie_consent_config
+  operation: getConfig
+  method_path: GET /v1/cookie-consent/configs/{configId}
+  category: cookie-consent
+  read_only: true
+- name: update_cookie_consent_config
+  operation: updateConfig
+  method_path: PATCH /v1/cookie-consent/configs/{configId}
+  category: cookie-consent
+  read_only: false
+- name: publish_cookie_consent_config
+  operation: publishConfig
+  method_path: POST /v1/cookie-consent/configs/{configId}/publish
+  category: cookie-consent
+  read_only: false
+  danger: >-
+    Irreversible in the API — no unpublish operation exists. Changes what live visitors see.
+- name: query_cookie_consent_audit_log
+  operation: getAuditLog
+  method_path: GET /v1/cookie-consent/audit-log
+  category: cookie-consent
+  read_only: true
+- name: list_config_discoveries
+  operation: getTattles
+  method_path: GET /v1/cookie-consent/configs/{configId}/discoveries
+  category: cookie-consent
+  read_only: true
+- name: list_config_rules
+  operation: getRules
+  method_path: GET /v1/cookie-consent/configs/{configId}/rules
+  category: cookie-consent
+  read_only: true
+- name: create_cookie_consent_rules
+  operation: createRules
+  method_path: POST /v1/cookie-consent/rules
+  category: cookie-consent
+  read_only: false
+- name: delete_cookie_consent_rule
+  operation: deleteRule
+  method_path: DELETE /v1/cookie-consent/rules/{ruleId}
+  category: cookie-consent
+  read_only: false
+- name: list_subject_rights_requests
+  operation: getDsars
+  method_path: GET /v1/subject-rights/requests
+  category: subject-rights
+  read_only: true
+  pii: true
+- name: get_subject_rights_request
+  operation: getDsar
+  method_path: GET /v1/subject-rights/requests/{dsarId}
+  category: subject-rights
+  read_only: true
+  pii: true
+- name: create_subject_rights_requests
+  operation: createDsars
+  method_path: POST /v1/subject-rights/requests
+  category: subject-rights
+  read_only: false
+  pii: true
+  danger: No idempotency key — a retry creates a duplicate regulatory record.
+- name: update_subject_rights_request
+  operation: updateDsar
+  method_path: PATCH /v1/subject-rights/requests/{dsarId}
+  category: subject-rights
+  read_only: false
+- name: list_subject_rights_action_items
+  operation: getDsarActionItems
+  method_path: GET /v1/subject-rights/action-items
+  category: subject-rights
+  read_only: true
+- name: update_subject_rights_action_item
+  operation: updateDsarActionItem
+  method_path: PATCH /v1/subject-rights/action-items/{actionItemId}
+  category: subject-rights
+  read_only: false
+- name: send_summary_notification
+  operation: sendSummaryNotification
+  method_path: POST /v1/subject-rights/requests/{requestId}/summary-notification
+  category: subject-rights
+  read_only: false
+  danger: >-
+    One-shot and irreversible — delivers a ZIP of the PDF summary and all associated files to the
+    data subject. A second call returns 409.
+- name: list_data_stores
+  operation: getDataStores
+  method_path: GET /v1/data-discovery/data-stores
+  category: data-discovery
+  read_only: true
+- name: create_data_store
+  operation: createDataStore
+  method_path: POST /v1/data-discovery/data-stores
+  category: data-discovery
+  read_only: false
+- name: get_data_store_fields
+  operation: getDataStoreFields
+  method_path: GET /v1/data-discovery/data-stores/{dataStoreId}/fields
+  category: data-discovery
+  read_only: true
+- name: list_connectors
+  operation: getConnectors
+  method_path: GET /v1/data-discovery/connectors
+  category: data-discovery
+  read_only: true
+- name: get_customer_insights
+  operation: getCustomerInsights
+  method_path: GET /v1/customer-insights
+  category: compliance
+  read_only: true
+auth_for_candidate:
+  scheme: apiKey
+  header: x-osano-api-key
+  note: >-
+    Any server built on this would carry a single account-wide key with no scopes — every tool above
+    would run with full account privilege, including the two irreversible ones.

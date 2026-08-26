@@ -1,0 +1,126 @@
+generated: '2026-08-26'
+method: searched
+source: >-
+  https://developers.osano.com/cmp/javascript-api/developer-documentation-consent-javascript-api,
+  https://developers.osano.com/cmp/, https://developers.osano.com/uc/js-sdk/embedded/,
+  https://developers.osano.com/consent-prompts/, https://developers.osano.com/cmp/mobile-sdks/ and
+  https://github.com/osano/gtm-template
+note: >-
+  Osano's primary consumer surface is not the REST API — it is a hosted, drop-in browser component.
+  A single script tag from cmp.osano.com renders the jurisdiction-aware consent banner, drawer and
+  Do-Not-Sell dialog, blocks scripts/cookies/iframes/images/localStorage before consent, and exposes
+  a documented function/property/event API on window.Osano.cm. This is distinct from the SDKs in
+  packages/: these are rendered UI surfaces, not client libraries.
+families:
+- name: Cookie Consent CMP (web)
+  loader:
+    type: script-tag
+    pattern: '<script src="https://cmp.osano.com/{configId}/osano.js"></script>'
+    host: cmp.osano.com
+    versioned: false
+    note: >-
+      The path segment is the customer's configuration id, taken from the Osano app; the docs show
+      the shape but not a literal example id. The URL carries no version — the served bundle floats,
+      so a site cannot pin a CMP version. Osano.cm.cmpVersion reports what actually loaded.
+  surfaces:
+  - Consent banner / dialog
+  - Preferences drawer
+  - Do Not Sell (DNS) dialog
+  - Opt-out widget
+  - GPC opt-out indicator
+  api:
+    namespace: Osano.cm
+    functions:
+    - addEventListener
+    - emit          # deprecated
+    - getConsent
+    - hideDialog
+    - hideDoNotSell
+    - hideDrawer
+    - hideWidget
+    - hideOptOutWidget
+    - 'off'
+    - 'on'
+    - ready
+    - render
+    - removeEventListener
+    - showDialog
+    - showDoNotSell
+    - showDrawer
+    - showWidget
+    - showOptOutWidget
+    properties:
+    - analytics
+    - cmpVersion
+    - consentModel
+    - countryCode   # deprecated
+    - drawerOpen
+    - dialogOpen
+    - gdprApplies
+    - jurisdiction
+    - locale
+    - marketing
+    - mode
+    - optOut
+    - personalization
+    - revision
+    - storage       # deprecated
+    - userData
+    events:
+    - osano-cm-analytics
+    - osano-cm-cookie-blocked
+    - osano-cm-consent-changed
+    - osano-cm-consent-new
+    - osano-cm-consent-saved
+    - osano-cm-iframe-blocked
+    - osano-cm-image-blocked
+    - osano-cm-initialized
+    - osano-cm-locale-updated
+    - osano-cm-localstorage-blocked
+    - osano-cm-marketing
+    - osano-cm-opt-out
+    - osano-cm-personalization
+    - osano-cm-script-blocked
+    - osano-cm-storage
+    - osano-cm-ui-changed
+    note: >-
+      This browser event surface is Osano's richest real-time signal and it has NO server-side
+      equivalent: osano-cm-script-blocked / -cookie-blocked / -iframe-blocked / -image-blocked /
+      -localstorage-blocked fire only in the page. Anything wanting them must run in the browser.
+  styling:
+    note: >-
+      Fully themeable from the Customer REST API — CmpConfig exposes a `palette` object of banner,
+      drawer and DNS dialog colors (including dedicated GPC indicator colors) plus dialogType
+      (bar and other layouts), so the rendered component is configurable programmatically.
+    operations: [getConfig, updateConfig, publishConfig]
+- name: Unified Consent embedded JS SDK
+  docs: https://developers.osano.com/uc/js-sdk/embedded/
+  loader:
+    type: npm
+    package: '@osano/unified-consent-js-sdk'
+    note: >-
+      Documented import path; not resolvable on the public npm registry (see
+      packages/osano-packages.yml). Client created with UnifiedConsentByOsanoSDK.createClient({
+      token, apiUrl }) against https://uc.api.osano.com.
+  surfaces:
+  - Embedded preference center
+  - Consent collection form
+  - Tag-manager integrations (developers.osano.com/uc/js-sdk/tag-managers/)
+- name: Consent Prompts
+  docs: https://developers.osano.com/consent-prompts/
+  surfaces:
+  - In-flow consent prompt component
+  api_docs: https://developers.osano.com/consent-prompts/api
+  events_docs: https://developers.osano.com/consent-prompts/events
+- name: Mobile consent UI
+  docs: https://developers.osano.com/cmp/mobile-sdks/
+  surfaces:
+  - iOS consent dialog / bottom sheet (OsanoConsentManagerSDK)
+  - Android consent banner (com.osano.android:consent-manager-sdk)
+  - React Native consent dialog (@osano/osano-cmp-react-native)
+  - WebView wrapper (developers.osano.com/cmp/mobile-sdks/ios/webview-wrapper)
+- name: Tag manager template
+  docs: https://github.com/osano/gtm-template
+  surfaces:
+  - Osano Consent Manager Google Tag Manager community template
+  note: Also a Segment wrapper — developers.osano.com/cmp/javascript-api/developer-documentation-segment — and AMP support.

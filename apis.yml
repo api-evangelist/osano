@@ -1,23 +1,194 @@
 aid: osano
 name: Osano
-description: 'Osano is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: >-
+  Osano is a data privacy platform, founded in 2018 and headquartered in Austin, Texas, that helps
+  organizations build and run privacy programs across consent management, subject rights (DSAR)
+  automation, data mapping and discovery, privacy assessments, and vendor privacy risk management.
+  It is a certified B Corporation and Public Benefit Corporation, and backs the platform with a "No
+  Fines. No Penalties." guarantee covering GDPR, CPRA/CCPA and 95+ global privacy laws. Developers
+  reach the platform through two public REST APIs — the Osano Customer REST API (api.osano.com) for
+  cookie consent configurations, rules, audit logs, subject rights requests, action items and data
+  discovery, and the Unified Consent Core API (uc.api.osano.com) for collecting, checking and
+  merging consent for subjects across cookie and non-cookie touchpoints — plus a browser CMP
+  JavaScript API, iOS/Android/React Native SDKs, a Unified Consent JS SDK, and outbound webhooks.
+  Osano also operates OsanoBot, a compliance scanning crawler that authenticates itself with Web Bot
+  Auth (RFC 9421 HTTP Message Signatures) and publishes its Ed25519 key directory publicly.
 url: https://raw.githubusercontent.com/api-evangelist/osano/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-08-26'
 modified: '2026-08-26'
+image: https://avatars.githubusercontent.com/u/40547146?v=4
 tags:
 - Company
-apis: []
+- Data Privacy
+- Consent Management
+- Compliance
+- GDPR
+- CCPA
+- Cookie Consent
+- Subject Rights
+- Data Mapping
+- Vendor Risk
+- Privacy Assessments
+- Governance Risk Compliance
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+apis:
+- name: Osano Customer REST API
+  description: >-
+    REST API for the Osano platform covering Cookie Consent configurations, rules, discoveries and
+    audit log; Subject Rights requests, request types, action items, summaries, portal messages and
+    activity logs; Data Discovery data stores, fields, labels and connectors; and a customer
+    insights/compliance endpoint. Authenticated with an Osano API key in the x-osano-api-key header.
+  humanURL: https://developers.osano.com/customer-rest-api
+  baseURL: https://api.osano.com
+  tags:
+  - Consent Management
+  - Cookie Consent
+  - Subject Rights
+  - Data Mapping
+  - Compliance
+  properties:
+  - type: OpenAPI
+    url: openapi/osano-customer-rest-api-openapi.yml
+  - type: Documentation
+    url: https://developers.osano.com/customer-rest-api/developer-api-doc
+  - type: APIReference
+    url: https://developers.osano.com/customer-rest-api
+  - type: Authentication
+    url: authentication/osano-authentication.yml
+  - type: ErrorCatalog
+    url: errors/osano-problem-types.yml
+  - type: DataModel
+    url: data-model/osano-data-model.yml
+  - type: Conventions
+    url: conventions/osano-conventions.yml
+  - type: Overlay
+    url: overlays/osano-customer-rest-api-overlay.yaml
+- name: Osano Unified Consent Core API
+  description: >-
+    REST API for the Osano Unified Consent platform — submit and check consents, retrieve unified
+    consent and consent profiles for a subject, list privacy protocol collections, create and verify
+    subject profiles by email or SMS, merge anonymous and verified subjects, mint UC tokens and read
+    sessions. Regionally distributed (us-east-1 for US traffic, eu-central-1 for everything else).
+    Authenticated with a Unified Consent API key (x-uc-api-key) or an Osano API key
+    (x-osano-api-key) for subject-mutating routes.
+  humanURL: https://developers.osano.com/uc/core-api/openapi
+  baseURL: https://uc.api.osano.com
+  tags:
+  - Consent Management
+  - Unified Consent
+  - Preference Management
+  - Global Privacy Control
+  properties:
+  - type: OpenAPI
+    url: openapi/osano-unified-consent-core-api-openapi.yml
+  - type: Documentation
+    url: https://developers.osano.com/uc/
+  - type: APIReference
+    url: https://developers.osano.com/uc/core-api/openapi
+  - type: SDK
+    url: https://developers.osano.com/uc/js-sdk/
+  - type: Overlay
+    url: overlays/osano-unified-consent-core-api-overlay.yaml
+- name: Osano CMP JavaScript API
+  description: >-
+    Browser-side JavaScript API for the Osano Consent Management Platform, loaded from
+    cmp.osano.com. Exposes functions (showDialog, showDrawer, getConsent, ready, addEventListener),
+    properties (consentModel, jurisdiction, gdprApplies, userData) and a documented event surface
+    (osano-cm-consent-saved, osano-cm-script-blocked, osano-cm-initialized and others) so sites can
+    react to a visitor's consent status.
+  humanURL: https://developers.osano.com/cmp/javascript-api/developer-documentation-consent-javascript-api
+  baseURL: https://cmp.osano.com
+  tags:
+  - Cookie Consent
+  - Consent Management
+  - JavaScript
+  properties:
+  - type: Documentation
+    url: https://developers.osano.com/cmp/javascript-api/developer-documentation-consent-javascript-api
+  - type: Components
+    url: components/osano-components.yml
 common:
+- type: DomainSecurity
+  url: security/osano-domain-security.yml
 - type: Website
-  url: https://www.nasdaqprivatemarket.com/
+  url: https://www.osano.com/
+- type: DeveloperPortal
+  url: https://developers.osano.com/
+- type: Documentation
+  url: https://developers.osano.com/
+- type: APIReference
+  url: https://developers.osano.com/customer-rest-api
+- type: GettingStarted
+  url: https://developers.osano.com/customer-rest-api/developer-api-doc
+- type: Support
+  url: https://docs.osano.com/en-US/osano/directories
+- type: HelpCenter
+  url: https://docs.osano.com/en-US/osano/directories
+- type: Blog
+  url: https://www.osano.com/articles
+- type: GitHubOrganization
+  url: https://github.com/osano
+- type: Pricing
+  url: https://www.osano.com/plans
+- type: SignUp
+  url: https://my.osano.com/
+- type: TermsOfService
+  url: https://osano.trusthub.com/terms
+- type: PrivacyPolicy
+  url: https://osano.trusthub.com/privacy
+- type: StatusPage
+  url: https://status.osano.com/
+- type: TrustCenter
+  url: https://trust.osano.com/
+- type: Packages
+  url: packages/osano-packages.yml
+- type: SDKs
+  url: packages/osano-packages.yml
+- type: WellKnown
+  url: well-known/osano-well-known.yml
+- type: LLMsTxt
+  url: llms/osano-llms.txt
+- type: Conformance
+  url: conformance/osano-conformance.yml
+- type: Compliance
+  url: security/osano-trust-center.yml
+- type: ErrorCatalog
+  url: errors/osano-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/osano-lifecycle.yml
+- type: Deprecation
+  url: lifecycle/osano-lifecycle.yml
+- type: Authentication
+  url: authentication/osano-authentication.yml
+- type: Conventions
+  url: conventions/osano-conventions.yml
+- type: ChangeLog
+  url: changelog/osano-changelog.yml
+- type: Components
+  url: components/osano-components.yml
+- type: DataModel
+  url: data-model/osano-data-model.yml
+- type: Webhooks
+  url: asyncapi/osano-webhooks.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: Plans
+  url: plans/osano-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/osano-rate-limits.yml
+- type: SLA
+  url: https://osano.trusthub.com/sls
+- type: Subprocessors
+  url: https://osano.trusthub.com/subprocessors
+x-enrichment:
+  date: '2026-08-26'
+  status: enriched
+  artifacts_added: 29
+  pass: local-v1
