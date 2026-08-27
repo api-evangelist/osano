@@ -39,23 +39,35 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 apis:
-- name: Osano Customer REST API
+- name: Osano CMP JavaScript API
   description: >-
-    REST API for the Osano platform covering Cookie Consent configurations, rules, discoveries and
-    audit log; Subject Rights requests, request types, action items, summaries, portal messages and
-    activity logs; Data Discovery data stores, fields, labels and connectors; and a customer
-    insights/compliance endpoint. Authenticated with an Osano API key in the x-osano-api-key header.
+    Browser-side JavaScript API for the Osano Consent Management Platform, loaded from cmp.osano.com.
+    Exposes functions (showDialog, showDrawer, getConsent, ready, addEventListener), properties (consentModel,
+    jurisdiction, gdprApplies, userData) and a documented event surface (osano-cm-consent-saved, osano-cm-script-blocked,
+    osano-cm-initialized and others) so sites can react to a visitor's consent status.
+  humanURL: >-
+    https://developers.osano.com/cmp/javascript-api/developer-documentation-consent-javascript-api
+  baseURL: https://cmp.osano.com
+  tags:
+  - Cookie Consent
+  - Consent Management
+  - JavaScript
+  properties:
+  - type: Documentation
+    url: >-
+      https://developers.osano.com/cmp/javascript-api/developer-documentation-consent-javascript-api
+  - type: Components
+    url: components/osano-components.yml
+- aid: osano:osano-cmp-api
+  name: Osano Cmp API
+  description: The cmp API from Osano — 6 operation(s) for cmp.
   humanURL: https://developers.osano.com/customer-rest-api
   baseURL: https://api.osano.com
   tags:
-  - Consent Management
-  - Cookie Consent
-  - Subject Rights
-  - Data Mapping
-  - Compliance
+  - cmp
   properties:
   - type: OpenAPI
-    url: openapi/osano-customer-rest-api-openapi.yml
+    url: openapi/osano-cmp-api-openapi.yml
   - type: Documentation
     url: https://developers.osano.com/customer-rest-api/developer-api-doc
   - type: APIReference
@@ -68,53 +80,438 @@ apis:
     url: data-model/osano-data-model.yml
   - type: Conventions
     url: conventions/osano-conventions.yml
-  - type: Overlay
-    url: overlays/osano-customer-rest-api-overlay.yaml
-- name: Osano Unified Consent Core API
-  description: >-
-    REST API for the Osano Unified Consent platform — submit and check consents, retrieve unified
-    consent and consent profiles for a subject, list privacy protocol collections, create and verify
-    subject profiles by email or SMS, merge anonymous and verified subjects, mint UC tokens and read
-    sessions. Regionally distributed (us-east-1 for US traffic, eu-central-1 for everything else).
-    Authenticated with a Unified Consent API key (x-uc-api-key) or an Osano API key
-    (x-osano-api-key) for subject-mutating routes.
-  humanURL: https://developers.osano.com/uc/core-api/openapi
-  baseURL: https://uc.api.osano.com
-  tags:
-  - Consent Management
-  - Unified Consent
-  - Preference Management
-  - Global Privacy Control
-  properties:
-  - type: OpenAPI
-    url: openapi/osano-unified-consent-core-api-openapi.yml
   - type: Documentation
     url: https://developers.osano.com/uc/
   - type: APIReference
     url: https://developers.osano.com/uc/core-api/openapi
   - type: SDK
     url: https://developers.osano.com/uc/js-sdk/
-  - type: Overlay
-    url: overlays/osano-unified-consent-core-api-overlay.yaml
-- name: Osano CMP JavaScript API
-  description: >-
-    Browser-side JavaScript API for the Osano Consent Management Platform, loaded from
-    cmp.osano.com. Exposes functions (showDialog, showDrawer, getConsent, ready, addEventListener),
-    properties (consentModel, jurisdiction, gdprApplies, userData) and a documented event surface
-    (osano-cm-consent-saved, osano-cm-script-blocked, osano-cm-initialized and others) so sites can
-    react to a visitor's consent status.
-  humanURL: https://developers.osano.com/cmp/javascript-api/developer-documentation-consent-javascript-api
-  baseURL: https://cmp.osano.com
+- aid: osano:osano-cmprules-api
+  name: Osano Cmp Rules API
+  description: The cmpRules API from Osano — 2 operation(s) for cmprules.
+  humanURL: https://developers.osano.com/customer-rest-api
+  baseURL: https://api.osano.com
   tags:
-  - Cookie Consent
-  - Consent Management
-  - JavaScript
+  - cmpRules
   properties:
+  - type: OpenAPI
+    url: openapi/osano-cmprules-api-openapi.yml
   - type: Documentation
-    url: https://developers.osano.com/cmp/javascript-api/developer-documentation-consent-javascript-api
-  - type: Components
-    url: components/osano-components.yml
+    url: https://developers.osano.com/customer-rest-api/developer-api-doc
+  - type: APIReference
+    url: https://developers.osano.com/customer-rest-api
+  - type: Authentication
+    url: authentication/osano-authentication.yml
+  - type: ErrorCatalog
+    url: errors/osano-problem-types.yml
+  - type: DataModel
+    url: data-model/osano-data-model.yml
+  - type: Conventions
+    url: conventions/osano-conventions.yml
+  - type: Documentation
+    url: https://developers.osano.com/uc/
+  - type: APIReference
+    url: https://developers.osano.com/uc/core-api/openapi
+  - type: SDK
+    url: https://developers.osano.com/uc/js-sdk/
+- aid: osano:osano-collections-api
+  name: Osano Collections API
+  description: The Collections API from Osano — 2 operation(s) for collections.
+  humanURL: https://developers.osano.com/customer-rest-api
+  baseURL: https://api.osano.com
+  tags:
+  - Collections
+  properties:
+  - type: OpenAPI
+    url: openapi/osano-collections-api-openapi.yml
+  - type: Documentation
+    url: https://developers.osano.com/customer-rest-api/developer-api-doc
+  - type: APIReference
+    url: https://developers.osano.com/customer-rest-api
+  - type: Authentication
+    url: authentication/osano-authentication.yml
+  - type: ErrorCatalog
+    url: errors/osano-problem-types.yml
+  - type: DataModel
+    url: data-model/osano-data-model.yml
+  - type: Conventions
+    url: conventions/osano-conventions.yml
+  - type: Documentation
+    url: https://developers.osano.com/uc/
+  - type: APIReference
+    url: https://developers.osano.com/uc/core-api/openapi
+  - type: SDK
+    url: https://developers.osano.com/uc/js-sdk/
+- aid: osano:osano-config-api
+  name: Osano Config API
+  description: The Config API from Osano — 1 operation(s) for config.
+  humanURL: https://developers.osano.com/customer-rest-api
+  baseURL: https://api.osano.com
+  tags:
+  - Config
+  properties:
+  - type: OpenAPI
+    url: openapi/osano-config-api-openapi.yml
+  - type: Documentation
+    url: https://developers.osano.com/customer-rest-api/developer-api-doc
+  - type: APIReference
+    url: https://developers.osano.com/customer-rest-api
+  - type: Authentication
+    url: authentication/osano-authentication.yml
+  - type: ErrorCatalog
+    url: errors/osano-problem-types.yml
+  - type: DataModel
+    url: data-model/osano-data-model.yml
+  - type: Conventions
+    url: conventions/osano-conventions.yml
+  - type: Documentation
+    url: https://developers.osano.com/uc/
+  - type: APIReference
+    url: https://developers.osano.com/uc/core-api/openapi
+  - type: SDK
+    url: https://developers.osano.com/uc/js-sdk/
+- aid: osano:osano-connectors-api
+  name: Osano Connectors API
+  description: The connectors API from Osano — 1 operation(s) for connectors.
+  humanURL: https://developers.osano.com/customer-rest-api
+  baseURL: https://api.osano.com
+  tags:
+  - connectors
+  properties:
+  - type: OpenAPI
+    url: openapi/osano-connectors-api-openapi.yml
+  - type: Documentation
+    url: https://developers.osano.com/customer-rest-api/developer-api-doc
+  - type: APIReference
+    url: https://developers.osano.com/customer-rest-api
+  - type: Authentication
+    url: authentication/osano-authentication.yml
+  - type: ErrorCatalog
+    url: errors/osano-problem-types.yml
+  - type: DataModel
+    url: data-model/osano-data-model.yml
+  - type: Conventions
+    url: conventions/osano-conventions.yml
+  - type: Documentation
+    url: https://developers.osano.com/uc/
+  - type: APIReference
+    url: https://developers.osano.com/uc/core-api/openapi
+  - type: SDK
+    url: https://developers.osano.com/uc/js-sdk/
+- aid: osano:osano-consent-profiles-api
+  name: Osano Consent Profiles API
+  description: The Consent Profiles API from Osano — 1 operation(s) for consent profiles.
+  humanURL: https://developers.osano.com/customer-rest-api
+  baseURL: https://api.osano.com
+  tags:
+  - Consent Profiles
+  properties:
+  - type: OpenAPI
+    url: openapi/osano-consent-profiles-api-openapi.yml
+  - type: Documentation
+    url: https://developers.osano.com/customer-rest-api/developer-api-doc
+  - type: APIReference
+    url: https://developers.osano.com/customer-rest-api
+  - type: Authentication
+    url: authentication/osano-authentication.yml
+  - type: ErrorCatalog
+    url: errors/osano-problem-types.yml
+  - type: DataModel
+    url: data-model/osano-data-model.yml
+  - type: Conventions
+    url: conventions/osano-conventions.yml
+  - type: Documentation
+    url: https://developers.osano.com/uc/
+  - type: APIReference
+    url: https://developers.osano.com/uc/core-api/openapi
+  - type: SDK
+    url: https://developers.osano.com/uc/js-sdk/
+- aid: osano:osano-consents-api
+  name: Osano Consents API
+  description: The Consents API from Osano — 4 operation(s) for consents.
+  humanURL: https://developers.osano.com/customer-rest-api
+  baseURL: https://api.osano.com
+  tags:
+  - Consents
+  properties:
+  - type: OpenAPI
+    url: openapi/osano-consents-api-openapi.yml
+  - type: Documentation
+    url: https://developers.osano.com/customer-rest-api/developer-api-doc
+  - type: APIReference
+    url: https://developers.osano.com/customer-rest-api
+  - type: Authentication
+    url: authentication/osano-authentication.yml
+  - type: ErrorCatalog
+    url: errors/osano-problem-types.yml
+  - type: DataModel
+    url: data-model/osano-data-model.yml
+  - type: Conventions
+    url: conventions/osano-conventions.yml
+  - type: Documentation
+    url: https://developers.osano.com/uc/
+  - type: APIReference
+    url: https://developers.osano.com/uc/core-api/openapi
+  - type: SDK
+    url: https://developers.osano.com/uc/js-sdk/
+- aid: osano:osano-customerinsights-api
+  name: Osano Customer Insights API
+  description: The customerInsights API from Osano — 1 operation(s) for customerinsights.
+  humanURL: https://developers.osano.com/customer-rest-api
+  baseURL: https://api.osano.com
+  tags:
+  - customerInsights
+  properties:
+  - type: OpenAPI
+    url: openapi/osano-customerinsights-api-openapi.yml
+  - type: Documentation
+    url: https://developers.osano.com/customer-rest-api/developer-api-doc
+  - type: APIReference
+    url: https://developers.osano.com/customer-rest-api
+  - type: Authentication
+    url: authentication/osano-authentication.yml
+  - type: ErrorCatalog
+    url: errors/osano-problem-types.yml
+  - type: DataModel
+    url: data-model/osano-data-model.yml
+  - type: Conventions
+    url: conventions/osano-conventions.yml
+  - type: Documentation
+    url: https://developers.osano.com/uc/
+  - type: APIReference
+    url: https://developers.osano.com/uc/core-api/openapi
+  - type: SDK
+    url: https://developers.osano.com/uc/js-sdk/
+- aid: osano:osano-datadiscovery-api
+  name: Osano Data Discovery API
+  description: Discover and manage data stores and personal data fields
+  humanURL: https://developers.osano.com/customer-rest-api
+  baseURL: https://api.osano.com
+  tags:
+  - dataDiscovery
+  properties:
+  - type: OpenAPI
+    url: openapi/osano-datadiscovery-api-openapi.yml
+  - type: Documentation
+    url: https://developers.osano.com/customer-rest-api/developer-api-doc
+  - type: APIReference
+    url: https://developers.osano.com/customer-rest-api
+  - type: Authentication
+    url: authentication/osano-authentication.yml
+  - type: ErrorCatalog
+    url: errors/osano-problem-types.yml
+  - type: DataModel
+    url: data-model/osano-data-model.yml
+  - type: Conventions
+    url: conventions/osano-conventions.yml
+  - type: Documentation
+    url: https://developers.osano.com/uc/
+  - type: APIReference
+    url: https://developers.osano.com/uc/core-api/openapi
+  - type: SDK
+    url: https://developers.osano.com/uc/js-sdk/
+- aid: osano:osano-dsar-api
+  name: Osano Dsar API
+  description: Manage subject rights requests and data subject access requests
+  humanURL: https://developers.osano.com/customer-rest-api
+  baseURL: https://api.osano.com
+  tags:
+  - dsar
+  properties:
+  - type: OpenAPI
+    url: openapi/osano-dsar-api-openapi.yml
+  - type: Documentation
+    url: https://developers.osano.com/customer-rest-api/developer-api-doc
+  - type: APIReference
+    url: https://developers.osano.com/customer-rest-api
+  - type: Authentication
+    url: authentication/osano-authentication.yml
+  - type: ErrorCatalog
+    url: errors/osano-problem-types.yml
+  - type: DataModel
+    url: data-model/osano-data-model.yml
+  - type: Conventions
+    url: conventions/osano-conventions.yml
+  - type: Documentation
+    url: https://developers.osano.com/uc/
+  - type: APIReference
+    url: https://developers.osano.com/uc/core-api/openapi
+  - type: SDK
+    url: https://developers.osano.com/uc/js-sdk/
+- aid: osano:osano-dsaractionitems-api
+  name: Osano Dsar Action Items API
+  description: Manage action items for subject rights requests
+  humanURL: https://developers.osano.com/customer-rest-api
+  baseURL: https://api.osano.com
+  tags:
+  - dsarActionItems
+  properties:
+  - type: OpenAPI
+    url: openapi/osano-dsaractionitems-api-openapi.yml
+  - type: Documentation
+    url: https://developers.osano.com/customer-rest-api/developer-api-doc
+  - type: APIReference
+    url: https://developers.osano.com/customer-rest-api
+  - type: Authentication
+    url: authentication/osano-authentication.yml
+  - type: ErrorCatalog
+    url: errors/osano-problem-types.yml
+  - type: DataModel
+    url: data-model/osano-data-model.yml
+  - type: Conventions
+    url: conventions/osano-conventions.yml
+  - type: Documentation
+    url: https://developers.osano.com/uc/
+  - type: APIReference
+    url: https://developers.osano.com/uc/core-api/openapi
+  - type: SDK
+    url: https://developers.osano.com/uc/js-sdk/
+- aid: osano:osano-sessions-api
+  name: Osano Sessions API
+  description: The Sessions API from Osano — 1 operation(s) for sessions.
+  humanURL: https://developers.osano.com/customer-rest-api
+  baseURL: https://api.osano.com
+  tags:
+  - Sessions
+  properties:
+  - type: OpenAPI
+    url: openapi/osano-sessions-api-openapi.yml
+  - type: Documentation
+    url: https://developers.osano.com/customer-rest-api/developer-api-doc
+  - type: APIReference
+    url: https://developers.osano.com/customer-rest-api
+  - type: Authentication
+    url: authentication/osano-authentication.yml
+  - type: ErrorCatalog
+    url: errors/osano-problem-types.yml
+  - type: DataModel
+    url: data-model/osano-data-model.yml
+  - type: Conventions
+    url: conventions/osano-conventions.yml
+  - type: Documentation
+    url: https://developers.osano.com/uc/
+  - type: APIReference
+    url: https://developers.osano.com/uc/core-api/openapi
+  - type: SDK
+    url: https://developers.osano.com/uc/js-sdk/
+- aid: osano:osano-subjectrightsportal-api
+  name: Osano Subject Rights Portal API
+  description: The subjectRightsPortal API from Osano — 2 operation(s) for subjectrightsportal.
+  humanURL: https://developers.osano.com/customer-rest-api
+  baseURL: https://api.osano.com
+  tags:
+  - subjectRightsPortal
+  properties:
+  - type: OpenAPI
+    url: openapi/osano-subjectrightsportal-api-openapi.yml
+  - type: Documentation
+    url: https://developers.osano.com/customer-rest-api/developer-api-doc
+  - type: APIReference
+    url: https://developers.osano.com/customer-rest-api
+  - type: Authentication
+    url: authentication/osano-authentication.yml
+  - type: ErrorCatalog
+    url: errors/osano-problem-types.yml
+  - type: DataModel
+    url: data-model/osano-data-model.yml
+  - type: Conventions
+    url: conventions/osano-conventions.yml
+  - type: Documentation
+    url: https://developers.osano.com/uc/
+  - type: APIReference
+    url: https://developers.osano.com/uc/core-api/openapi
+  - type: SDK
+    url: https://developers.osano.com/uc/js-sdk/
+- aid: osano:osano-subjects-api
+  name: Osano Subjects API
+  description: The Subjects API from Osano — 9 operation(s) for subjects.
+  humanURL: https://developers.osano.com/customer-rest-api
+  baseURL: https://api.osano.com
+  tags:
+  - Subjects
+  properties:
+  - type: OpenAPI
+    url: openapi/osano-subjects-api-openapi.yml
+  - type: Documentation
+    url: https://developers.osano.com/customer-rest-api/developer-api-doc
+  - type: APIReference
+    url: https://developers.osano.com/customer-rest-api
+  - type: Authentication
+    url: authentication/osano-authentication.yml
+  - type: ErrorCatalog
+    url: errors/osano-problem-types.yml
+  - type: DataModel
+    url: data-model/osano-data-model.yml
+  - type: Conventions
+    url: conventions/osano-conventions.yml
+  - type: Documentation
+    url: https://developers.osano.com/uc/
+  - type: APIReference
+    url: https://developers.osano.com/uc/core-api/openapi
+  - type: SDK
+    url: https://developers.osano.com/uc/js-sdk/
+- aid: osano:osano-token-api
+  name: Osano Token API
+  description: The Token API from Osano — 1 operation(s) for token.
+  humanURL: https://developers.osano.com/customer-rest-api
+  baseURL: https://api.osano.com
+  tags:
+  - Token
+  properties:
+  - type: OpenAPI
+    url: openapi/osano-token-api-openapi.yml
+  - type: Documentation
+    url: https://developers.osano.com/customer-rest-api/developer-api-doc
+  - type: APIReference
+    url: https://developers.osano.com/customer-rest-api
+  - type: Authentication
+    url: authentication/osano-authentication.yml
+  - type: ErrorCatalog
+    url: errors/osano-problem-types.yml
+  - type: DataModel
+    url: data-model/osano-data-model.yml
+  - type: Conventions
+    url: conventions/osano-conventions.yml
+  - type: Documentation
+    url: https://developers.osano.com/uc/
+  - type: APIReference
+    url: https://developers.osano.com/uc/core-api/openapi
+  - type: SDK
+    url: https://developers.osano.com/uc/js-sdk/
+- aid: osano:osano-unified-consent-core-api-api
+  name: Osano Unified Consent Core API
+  description: >-
+    The Unified Consent Core API API from Osano — 1 operation(s) for unified consent core api.
+  humanURL: https://developers.osano.com/customer-rest-api
+  baseURL: https://api.osano.com
+  tags:
+  - Unified Consent Core API
+  properties:
+  - type: OpenAPI
+    url: openapi/osano-unified-consent-core-api-api-openapi.yml
+  - type: Documentation
+    url: https://developers.osano.com/customer-rest-api/developer-api-doc
+  - type: APIReference
+    url: https://developers.osano.com/customer-rest-api
+  - type: Authentication
+    url: authentication/osano-authentication.yml
+  - type: ErrorCatalog
+    url: errors/osano-problem-types.yml
+  - type: DataModel
+    url: data-model/osano-data-model.yml
+  - type: Conventions
+    url: conventions/osano-conventions.yml
+  - type: Documentation
+    url: https://developers.osano.com/uc/
+  - type: APIReference
+    url: https://developers.osano.com/uc/core-api/openapi
+  - type: SDK
+    url: https://developers.osano.com/uc/js-sdk/
 common:
+- type: Overlay
+  url: overlays/osano-customer-rest-api-overlay.yaml
+- type: Overlay
+  url: overlays/osano-unified-consent-core-api-overlay.yaml
 - type: DomainSecurity
   url: security/osano-domain-security.yml
 - type: Website
