@@ -1,0 +1,14 @@
+{
+  "repo": "osano",
+  "feeds": [
+    {
+      "source": "https://docs.osano.com/en-US/osano/directories",
+      "feed_url": "https://docs.osano.com/en-US/osano/directories",
+      "title": "",
+      "saved": 0,
+      "method": "none"
+    }
+  ],
+  "post_count": 0,
+  "fetched": "2026-08-30T22:33:40Z"
+}

@@ -76,6 +76,8 @@ apis:
   humanURL: https://developers.osano.com/customer-rest-api
   baseURL: https://api.osano.com
   tags:
+  - CMP
+  tags_raw:
   - cmp
   properties:
   - type: OpenAPI
@@ -103,7 +105,8 @@ apis:
   description: The cmpRules API from Osano — 2 operation(s) for cmprules.
   humanURL: https://developers.osano.com/customer-rest-api
   baseURL: https://api.osano.com
-  tags:
+  tags: []
+  tags_raw:
   - cmpRules
   properties:
   - type: OpenAPI
@@ -132,6 +135,8 @@ apis:
   humanURL: https://developers.osano.com/customer-rest-api
   baseURL: https://api.osano.com
   tags:
+  - Collection
+  tags_raw:
   - Collections
   properties:
   - type: OpenAPI
@@ -188,6 +193,8 @@ apis:
   humanURL: https://developers.osano.com/customer-rest-api
   baseURL: https://api.osano.com
   tags:
+  - Connectors
+  tags_raw:
   - connectors
   properties:
   - type: OpenAPI
@@ -272,6 +279,8 @@ apis:
   humanURL: https://developers.osano.com/customer-rest-api
   baseURL: https://api.osano.com
   tags:
+  - Customer Insights
+  tags_raw:
   - customerInsights
   properties:
   - type: OpenAPI
@@ -300,6 +309,8 @@ apis:
   humanURL: https://developers.osano.com/customer-rest-api
   baseURL: https://api.osano.com
   tags:
+  - Data Discovery
+  tags_raw:
   - dataDiscovery
   properties:
   - type: OpenAPI
@@ -328,6 +339,8 @@ apis:
   humanURL: https://developers.osano.com/customer-rest-api
   baseURL: https://api.osano.com
   tags:
+  - DSAR
+  tags_raw:
   - dsar
   properties:
   - type: OpenAPI
@@ -355,7 +368,8 @@ apis:
   description: Manage action items for subject rights requests
   humanURL: https://developers.osano.com/customer-rest-api
   baseURL: https://api.osano.com
-  tags:
+  tags: []
+  tags_raw:
   - dsarActionItems
   properties:
   - type: OpenAPI
@@ -411,7 +425,8 @@ apis:
   description: The subjectRightsPortal API from Osano — 2 operation(s) for subjectrightsportal.
   humanURL: https://developers.osano.com/customer-rest-api
   baseURL: https://api.osano.com
-  tags:
+  tags: []
+  tags_raw:
   - subjectRightsPortal
   properties:
   - type: OpenAPI
