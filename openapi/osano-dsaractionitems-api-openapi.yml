@@ -1,0 +1,601 @@
+openapi: 3.2.0
+info:
+  title: Osano API Reference Dsar Action Items API
+  version: 1.0.0
+  description: '# Introduction
+
+    This is the Osano API. Use of this API is subject to the Osano API Terms of Service.
+
+
+    # Authentication
+
+    The Osano API uses API keys to authenticate requests that are generated on a per-user basis. All calls require a valid, unexpired API key.
+
+
+    API keys may be generated within the [Osano settings -> API Keys](https://my.osano.com/api-keys) page. You must be an admin or have the correct privileges to generate an API key.
+
+
+    Once generated, the API key should be included in the `x-osano-api-key` header of all requests.  For example:
+
+
+    ```
+
+    curl --header ''x-osano-api-key: <API_KEY>'' https://api.osano.com/v1/<API_PATH>
+
+    ```
+
+    # Pagination, Limits, and Sorting
+
+    Except where noted, all "list" resources will be sorted in descending order by creation time, and this may not be changed.  The number of results returned may be controlled via the limit param, but may not exceed 500.
+
+
+    Within the response of each "list" API call, there will be a "next" field, which represents the pagination token.  This token may be added as a query parameter, i.e. ?next=<...> to retrieve subsequent pages of the same resource.
+
+    '
+  x-logo:
+    url: https://www.osano.com/hubfs/Imported%20images/Logo.svg
+    altText: Osano
+servers:
+- url: https://api.osano.com
+  description: Production API
+security:
+- ApiKeyAuth: []
+tags:
+- name: dsarActionItems
+  x-displayName: Subject Rights Action Items
+  description: Manage action items for subject rights requests
+paths:
+  /v1/subject-rights/action-items:
+    get:
+      summary: List Subject Rights Action Items
+      description: Returns a detailed list of Subject Rights Action Items
+      tags:
+      - dsarActionItems
+      operationId: getDsarActionItems
+      parameters:
+      - $ref: '#/components/parameters/dsarIdParam'
+      - $ref: '#/components/parameters/actionItemStatusParam'
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/nextTokenParam'
+      - $ref: '#/components/parameters/afterParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarActionItemResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/action-items/{actionItemId}:
+    get:
+      summary: Return Single Subject Rights Action Item
+      description: Returns a single Subject Rights Action Item
+      tags:
+      - dsarActionItems
+      operationId: getDsarActionItem
+      parameters:
+      - name: actionItemId
+        required: true
+        in: path
+        description: The id of the Action Item to return
+        schema:
+          type: number
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarActionItemResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update Subject Rights Action Item
+      description: Updates a single Subject Rights Action Item
+      tags:
+      - dsarActionItems
+      operationId: updateDsarActionItem
+      parameters:
+      - name: actionItemId
+        required: true
+        in: path
+        description: The id of the Action Item to update
+        schema:
+          type: number
+      requestBody:
+        description: The properties to be updated in the Action Item.  Note that this allows for a partial update, not all fields are required.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DsarActionItemUpdate'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarActionItemResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict - Action item already completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/action-items/{actionItemId}/summaries:
+    get:
+      summary: Return Action Item Summary Entries
+      description: Returns a list of Summary Entries for a Subject Rights Action Item
+      tags:
+      - dsarActionItems
+      operationId: getDsarSummariesByActionItem
+      parameters:
+      - name: actionItemId
+        required: true
+        in: path
+        description: The id of the Action Item whose summaries are to be returned
+        schema:
+          type: number
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarSummaryResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Upload a Subject Rights Action Item Summary
+      description: 'Create a Subject Rights Action Item Summary from the data in the request body.  If the content-type header is one of: application/json, application/pdf, application/gz, application/zip, text/csv, text/plain, or text/rich-text, the request body will be treated as a file and uploaded as-is.  If the content-type is multipart/form-data, the request body will be treated as a form and the file and name will be extracted from the "file" and "name" fields.'
+      x-middleware:
+      - fileMiddleware
+      tags:
+      - dsarActionItems
+      operationId: addDsarSummary
+      parameters:
+      - name: actionItemId
+        required: true
+        in: path
+        description: The id of the Action Item to attach the summaries to
+        schema:
+          type: number
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/nextTokenParam'
+      requestBody:
+        description: Contents of the summary file.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+              format: binary
+          application/pdf:
+            schema:
+              type: string
+              format: binary
+          application/gz:
+            schema:
+              type: string
+              format: binary
+          application/zip:
+            schema:
+              type: string
+              format: binary
+          text/csv:
+            schema:
+              type: string
+              format: binary
+          text/plain:
+            schema:
+              type: string
+              format: binary
+          text/rich-text:
+            schema:
+              type: string
+              format: binary
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                filename:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DsarSummaryResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/action-items/{actionItemId}/summaries/{dsarSummaryId}:
+    patch:
+      summary: Update a Subject Rights Action Item Summary
+      description: Updates the metadata for a single Subject Rights Action Item Summary
+      tags:
+      - dsarActionItems
+      operationId: updateDsarSummary
+      parameters:
+      - name: actionItemId
+        required: true
+        in: path
+        description: The id of the Action Item whose summary we are updating.
+        schema:
+          type: number
+      - name: dsarSummaryId
+        required: true
+        in: path
+        description: The id of the Action Item Summary to update
+        schema:
+          type: number
+      requestBody:
+        description: The properties to be updated in the Action Item Summary.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                excluded:
+                  type: boolean
+              required:
+              - excluded
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/action-items/{actionItemId}/activity-log:
+    post:
+      summary: Create Activity Log Entry
+      description: Create an offline activity log entry for a specific Subject Rights action item
+      tags:
+      - dsarActionItems
+      operationId: postActionItemActivityLog
+      parameters:
+      - name: actionItemId
+        required: true
+        in: path
+        description: The identifier of the Subject Rights action item
+        schema:
+          type: number
+      requestBody:
+        description: The activity log entry to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivityLogEntry'
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  parameters:
+    afterParam:
+      name: after
+      required: false
+      in: query
+      description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
+      schema:
+        type: string
+    nextTokenParam:
+      name: next
+      required: false
+      in: query
+      description: The pagination token from the previous request.
+      schema:
+        type: string
+    actionItemStatusParam:
+      name: status
+      required: false
+      in: query
+      description: Status filter for the request. Must be one of CLAIMED, IN_PROGRESS, COMPLETED, or REJECTED.
+      schema:
+        type: string
+        enum:
+        - CLAIMED
+        - IN_PROGRESS
+        - COMPLETED
+        - REJECTED
+    dsarIdParam:
+      name: dsarId
+      required: false
+      in: query
+      description: The id of the Subject Rights request to filter by
+      schema:
+        type: string
+    limitParam:
+      name: limit
+      required: false
+      in: query
+      description: The number of items to return.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 500
+        default: 100
+  schemas:
+    DsarSummaryResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - dsarSummaryId
+      - dsarId
+      - fileName
+      - fileType
+      - manual
+      - created
+      properties:
+        dsarSummaryId:
+          type: string
+        dsarId:
+          type: string
+        dataStore:
+          type:
+          - object
+          - 'null'
+          description: The data store associated with the summary entry. Null for manual task action items.
+          properties:
+            dataStoreId:
+              type: number
+            name:
+              type: string
+        task:
+          type:
+          - object
+          - 'null'
+          description: The manual task associated with the summary entry. Null for automated action items.
+          properties:
+            taskId:
+              type: number
+            name:
+              type: string
+        fileName:
+          type: string
+        fileType:
+          type: string
+        manual:
+          type: boolean
+        created:
+          type: string
+          format: date-time
+    DsarActionItemUpdate:
+      type: object
+      additionalProperties: true
+      properties:
+        assignee:
+          type:
+          - string
+          - 'null'
+          format: email
+        status:
+          type: string
+          enum:
+          - IN_PROGRESS
+          - COMPLETED
+          - CLAIMED
+          - REJECTED
+        internalNotes:
+          type: string
+          maxLength: 500
+        resultsFound:
+          type: boolean
+          description: Should be provided when setting status to COMPLETED to indicate whether results were found during the data subject access request.
+    ActivityLogEntry:
+      type: object
+      additionalProperties: false
+      required:
+      - note
+      properties:
+        note:
+          type: string
+          description: The note or description of the activity
+        user:
+          type: string
+          description: The user who performed the action (defaults to API user if not provided)
+        timestamp:
+          type: string
+          format: date-time
+          description: When the action occurred (defaults to current timestamp if not provided)
+    DsarActionItemResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - dsarActionItemId
+      - assignees
+      - dsarId
+      - dsarDetails
+      - status
+      - due
+      - created
+      - requestStatus
+      - requestType
+      properties:
+        dsarActionItemId:
+          type: number
+        assignees:
+          type: array
+          items:
+            type: string
+            format: email
+        dataStore:
+          type:
+          - object
+          - 'null'
+          description: The data store associated with the action item. Null for manual task action items.
+          properties:
+            dataStoreId:
+              type: number
+            name:
+              type: string
+        task:
+          type:
+          - object
+          - 'null'
+          description: The manual task associated with the action item. Null for data store action items.
+          properties:
+            taskId:
+              type: number
+            name:
+              type: string
+        dsarId:
+          type: string
+        dsarDetails:
+          type: object
+        due:
+          type: string
+          format: date-time
+        created:
+          type: string
+          format: date-time
+        status:
+          type: string
+        internalNotes:
+          type: string
+        requestStatus:
+          type: string
+        requestType:
+          type: string
+        completionType:
+          type:
+          - string
+          - 'null'
+          description: The type of completion (e.g., MANUAL, NO_RESULTS)
+        actionItemType:
+          type:
+          - string
+          - 'null'
+          enum:
+          - AUTOMATED
+          - MANUAL
+          description: Indicates whether the action item is fulfilled via an automated connection (AUTOMATED) or a manual task (MANUAL).
+    DsarSummaryResponseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DsarSummaryResponse'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
+    DsarActionItemResponseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DsarActionItemResponse'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-osano-api-key
+x-tagGroups:
+- name: General
+  tags:
+  - cmp
+  - cmpRules
+  - connectors
+  - dsar
+  - dataDiscovery
+  - dsarActionItems
+  - subjectRightsPortal
+  - customerInsights

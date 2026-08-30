@@ -1,0 +1,284 @@
+openapi: 3.2.0
+info:
+  title: Osano API Reference Subject Rights Portal API
+  version: 1.0.0
+  description: '# Introduction
+
+    This is the Osano API. Use of this API is subject to the Osano API Terms of Service.
+
+
+    # Authentication
+
+    The Osano API uses API keys to authenticate requests that are generated on a per-user basis. All calls require a valid, unexpired API key.
+
+
+    API keys may be generated within the [Osano settings -> API Keys](https://my.osano.com/api-keys) page. You must be an admin or have the correct privileges to generate an API key.
+
+
+    Once generated, the API key should be included in the `x-osano-api-key` header of all requests.  For example:
+
+
+    ```
+
+    curl --header ''x-osano-api-key: <API_KEY>'' https://api.osano.com/v1/<API_PATH>
+
+    ```
+
+    # Pagination, Limits, and Sorting
+
+    Except where noted, all "list" resources will be sorted in descending order by creation time, and this may not be changed.  The number of results returned may be controlled via the limit param, but may not exceed 500.
+
+
+    Within the response of each "list" API call, there will be a "next" field, which represents the pagination token.  This token may be added as a query parameter, i.e. ?next=<...> to retrieve subsequent pages of the same resource.
+
+    '
+  x-logo:
+    url: https://www.osano.com/hubfs/Imported%20images/Logo.svg
+    altText: Osano
+servers:
+- url: https://api.osano.com
+  description: Production API
+security:
+- ApiKeyAuth: []
+tags:
+- name: subjectRightsPortal
+  x-displayName: Subject Rights Portal
+paths:
+  /v1/subject-rights/requests/{requestId}/portal-messages:
+    get:
+      summary: Get Portal Messages
+      description: Get the messages for a specific request
+      tags:
+      - subjectRightsPortal
+      operationId: getPortalMessages
+      parameters:
+      - name: requestId
+        required: true
+        in: path
+        description: The identifier of the Subject Rights request
+        schema:
+          type: string
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/nextTokenParam'
+      - $ref: '#/components/parameters/afterParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalMessagesResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create Portal Message
+      description: Create a new message for a specific request
+      tags:
+      - subjectRightsPortal
+      operationId: postPortalMessage
+      parameters:
+      - name: requestId
+        required: true
+        in: path
+        description: The identifier of the Subject Rights request
+        schema:
+          type: string
+      requestBody:
+        description: The message to add to the request conversation
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PortalMessage'
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/requests/{requestId}/portal-messages/{messageId}:
+    patch:
+      summary: Update Portal Message
+      description: Update a message for a specific request
+      tags:
+      - subjectRightsPortal
+      operationId: patchPortalMessage
+      parameters:
+      - name: requestId
+        required: true
+        in: path
+        description: The identifier of the Subject Rights request
+        schema:
+          type: string
+      - $ref: '#/components/parameters/messageIdParam'
+      requestBody:
+        description: The read status to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchPortalMessage'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatchPortalMessagesResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    PatchPortalMessagesResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - messageId
+      - updated
+      properties:
+        messageId:
+          type: number
+        updated:
+          type: string
+          format: date-time
+    PortalMessagesList:
+      type: object
+      additionalProperties: false
+      required:
+      - messageId
+      - content
+      - sent
+      - read
+      - source
+      properties:
+        messageId:
+          type: number
+        content:
+          type: string
+        sent:
+          type: string
+          format: date-time
+        read:
+          type: boolean
+        source:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              messageAttachmentId:
+                type: number
+              fileName:
+                type: string
+              fileType:
+                type: string
+              fileExt:
+                type: string
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
+    PatchPortalMessage:
+      type: object
+      additionalProperties: false
+      required:
+      - read
+      properties:
+        read:
+          type: boolean
+    PortalMessagesResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortalMessagesList'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    PortalMessage:
+      type: object
+      additionalProperties: false
+      required:
+      - content
+      properties:
+        content:
+          type: string
+  parameters:
+    afterParam:
+      name: after
+      required: false
+      in: query
+      description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
+      schema:
+        type: string
+    nextTokenParam:
+      name: next
+      required: false
+      in: query
+      description: The pagination token from the previous request.
+      schema:
+        type: string
+    messageIdParam:
+      name: messageId
+      required: true
+      in: path
+      description: The id of the message to update
+      schema:
+        type: string
+    limitParam:
+      name: limit
+      required: false
+      in: query
+      description: The number of items to return.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 500
+        default: 100
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-osano-api-key
+x-tagGroups:
+- name: General
+  tags:
+  - cmp
+  - cmpRules
+  - connectors
+  - dsar
+  - dataDiscovery
+  - dsarActionItems
+  - subjectRightsPortal
+  - customerInsights

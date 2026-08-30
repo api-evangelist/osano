@@ -1,0 +1,720 @@
+openapi: 3.2.0
+info:
+  title: Osano API Reference Data Discovery API
+  version: 1.0.0
+  description: '# Introduction
+
+    This is the Osano API. Use of this API is subject to the Osano API Terms of Service.
+
+
+    # Authentication
+
+    The Osano API uses API keys to authenticate requests that are generated on a per-user basis. All calls require a valid, unexpired API key.
+
+
+    API keys may be generated within the [Osano settings -> API Keys](https://my.osano.com/api-keys) page. You must be an admin or have the correct privileges to generate an API key.
+
+
+    Once generated, the API key should be included in the `x-osano-api-key` header of all requests.  For example:
+
+
+    ```
+
+    curl --header ''x-osano-api-key: <API_KEY>'' https://api.osano.com/v1/<API_PATH>
+
+    ```
+
+    # Pagination, Limits, and Sorting
+
+    Except where noted, all "list" resources will be sorted in descending order by creation time, and this may not be changed.  The number of results returned may be controlled via the limit param, but may not exceed 500.
+
+
+    Within the response of each "list" API call, there will be a "next" field, which represents the pagination token.  This token may be added as a query parameter, i.e. ?next=<...> to retrieve subsequent pages of the same resource.
+
+    '
+  x-logo:
+    url: https://www.osano.com/hubfs/Imported%20images/Logo.svg
+    altText: Osano
+servers:
+- url: https://api.osano.com
+  description: Production API
+security:
+- ApiKeyAuth: []
+tags:
+- name: dataDiscovery
+  x-displayName: Data Discovery
+  description: Discover and manage data stores and personal data fields
+paths:
+  /v1/data-discovery/data-stores:
+    get:
+      summary: List Data Stores
+      description: Returns a list of Data Stores.  Results are sorted in descending order by creation time.  The number of results returned may be controlled via the limit param, but may not exceed 500.  The "next" object in the response may be used to retrieve subsequent pages of the same resource.
+      tags:
+      - dataDiscovery
+      operationId: getDataStores
+      parameters:
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/nextTokenParam'
+      - $ref: '#/components/parameters/afterParam'
+      - $ref: '#/components/parameters/connectorIdParam'
+      - $ref: '#/components/parameters/dataStoresActiveParam'
+      - $ref: '#/components/parameters/dataStoresNameParam'
+      - $ref: '#/components/parameters/dataStoresTypeParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create New Data Store
+      description: Creates a new Data Store using the provided parameters.  If successful, the created Data Store will be returned.
+      tags:
+      - dataDiscovery
+      operationId: createDataStore
+      requestBody:
+        description: Details of the Data Store to be created.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStore'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/data-discovery/data-stores/labels:
+    get:
+      summary: List Data Store Labels
+      description: Returns a paginated list of all labels that have been applied to data stores for the current customer. Results are sorted alphabetically by name. Supports searching by label name and cursor-based pagination.
+      tags:
+      - dataDiscovery
+      operationId: getDataStoreLabels
+      parameters:
+      - name: search
+        in: query
+        description: Filter labels by name (case-insensitive partial match).
+        schema:
+          type: string
+          maxLength: 50
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/nextTokenParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreLabelsResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/data-discovery/data-stores/{dataStoreId}:
+    get:
+      summary: Return Single Data Store
+      description: Returns a detailed Data Store by ID.
+      tags:
+      - dataDiscovery
+      operationId: getDataStoreById
+      parameters:
+      - name: dataStoreId
+        required: true
+        in: path
+        description: The identifier of the Data Store to be returned.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Deactivate a data store
+      description: Deactivate a Data Store by ID.  This will prevent the Data Store from being used in future Data Mapping operations.
+      tags:
+      - dataDiscovery
+      operationId: deleteDataStoreById
+      parameters:
+      - name: dataStoreId
+        required: true
+        in: path
+        description: The identifier of the Data Store to be deactivated.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Success
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update an existing data store
+      description: Update specific properties about a Data Store by ID.
+      tags:
+      - dataDiscovery
+      operationId: updateDataStoreById
+      parameters:
+      - name: dataStoreId
+        required: true
+        in: path
+        description: The identifier of the Data Store to be updated.
+        schema:
+          type: string
+      requestBody:
+        description: The properties to be updated in the Data Store.  Note that this allows for a partial update, not all fields are required.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStoreUpdate'
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/data-discovery/data-stores/{dataStoreId}/fields:
+    put:
+      summary: Update Data Store Fields
+      description: Add to the list of personal data fields for a particular Data Store.  Note that fields may not have the same path and name as an existing field.  Any such fields in the payload will be ignored.
+      tags:
+      - dataDiscovery
+      operationId: updateDataStoreFields
+      parameters:
+      - name: dataStoreId
+        required: true
+        in: path
+        description: The identifier of the Data Store to be updated.
+        schema:
+          type: string
+      requestBody:
+        description: An array of personal data fields to be added to this Data Store.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStoreFields'
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      summary: Returns Data Store Fields
+      description: Returns a list of personal data fields for a particular Data Store.
+      tags:
+      - dataDiscovery
+      operationId: getDataStoreFields
+      parameters:
+      - name: dataStoreId
+        required: true
+        in: path
+        description: The identifier of the Data Store being queried.
+        schema:
+          type: string
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/nextTokenParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStoreFieldResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/data-discovery/data-stores/{dataStoreId}/fields/{fieldId}:
+    delete:
+      summary: Delete Data Store Field
+      description: Deletes a single Data Store Field by ID.
+      tags:
+      - dataDiscovery
+      operationId: deleteFieldById
+      parameters:
+      - name: dataStoreId
+        required: true
+        in: path
+        description: The identifier of the Data Store being queried.
+        schema:
+          type: string
+      - name: fieldId
+        required: true
+        in: path
+        description: The identifier of the Data Store Field being deleted.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update Data Store Field
+      description: Updates a single Data Store Field by ID.  Note that this allows for a partial update, not all fields are required.
+      tags:
+      - dataDiscovery
+      operationId: updateFieldById
+      parameters:
+      - name: dataStoreId
+        required: true
+        in: path
+        description: The identifier of the Data Store being queried.
+        schema:
+          type: string
+      - name: fieldId
+        required: true
+        in: path
+        description: The identifier of the Data Store Field being updated.
+        schema:
+          type: string
+      requestBody:
+        description: Field data to be updated.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataStoreField'
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  parameters:
+    dataStoresTypeParam:
+      name: type
+      required: false
+      in: query
+      description: The type of the Data Stores to be returned.  If omitted, all Data Stores are returned.
+      schema:
+        type: string
+        enum:
+        - internal
+        - saas
+        - onprem
+    dataStoresActiveParam:
+      name: active
+      required: false
+      in: query
+      description: The active status of the Data Stores to be returned.  If omitted, only active Data Stores are returned.
+      schema:
+        type: boolean
+    dataStoresNameParam:
+      name: name
+      required: false
+      in: query
+      description: The name of the Data Stores to be returned.  Partial matches will also be returned.
+      schema:
+        type: string
+        maxLength: 64
+    connectorIdParam:
+      name: connectorId
+      required: false
+      in: query
+      description: Optional connector identifier to filter data stores by.  This value is ignored when the Data Store type is 'internal'.
+      schema:
+        type: integer
+        format: int32
+    limitParam:
+      name: limit
+      required: false
+      in: query
+      description: The number of items to return.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 500
+        default: 100
+    nextTokenParam:
+      name: next
+      required: false
+      in: query
+      description: The pagination token from the previous request.
+      schema:
+        type: string
+    afterParam:
+      name: after
+      required: false
+      in: query
+      description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
+      schema:
+        type: string
+  schemas:
+    DataStoreFieldResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - fieldId
+      - name
+      - path
+      - created
+      properties:
+        fieldId:
+          type: integer
+          format: int32
+        name:
+          type: string
+        path:
+          type: string
+        classification:
+          type: string
+        created:
+          type: string
+          format: date-time
+    DataStore:
+      type: object
+      additionalProperties: true
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+        description:
+          type: string
+          minLength: 1
+          maxLength: 256
+        alias:
+          type: string
+          minLength: 1
+          maxLength: 64
+        connectorId:
+          type: integer
+          format: int32
+        owners:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DataStoreOwner'
+    DataStoreOwner:
+      type: object
+      additionalProperties: true
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 5
+          maxLength: 100
+        primary:
+          type: boolean
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
+    DataStoreLabelsResponseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataStoreLabels'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    DataStoreField:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          minLength: 1
+        path:
+          type:
+          - string
+          - 'null'
+        classification:
+          type:
+          - string
+          - 'null'
+          maxLength: 32
+          example: NAME
+          description: This field should be capitalized
+    DataStoreFieldResponseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataStoreFieldResponse'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    DataStoreResponseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataStoreResponse'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    DataStoreLabels:
+      type: object
+      additionalProperties: true
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        labelId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+    DataStoreUpdate:
+      type: object
+      additionalProperties: true
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 64
+        description:
+          type:
+          - string
+          - 'null'
+          minLength: 3
+          maxLength: 256
+        alias:
+          type:
+          - string
+          - 'null'
+          minLength: 3
+          maxLength: 64
+        countryIso:
+          type:
+          - string
+          - 'null'
+          minLength: 2
+          maxLength: 2
+          description: ISO 3166-1 alpha-2 code
+        owners:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataStoreOwner'
+        purposesOfProcessing:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/DataStorePurposesOfProcessing'
+        labels:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/DataStoreLabels'
+          description: Full replacement of the labels associated with this data store. Send the complete desired list of labels. Omit this field to leave labels unchanged. Send an empty array or null to remove all labels. Orphaned labels (not associated with any data store) are automatically deleted; labels still in use by other data stores are preserved.
+        metadata:
+          type:
+          - object
+          - 'null'
+    DataStorePurposesOfProcessing:
+      type: object
+      additionalProperties: true
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        processingPurposeId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+    DataStoreResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        dataStoreId:
+          type: integer
+          format: int32
+        name:
+          type: string
+        status:
+          type:
+          - string
+          - 'null'
+          description: The sync status of the data store (e.g., QUEUED, SYNCED, FAILED). Null for internal data stores.
+        lastSync:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: The timestamp of the last sync operation
+        description:
+          type: string
+        alias:
+          type: string
+        type:
+          type: string
+        active:
+          type: boolean
+        created:
+          type: string
+          format: date-time
+        connector:
+          $ref: '#/components/schemas/Connector'
+        owners:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DataStoreOwner'
+        totalFields:
+          type: integer
+          format: int32
+          description: Total count of fields in the data store
+        unclassifiedFields:
+          type: integer
+          format: int32
+          description: Count of fields that have not been classified
+        fieldsWithUserData:
+          type: integer
+          format: int32
+          description: Count of fields that contain user data
+        metadata:
+          type: object
+        labels:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataStoreLabels'
+    DataStoreFields:
+      type: array
+      items:
+        $ref: '#/components/schemas/DataStoreField'
+    Connector:
+      type: object
+      additionalProperties: false
+      required:
+      - connectorId
+      - productName
+      - authType
+      properties:
+        connectorId:
+          type: integer
+          format: int32
+        productName:
+          type: string
+        authType:
+          type: string
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-osano-api-key
+x-tagGroups:
+- name: General
+  tags:
+  - cmp
+  - cmpRules
+  - connectors
+  - dsar
+  - dataDiscovery
+  - dsarActionItems
+  - subjectRightsPortal
+  - customerInsights

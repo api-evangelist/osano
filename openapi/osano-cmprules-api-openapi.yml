@@ -1,0 +1,351 @@
+openapi: 3.2.0
+info:
+  title: Osano API Reference Cmp Rules API
+  version: 1.0.0
+  description: '# Introduction
+
+    This is the Osano API. Use of this API is subject to the Osano API Terms of Service.
+
+
+    # Authentication
+
+    The Osano API uses API keys to authenticate requests that are generated on a per-user basis. All calls require a valid, unexpired API key.
+
+
+    API keys may be generated within the [Osano settings -> API Keys](https://my.osano.com/api-keys) page. You must be an admin or have the correct privileges to generate an API key.
+
+
+    Once generated, the API key should be included in the `x-osano-api-key` header of all requests.  For example:
+
+
+    ```
+
+    curl --header ''x-osano-api-key: <API_KEY>'' https://api.osano.com/v1/<API_PATH>
+
+    ```
+
+    # Pagination, Limits, and Sorting
+
+    Except where noted, all "list" resources will be sorted in descending order by creation time, and this may not be changed.  The number of results returned may be controlled via the limit param, but may not exceed 500.
+
+
+    Within the response of each "list" API call, there will be a "next" field, which represents the pagination token.  This token may be added as a query parameter, i.e. ?next=<...> to retrieve subsequent pages of the same resource.
+
+    '
+  x-logo:
+    url: https://www.osano.com/hubfs/Imported%20images/Logo.svg
+    altText: Osano
+servers:
+- url: https://api.osano.com
+  description: Production API
+security:
+- ApiKeyAuth: []
+tags:
+- name: cmpRules
+  x-displayName: Cookie Consent Discoveries & Rules
+paths:
+  /v1/cookie-consent/rules:
+    post:
+      summary: Create New Cookie Consent Rules
+      description: Create one or more Cookie Consent Rules. The maximum number of rules that may be created in a single call is 100.  If the request is successful, the response will contain a list of the created rules.
+      tags:
+      - cmpRules
+      operationId: createRules
+      requestBody:
+        $ref: '#/components/requestBodies/CmpRulesPost'
+      responses:
+        '200':
+          $ref: '#/components/responses/CmpRulesList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/cookie-consent/rules/{ruleId}:
+    patch:
+      summary: Update Cookie Consent Rule
+      description: Update an existing Cookie Consent Rule by ID.
+      tags:
+      - cmpRules
+      operationId: updateRule
+      parameters:
+      - name: ruleId
+        required: true
+        in: path
+        description: The identifier of the Cookie Consent Rule to be updated.
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        $ref: '#/components/requestBodies/CmpRulePatch'
+      responses:
+        '200':
+          $ref: '#/components/responses/CmpRulePatch'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete Cookie Consent Rule
+      description: Deletes a single Cookie Consent Rule by ID.
+      tags:
+      - cmpRules
+      operationId: deleteRule
+      parameters:
+      - name: ruleId
+        required: true
+        in: path
+        description: The identifier of the Cookie Consent Rule to be deleted.
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  requestBodies:
+    CmpRulePatch:
+      description: The Cookie Consent Rule property(ies) to be updated.
+      required: true
+      content:
+        application/json:
+          schema:
+            anyOf:
+            - $ref: '#/components/schemas/CmpRule'
+            - $ref: '#/components/schemas/CmpCookieRule'
+    CmpRulesPost:
+      description: The Cookie Consent Rule(s) to be created and the ID(s) of the config(s) to create them for.
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+            - configIds
+            properties:
+              configIds:
+                type: array
+                minItems: 1
+                maxItems: 25
+                items:
+                  type: string
+                  format: uuid
+              cookies:
+                type: array
+                minItems: 1
+                items:
+                  $ref: '#/components/schemas/CmpCookieRuleRequiredProps'
+              iframes:
+                type: array
+                minItems: 1
+                items:
+                  $ref: '#/components/schemas/CmpRuleRequiredProps'
+              scripts:
+                type: array
+                minItems: 1
+                items:
+                  $ref: '#/components/schemas/CmpRuleRequiredProps'
+              localStorage:
+                type: array
+                minItems: 1
+                items:
+                  $ref: '#/components/schemas/CmpRuleRequiredProps'
+  schemas:
+    CmpRuleRequiredProps:
+      allOf:
+      - $ref: '#/components/schemas/CmpRule'
+      - type: object
+        required:
+        - classification
+        - rule
+    CmpCookieRuleRequiredProps:
+      allOf:
+      - $ref: '#/components/schemas/CmpCookieRule'
+      - type: object
+        required:
+        - classification
+        - rule
+    CmpRuleResponseProperties:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          enum:
+          - cookie
+          - script
+          - iframe
+        ruleId:
+          type: integer
+          format: int32
+        configId:
+          type: string
+          format: uuid
+        vendorId:
+          type: string
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        ruleType:
+          type:
+          - string
+          - 'null'
+          enum:
+          - FILENAME
+          - DOMAIN
+          - PATH
+          - REGEXP
+          - STARTS_WITH
+          - ENDS_WITH
+          - CONTAINS
+          - EXACT_MATCH
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
+    CmpCookieRule:
+      allOf:
+      - $ref: '#/components/schemas/CmpRule'
+      - type: object
+        properties:
+          description:
+            type:
+            - string
+            - 'null'
+            description: A description of the cookie to be used in disclosures.
+            maxLength: 1000
+          expiry:
+            type:
+            - string
+            - 'null'
+            description: The length of time that must elapse before the cookie expires.
+            maxLength: 50
+    CmpRule:
+      type: object
+      minProperties: 1
+      properties:
+        classification:
+          type: string
+          enum:
+          - ANALYTICS
+          - BLACKLISTED
+          - ESSENTIAL
+          - HIDDEN
+          - MARKETING
+          - PERSONALIZATION
+        rule:
+          type: string
+          description: The type of the rule.
+          minLength: 3
+          maxLength: 1000
+        disclosure:
+          type: boolean
+          description: Whether the rule should be disclosed. If omitted, this property will default to `false`.
+        title:
+          type:
+          - string
+          - 'null'
+          description: The title of the rule. This is used in the consent disclosure in place of the rule when defined.
+          maxLength: 64
+        vendorName:
+          type:
+          - string
+          - 'null'
+          description: The value of the rule.
+          maxLength: 100
+        ruleType:
+          type:
+          - string
+          - 'null'
+          enum:
+          - FILENAME
+          - DOMAIN
+          - PATH
+          - REGEXP
+          - STARTS_WITH
+          - ENDS_WITH
+          - CONTAINS
+          - EXACT_MATCH
+          description: The type classification of the rule pattern.
+  responses:
+    CmpRulePatch:
+      description: Success
+      content:
+        application/json:
+          schema:
+            oneOf:
+            - type: object
+              allOf:
+              - $ref: '#/components/schemas/CmpRule'
+              - $ref: '#/components/schemas/CmpRuleResponseProperties'
+            - type: object
+              allOf:
+              - $ref: '#/components/schemas/CmpCookieRule'
+              - $ref: '#/components/schemas/CmpRuleResponseProperties'
+    CmpRulesList:
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              items:
+                type: array
+                items:
+                  oneOf:
+                  - type: object
+                    allOf:
+                    - $ref: '#/components/schemas/CmpRule'
+                    - $ref: '#/components/schemas/CmpRuleResponseProperties'
+                  - type: object
+                    allOf:
+                    - $ref: '#/components/schemas/CmpCookieRule'
+                    - $ref: '#/components/schemas/CmpRuleResponseProperties'
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-osano-api-key
+x-tagGroups:
+- name: General
+  tags:
+  - cmp
+  - cmpRules
+  - connectors
+  - dsar
+  - dataDiscovery
+  - dsarActionItems
+  - subjectRightsPortal
+  - customerInsights

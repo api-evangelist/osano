@@ -1,0 +1,904 @@
+openapi: 3.2.0
+info:
+  title: Osano API Reference Dsar API
+  version: 1.0.0
+  description: '# Introduction
+
+    This is the Osano API. Use of this API is subject to the Osano API Terms of Service.
+
+
+    # Authentication
+
+    The Osano API uses API keys to authenticate requests that are generated on a per-user basis. All calls require a valid, unexpired API key.
+
+
+    API keys may be generated within the [Osano settings -> API Keys](https://my.osano.com/api-keys) page. You must be an admin or have the correct privileges to generate an API key.
+
+
+    Once generated, the API key should be included in the `x-osano-api-key` header of all requests.  For example:
+
+
+    ```
+
+    curl --header ''x-osano-api-key: <API_KEY>'' https://api.osano.com/v1/<API_PATH>
+
+    ```
+
+    # Pagination, Limits, and Sorting
+
+    Except where noted, all "list" resources will be sorted in descending order by creation time, and this may not be changed.  The number of results returned may be controlled via the limit param, but may not exceed 500.
+
+
+    Within the response of each "list" API call, there will be a "next" field, which represents the pagination token.  This token may be added as a query parameter, i.e. ?next=<...> to retrieve subsequent pages of the same resource.
+
+    '
+  x-logo:
+    url: https://www.osano.com/hubfs/Imported%20images/Logo.svg
+    altText: Osano
+servers:
+- url: https://api.osano.com
+  description: Production API
+security:
+- ApiKeyAuth: []
+tags:
+- name: dsar
+  x-displayName: Subject Rights
+  description: Manage subject rights requests and data subject access requests
+paths:
+  /v1/subject-rights/request-types:
+    get:
+      summary: List Subject Rights Request Types
+      description: List standard Subject Rights Request Types and their applicable privacy laws.
+      tags:
+      - dsar
+      operationId: getRequestTypes
+      parameters:
+      - name: country
+        required: false
+        in: query
+        description: ISO 3166-1 alpha-2 country code.
+        schema:
+          type: string
+          minLength: 2
+          maxLength: 2
+          pattern: ^[A-Za-z]{2}$
+      - name: privacyLawName
+        required: false
+        in: query
+        description: Case-insensitive privacy law name filter.
+        schema:
+          type: string
+          maxLength: 255
+      - name: requestType
+        required: false
+        in: query
+        description: Case-insensitive request type filter.
+        schema:
+          type: string
+          maxLength: 255
+      - name: category
+        required: false
+        in: query
+        description: Case-insensitive request type category filter.
+        schema:
+          type: string
+          maxLength: 255
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequestTypeList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/requests:
+    get:
+      summary: List Subject Rights Requests
+      description: Query for Subject Rights Requests.  Results are sorted in descending order by creation time.  The number of results returned may be controlled via the limit param, but may not exceed 500.  The "next" object in the response may be used to retrieve subsequent pages of the same resource.
+      tags:
+      - dsar
+      operationId: getDsars
+      parameters:
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/nextTokenParam'
+      - $ref: '#/components/parameters/afterParam'
+      - $ref: '#/components/parameters/dsarSourceParam'
+      - $ref: '#/components/parameters/dsarStatusParam'
+      - $ref: '#/components/parameters/dsarRequestTypeParam'
+      - $ref: '#/components/parameters/formIdParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create New Subject Rights Request(s)
+      description: Create one or more Subject Rights Requests.  The maximum number of requests that may be created in a single call is 100.  Requests created through this API never send verification emails, regardless of initial status.  If the request is successful, the response will contain a list of the created requests.
+      tags:
+      - dsar
+      operationId: createDsars
+      requestBody:
+        description: The Subject Rights Request(s) to be created.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DsarList'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/requests/{dsarId}:
+    get:
+      summary: Return Detailed Subject Rights Request
+      description: Get a detailed Subject Rights Request by ID.
+      tags:
+      - dsar
+      operationId: getDsar
+      parameters:
+      - name: dsarId
+        required: true
+        in: path
+        description: The identifier of the Subject Rights Request to return.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update Subject Rights Request
+      description: Update metadata about a Subject Rights Request as specified.  A partial update may be performed.
+      tags:
+      - dsar
+      operationId: updateDsar
+      parameters:
+      - name: dsarId
+        required: true
+        in: path
+        description: The identifier of the Subject Rights Request to be updated.
+        schema:
+          type: string
+      requestBody:
+        description: Object containing the fields to be updated.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DsarUpdate'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DsarResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/requests/{dsarId}/identification:
+    post:
+      summary: Update Identification Photo
+      description: Updates the file used for Identity Verification within the Osano platform.  It should be an image.
+      tags:
+      - dsar
+      operationId: updateIdentityFile
+      parameters:
+      - name: dsarId
+        required: true
+        in: path
+        description: The identifier of the Subject Rights Request to be updated.
+        schema:
+          type: string
+      requestBody:
+        content:
+          image/webp:
+            schema:
+              type: string
+              format: binary
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+          image/png:
+            schema:
+              type: string
+              format: binary
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/requests/{requestId}/summaries:
+    get:
+      summary: Get Request Summaries
+      description: Query what summaries are available for this DSAR request before they are packaged and sent.
+      tags:
+      - dsar
+      operationId: getRequestSummaries
+      parameters:
+      - name: requestId
+        required: true
+        in: path
+        description: The identifier of the Subject Rights Request
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestId:
+                    type: string
+                  summaries:
+                    type: array
+                    items:
+                      type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/subject-rights/requests/{requestId}/summary-notification:
+    get:
+      summary: Get Summary Notification
+      description: 'Retrieve information about a summary notification by request ID, including the archive status and metadata.
+
+
+        This endpoint returns metadata about the notification package (PDF/ZIP archive) that was sent to the requestor, including:
+
+        - The write status of the archive (NONE, WRITTEN, WRITE_ERROR)
+
+        - The archive file name and type
+
+        - When the summary was created
+
+        - List of summary entries included in the archive
+
+        '
+      tags:
+      - dsar
+      operationId: getSummaryNotification
+      parameters:
+      - name: requestId
+        required: true
+        in: path
+        description: The identifier of the Subject Rights Request
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - dsarSummaryId
+                - requestId
+                - writeStatus
+                - summaryCreated
+                - summaryEntries
+                properties:
+                  dsarSummaryId:
+                    type: string
+                    description: The unique identifier for this summary notification
+                  requestId:
+                    type: string
+                    description: The identifier of the Subject Rights Request
+                  writeStatus:
+                    type: string
+                    enum:
+                    - NONE
+                    - WRITTEN
+                    - WRITE_ERROR
+                    description: The status of the archive write operation
+                  archiveFileName:
+                    type:
+                    - string
+                    - 'null'
+                    description: The name of the archive file if it has been written
+                  archiveFileType:
+                    type:
+                    - string
+                    - 'null'
+                    description: The MIME type of the archive file
+                  summaryCreated:
+                    type: string
+                    format: date-time
+                    description: When the summary notification was created
+                  summaryEntries:
+                    type: array
+                    description: List of all summary entries included in this notification archive
+                    items:
+                      type: object
+                      required:
+                      - dsarSummaryEntryId
+                      - fileName
+                      - fileType
+                      - manual
+                      - created
+                      properties:
+                        dsarSummaryEntryId:
+                          type: number
+                          description: The unique identifier for this summary entry
+                        fileName:
+                          type: string
+                          description: The name of the summary file
+                        fileType:
+                          type: string
+                          description: The MIME type of the summary file
+                        manual:
+                          type: boolean
+                          description: Whether this summary was manually uploaded (true) or automatically generated (false)
+                        created:
+                          type: string
+                          format: date-time
+                          description: When this summary entry was created
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Send Summary Notification
+      description: 'Package and send all summaries for this DSAR request. This also generates a PDF summary containing automated data discovery results formatted as tables (by data store) and manually uploaded files, in addition to a ZIP archive containing all summary files plus the PDF.
+
+        Subsequent POST requests to this endpoint for the DSAR request will do nothing, as the summaries have already been packaged and sent.
+
+        '
+      tags:
+      - dsar
+      operationId: sendSummaryNotification
+      parameters:
+      - name: requestId
+        required: true
+        in: path
+        description: The identifier of the Subject Rights Request
+        schema:
+          type: string
+      responses:
+        '200':
+          description: "Success - The summary notification has been packaged and sent. \n\nA ZIP archive containing a PDF summary and all associated files has been generated and delivered to the requestor.\n"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - dsarSummaryId
+                - requestId
+                - writeStatus
+                - summaryCreated
+                - summaryEntries
+                properties:
+                  dsarSummaryId:
+                    type: string
+                    description: The unique identifier for this summary notification
+                  requestId:
+                    type: string
+                    description: The identifier of the Subject Rights Request
+                  writeStatus:
+                    type: string
+                    enum:
+                    - NONE
+                    - WRITTEN
+                    - WRITE_ERROR
+                    description: The status of the archive write operation
+                  archiveFileName:
+                    type:
+                    - string
+                    - 'null'
+                    description: The name of the archive file if it has been written
+                  archiveFileType:
+                    type:
+                    - string
+                    - 'null'
+                    description: The MIME type of the archive file
+                  summaryCreated:
+                    type: string
+                    format: date-time
+                    description: When the summary notification was created
+                  summaryEntries:
+                    type: array
+                    description: List of all summary entries included in this notification archive
+                    items:
+                      type: object
+                      required:
+                      - dsarSummaryEntryId
+                      - fileName
+                      - fileType
+                      - manual
+                      - created
+                      properties:
+                        dsarSummaryEntryId:
+                          type: number
+                          description: The unique identifier for this summary entry
+                        fileName:
+                          type: string
+                          description: The name of the summary file
+                        fileType:
+                          type: string
+                          description: The MIME type of the summary file
+                        manual:
+                          type: boolean
+                          description: Whether this summary was manually uploaded (true) or automatically generated (false)
+                        created:
+                          type: string
+                          format: date-time
+                          description: When this summary entry was created
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                noSummaries:
+                  value:
+                    message: No summaries found for this request
+                  summary: No summaries available to package
+        '404':
+          description: Not Found - The specified Subject Rights Request does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                notFound:
+                  value:
+                    message: Subject Rights Request not found
+                  summary: Request ID does not exist
+        '409':
+          description: Conflict - The summary notification has already been sent for this request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                alreadySent:
+                  value:
+                    message: Summary notification has already been sent
+                  summary: Notification already sent
+  /v1/subject-rights/requests/{requestId}/activity-log:
+    post:
+      summary: Create Activity Log Entry
+      description: Create an offline activity log entry for a specific Subject Rights request
+      tags:
+      - dsar
+      operationId: postRequestActivityLog
+      parameters:
+      - name: requestId
+        required: true
+        in: path
+        description: The identifier of the Subject Rights request
+        schema:
+          type: string
+      requestBody:
+        description: The activity log entry to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivityLogEntry'
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    ApplicableLaw:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - abbreviation
+      - effectiveDate
+      - jurisdictions
+      properties:
+        name:
+          type: string
+        abbreviation:
+          type:
+          - string
+          - 'null'
+        effectiveDate:
+          type: string
+          format: date-time
+        jurisdictions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Jurisdiction'
+    RequestType:
+      type: object
+      additionalProperties: false
+      required:
+      - requestType
+      - requestTypeCategory
+      - applicableLaws
+      properties:
+        requestType:
+          type: string
+        requestTypeCategory:
+          type: string
+        applicableLaws:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicableLaw'
+    Jurisdiction:
+      type: object
+      additionalProperties: false
+      required:
+      - country
+      properties:
+        country:
+          type: string
+        territory:
+          type: string
+    DsarUpdate:
+      type: object
+      additionalProperties: true
+      properties:
+        status:
+          type: string
+          enum:
+          - PENDING_EMAIL_VERIFICATION
+          - PENDING_IDENTITY_VERIFICATION
+          - IN_PROGRESS
+          - PENDING_APPEAL
+          - COMPLETED
+          - REJECTED
+          - REJECTED_AUTO
+          - IN_REVIEW
+        notes:
+          type: string
+          maxLength: 500
+        notify:
+          type: boolean
+          default: true
+          description: When set to true and status is COMPLETED or REJECTED, an email notification will be sent to the requestor. Defaults to true when status is COMPLETED or REJECTED, otherwise defaults to false.
+        content:
+          type:
+          - string
+          - 'null'
+          maxLength: 10000
+          description: Optional completion or rejection message to be emailed to the requestor. When status is COMPLETED or REJECTED, this message will be used as the completionMessage or rejectionReason in the notification. If omitted, the email notification handler will use a configured template. This message will be added to the portal conversation.
+        rejectionReasonCode:
+          type: string
+          description: Optional rejection reason code. Only applicable when status is REJECTED. Used to select a specific rejection template for the notification email.
+          enum:
+          - TECHNICALLY_INFEASIBLE
+          - REJECTED_APPEAL
+          - UNCOVERED_GEO
+          - DUPLICATE
+          - UNFOUNDED
+          - OTHER
+          - IDENTITY_NOT_VERIFIED
+    RequestTypeList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestType'
+    ActivityLogEntry:
+      type: object
+      additionalProperties: false
+      required:
+      - note
+      properties:
+        note:
+          type: string
+          description: The note or description of the activity
+        user:
+          type: string
+          description: The user who performed the action (defaults to API user if not provided)
+        timestamp:
+          type: string
+          format: date-time
+          description: When the action occurred (defaults to current timestamp if not provided)
+    DsarList:
+      type: array
+      maxItems: 100
+      items:
+        $ref: '#/components/schemas/Dsar'
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
+    DsarResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - dsarId
+      - status
+      - requestType
+      - requestSource
+      - due
+      - created
+      properties:
+        dsarId:
+          type: string
+        status:
+          type: string
+        requestType:
+          type: string
+        requestSource:
+          type: string
+        notes:
+          type: string
+        dsarDetails:
+          type: object
+        due:
+          type: string
+          format: date-time
+        created:
+          type: string
+          format: date-time
+        form:
+          type: object
+          properties:
+            formId:
+              type: integer
+            formName:
+              type: string
+    Dsar:
+      type: object
+      additionalProperties: false
+      required:
+      - formId
+      - requestType
+      - status
+      - dsarDetails
+      properties:
+        formId:
+          type: integer
+        requestType:
+          type: string
+        status:
+          type: string
+        due:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        lastUpdatedBy:
+          type: string
+          format: email
+          minLength: 5
+          maxLength: 100
+        notes:
+          type: string
+          maxLength: 500
+        notifyEmail:
+          type: boolean
+          default: false
+          description: When set to true, an email notification will be sent to the requestor for the appropriate lifecycle event based on the initial status. Defaults to false.
+        rejectionReasonCode:
+          type: string
+          enum:
+          - TECHNICALLY_INFEASIBLE
+          - REJECTED_APPEAL
+          - UNCOVERED_GEO
+          - DUPLICATE
+          - UNFOUNDED
+          - OTHER
+          - IDENTITY_NOT_VERIFIED
+          description: The reason code for the rejection. Only valid when status is REJECTED.
+        dsarDetails:
+          type: object
+          additionalProperties: true
+          required:
+          - email
+          properties:
+            email:
+              type: string
+              format: email
+              minLength: 5
+              maxLength: 100
+            given-name:
+              type: string
+            family-name:
+              type: string
+    DsarResponseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DsarResponse'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+  parameters:
+    nextTokenParam:
+      name: next
+      required: false
+      in: query
+      description: The pagination token from the previous request.
+      schema:
+        type: string
+    afterParam:
+      name: after
+      required: false
+      in: query
+      description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
+      schema:
+        type: string
+    dsarSourceParam:
+      name: source
+      required: false
+      in: query
+      description: Source filter for the request. Must be one of ADMIN, AGENT_WEB, API, CMP, CSV, EMAIL_INTAKE, or WEB.
+      schema:
+        type: string
+        enum:
+        - ADMIN
+        - AGENT_WEB
+        - API
+        - CMP
+        - CSV
+        - EMAIL_INTAKE
+        - WEB
+    dsarStatusParam:
+      name: status
+      required: false
+      in: query
+      description: Status filter for the request. Must be one of PENDING_EMAIL_VERIFICATION, PENDING_IDENTITY_VERIFICATION, IN_PROGRESS, IN_REVIEW, PENDING_APPEAL, COMPLETED, REJECTED, or REJECTED_AUTO.
+      schema:
+        type: string
+        enum:
+        - PENDING_EMAIL_VERIFICATION
+        - PENDING_IDENTITY_VERIFICATION
+        - IN_PROGRESS
+        - IN_REVIEW
+        - PENDING_APPEAL
+        - COMPLETED
+        - REJECTED
+        - REJECTED_AUTO
+    dsarRequestTypeParam:
+      name: requestType
+      required: false
+      in: query
+      description: Request type filter for the request. Must be one of DELETE, CORRECT, SUMMARIZE, DO_NOT_SELL, OPT_OUT, LIMIT_USE, OTHER, PORTABILITY, or CUSTOM_[1-5]
+      schema:
+        type: string
+        enum:
+        - DELETE
+        - CORRECT
+        - SUMMARIZE
+        - DO_NOT_SELL
+        - OPT_OUT
+        - LIMIT_USE
+        - OTHER
+        - PORTABILITY
+        - CUSTOM_1
+        - CUSTOM_2
+        - CUSTOM_3
+        - CUSTOM_4
+        - CUSTOM_5
+    formIdParam:
+      name: formId
+      required: false
+      in: query
+      description: Form identifier through which the Subject Rights Request was made.
+      schema:
+        type: integer
+        format: int32
+    limitParam:
+      name: limit
+      required: false
+      in: query
+      description: The number of items to return.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 500
+        default: 100
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-osano-api-key
+x-tagGroups:
+- name: General
+  tags:
+  - cmp
+  - cmpRules
+  - connectors
+  - dsar
+  - dataDiscovery
+  - dsarActionItems
+  - subjectRightsPortal
+  - customerInsights

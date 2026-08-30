@@ -1,0 +1,1631 @@
+openapi: 3.2.0
+info:
+  title: Osano API Reference Cmp API
+  version: 1.0.0
+  description: '# Introduction
+
+    This is the Osano API. Use of this API is subject to the Osano API Terms of Service.
+
+
+    # Authentication
+
+    The Osano API uses API keys to authenticate requests that are generated on a per-user basis. All calls require a valid, unexpired API key.
+
+
+    API keys may be generated within the [Osano settings -> API Keys](https://my.osano.com/api-keys) page. You must be an admin or have the correct privileges to generate an API key.
+
+
+    Once generated, the API key should be included in the `x-osano-api-key` header of all requests.  For example:
+
+
+    ```
+
+    curl --header ''x-osano-api-key: <API_KEY>'' https://api.osano.com/v1/<API_PATH>
+
+    ```
+
+    # Pagination, Limits, and Sorting
+
+    Except where noted, all "list" resources will be sorted in descending order by creation time, and this may not be changed.  The number of results returned may be controlled via the limit param, but may not exceed 500.
+
+
+    Within the response of each "list" API call, there will be a "next" field, which represents the pagination token.  This token may be added as a query parameter, i.e. ?next=<...> to retrieve subsequent pages of the same resource.
+
+    '
+  x-logo:
+    url: https://www.osano.com/hubfs/Imported%20images/Logo.svg
+    altText: Osano
+servers:
+- url: https://api.osano.com
+  description: Production API
+security:
+- ApiKeyAuth: []
+tags:
+- name: cmp
+  x-displayName: Cookie Consent Configurations
+paths:
+  /v1/cookie-consent/configs:
+    get:
+      summary: List Cookie Consent Configurations
+      description: Returns a list of Cookie Consent Configurations. Results are sorted in descending order by creation time by default. The sort by field can be overridden by specifying a `sortBy` param. The number of results returned may be controlled via the limit param, but may not exceed 1000.  The "next" object in the response may be used to retrieve subsequent pages of the same resource.
+      tags:
+      - cmp
+      operationId: getConfigs
+      parameters:
+      - in: query
+        name: name
+        schema:
+          type: string
+        description: The name of the configuration to filter results by (case insensitive, partial matches allowed).
+      - $ref: '#/components/parameters/domainsParam'
+      - $ref: '#/components/parameters/CmpConfigLimitParam'
+      - $ref: '#/components/parameters/nextTokenParam'
+      - $ref: '#/components/parameters/sortByParam'
+      - $ref: '#/components/parameters/orgIdsParam'
+      - $ref: '#/components/parameters/cmpConfigModeParam'
+      - $ref: '#/components/parameters/cmpConfigPublishStatusParam'
+      - $ref: '#/components/parameters/cmpConfigTattleRecordStoppedParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CmpConfigResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create New Cookie Consent Configuration
+      description: Create a new Cookie Consent Configuration.
+      tags:
+      - cmp
+      operationId: createConfig
+      requestBody:
+        description: ''
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CmpConfigWithDefaults'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CmpConfigResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/cookie-consent/audit-log:
+    get:
+      summary: Query Cookie Consent Audit Log
+      description: Returns Cookie Consent (CMP) audit log events for the authenticated customer, in reverse-chronological order (most recent first). Supports filtering by config ID(s), event type(s), change type, actor, and a date range. Use the "next" token from the response to page through large result sets; paging is cursor-based and stable across concurrent inserts.
+      tags:
+      - cmp
+      operationId: getAuditLog
+      parameters:
+      - in: query
+        name: ids
+        allowReserved: true
+        schema:
+          type: string
+        description: Comma-separated list of audit event IDs to fetch specific events (e.g. the `changeIds` recorded on a `cmp.configPublished` event). When omitted, no ID filter is applied.
+      - in: query
+        name: configIds
+        allowReserved: true
+        schema:
+          type: string
+        description: Comma-separated list of Cookie Consent Configuration IDs to filter events by (e.g. `id1,id2`). When omitted, events across all configs are returned.
+      - in: query
+        name: eventTypes
+        allowReserved: true
+        schema:
+          type: string
+        description: Comma-separated list of event types to filter by (e.g. `cmp.configUpdated,cmp.configPublished, cmp.ruleUpdated, cmp.ruleCreated`).
+      - in: query
+        name: changeType
+        allowReserved: true
+        schema:
+          type: string
+          enum:
+          - text_customization
+          - style
+          - iab
+          - setting
+          - rule
+        description: Filter change events by the type of change recorded in the event metadata (`metadata.changeType`). One of `text_customization`, `style`, `iab`, `setting`, `rule`. Distinct from `eventTypes`, which filters on the machine-readable event type.
+      - in: query
+        name: actor
+        allowReserved: true
+        schema:
+          type: string
+        description: Filter events by the acting user (email, case-insensitive).
+      - in: query
+        name: startDate
+        allowReserved: true
+        schema:
+          type: string
+          format: date-time
+        description: Return events at or after this UTC ISO-8601 timestamp (inclusive).
+      - in: query
+        name: endDate
+        allowReserved: true
+        schema:
+          type: string
+          format: date-time
+        description: Return events strictly before this UTC ISO-8601 timestamp (exclusive).
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 200
+          default: 50
+        description: The maximum number of events to return per page.
+      - in: query
+        name: next
+        allowReserved: true
+        schema:
+          type: string
+        description: The pagination token from the previous response. Send it on its own to fetch the next page; the original filters are encoded in the token.
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - id
+                      - module
+                      - eventType
+                      - timestamp
+                      - resources
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          description: Unique identifier of the audit event.
+                        module:
+                          type: string
+                          enum:
+                          - CMP
+                          description: The Osano module the event belongs to. Currently always CMP.
+                          example: CMP
+                        eventType:
+                          type: string
+                          description: Machine-readable event type.
+                          example: cmp.configPublished
+                        actor:
+                          type:
+                          - string
+                          - 'null'
+                          description: Email of the user who performed the action, when known.
+                        timestamp:
+                          type: string
+                          format: date-time
+                          description: UTC ISO-8601 time the event occurred.
+                        metadata:
+                          type:
+                          - object
+                          - 'null'
+                          additionalProperties: true
+                          description: Event-specific free-form payload (e.g. changed fields, before/after values). Shape varies by eventType. For change events, a derived `pathLabel` is added next to `path` with the human-readable field name (e.g. "Enable Do Not Sell Default").
+                        resources:
+                          type: array
+                          description: The resource(s) this event acted on.
+                          items:
+                            type: object
+                            required:
+                            - resourceId
+                            - resourceType
+                            - isPrimary
+                            properties:
+                              isPrimary:
+                                type: boolean
+                                description: Whether this is the primary resource for the event.
+                              resourceId:
+                                type: string
+                                description: Identifier of the resource (for CMP, the config ID).
+                              resourceType:
+                                type: string
+                                example: CMP
+                              resourceName:
+                                type:
+                                - string
+                                - 'null'
+                  next:
+                    type: string
+                    description: Pagination token for the next page. Absent when there are no more results.
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/cookie-consent/configs/{configId}:
+    get:
+      summary: Return Detailed Cookie Consent Configuration
+      description: Get a detailed Cookie Consent Configuration by ID.
+      tags:
+      - cmp
+      operationId: getConfig
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CmpConfigResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update Cookie Consent Configuration
+      description: Update an existing Cookie Consent Configuration.
+      tags:
+      - cmp
+      operationId: updateConfig
+      parameters:
+      - name: configId
+        required: true
+        in: path
+        description: The identifier of the Cookie Consent Configuration to be updated.
+        schema:
+          type: string
+      requestBody:
+        description: 'The properties to be updated on the Cookie Consent Configuration.  Note: this allows for a partial update, so all fields are optional.'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CmpConfig'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CmpConfigResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/cookie-consent/configs/{configId}/publish:
+    post:
+      summary: Publish Cookie Consent Configuration
+      description: 'Publish an existing Cookie Consent Configuration.
+
+
+        Guidelines for publishing a configuration:
+
+        - A configuration cannot be queued again for publishing until the publish operation is complete. It''s recommended that all configuration changes are made prior to sending a publish request for that configuration.
+
+        - A maximum of 300 configs per customer account can be queued for publishing at a time.
+
+        - It''s recommended to send a batch of publish requests (up to 250 requests) every 30 minutes. Note: this is not the equivalent to sending X number of publish requests per minute over a 30 minute period."
+
+        '
+      tags:
+      - cmp
+      operationId: publishConfig
+      parameters:
+      - name: configId
+        required: true
+        in: path
+        description: The identifier of the Cookie Consent Configuration to be published.
+        schema:
+          type: string
+      requestBody:
+        description: ''
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                keepUnclassifiedTattles:
+                  type: boolean
+                  description: When `true`, unclassified cookie/script/iframe discoveries will not be deleted. When `false`, all unclassified cookie/script/iframe discoveries will be deleted.
+                description:
+                  type: string
+                  description: When included in the request, allows for text comments provided about the publish to be retained with the version number for reference in the Osano Admin UI.
+                webhookUrl:
+                  type: string
+                  description: The URL to be called when the publish operation is complete.
+      responses:
+        '204':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/cookie-consent/configs/{configId}/discoveries:
+    get:
+      summary: List Configuration Discoveries
+      description: Retrieve a list of Discoveries for a Cookie Consent Configuration by configuration ID.
+      tags:
+      - cmp
+      operationId: getTattles
+      parameters:
+      - name: configId
+        required: true
+        in: path
+        description: The identifier of the Cookie Consent Configuration to be queried.
+        schema:
+          type: string
+      - $ref: '#/components/parameters/cmpDiscoveriesStoreTypeParam'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CmpDiscoveriesResponseList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /v1/cookie-consent/configs/{configId}/rules:
+    get:
+      summary: List Configuration Rules
+      description: Retrieve a list of Rules for a Cookie Consent Configuration by configuration ID.
+      tags:
+      - cmp
+      operationId: getRules
+      parameters:
+      - name: configId
+        required: true
+        in: path
+        description: The identifier of the Cookie Consent Configuration to be queried.
+        schema:
+          type: string
+      - $ref: '#/components/parameters/cmpRulesStoreTypeParam'
+      - $ref: '#/components/parameters/cmpRulesClassificationParam'
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/nextTokenParam'
+      responses:
+        '200':
+          $ref: '#/components/responses/CmpRulesList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    CmpDiscoveriesResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - customerId
+      - configId
+      - storeKey
+      - storeType
+      - created
+      - updated
+      - scanOrigin
+      - firstPageSeen
+      properties:
+        configId:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+        storeKey:
+          type: string
+        storeType:
+          type: string
+        created:
+          type: string
+          format: date-time
+          description: The date and time the discovery was created (displayed as "First Date Seen" in my.osano.com).
+        updated:
+          type: string
+          format: date-time
+        scanOrigin:
+          type:
+          - string
+          - 'null'
+          enum:
+          - URL Scan
+          - osano.js
+          description: '"URL Scan" if it was discovered by a URL scan, "osano.js" if not, and null if the origin is not available (displayed as "Unknown" in my.osano.com).'
+        firstPageSeen:
+          type: string
+          format: URL
+        confidence:
+          type:
+          - string
+          - 'null'
+          enum:
+          - Unknown
+          - Low
+          - Medium
+          - High
+          description: The AI confidence level for the discovery classification. Only available for cookie type discoveries. "Unknown" if no AI confidence data is available.
+    CmpDiscoveriesResponseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CmpDiscoveriesResponse'
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
+    CmpConfig:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: The name of the configuration.
+        domains:
+          type: array
+          minItems: 1
+          description: A list of domains (cannot be null or empty) that are permitted to host the configuration.
+          items:
+            type: string
+        orgIds:
+          type: array
+          uniqueItems: true
+          description: A list of organization IDs that the configuration is associated with. If omitted or empty, the configuration is associated with the root organization of the customerId that created the API key used to make the request.
+          items:
+            type: string
+            format: uuid
+        mode:
+          type: string
+          description: 'The compliance mode for the configuration.
+
+
+            - `debug`: Discovery/Listener Mode - Script and cookie information will be gathered for categorization, but blocking will not occur and the consent dialog will not be displayed.
+
+            - `permissive`: Permissive Mode - The consent dialog will be displayed. All <i>uncategorized</i> scripts will be reported as discoveries and allowed regardless of consent given. All <i>categorized</i> scripts will be allowed or blocked based on the user selection.
+
+            - `production`: Strict Mode <b>(recommended)</b> - The consent dialog will be displayed, and all uncategorized scripts will be blocked until they have been classified.
+
+
+            Note: It is recommended that all discovered scripts & cookies are classified before changing the mode to `production` as all unclassified entities will be blocked. For more information, see Compliance Mode Definitions in the [Cmp Setup Guide](https://docs.osano.com/hc/en-us/articles/22472106973332-Cmp-Setup-Guide#Step1)
+
+            '
+          enum:
+          - debug
+          - permissive
+          - production
+        configuration:
+          type: object
+          additionalProperties: false
+          minProperties: 1
+          properties:
+            additionalLinks:
+              type: array
+              minItems: 1
+              maxItems: 2
+              description: "A nested array where the inner array contains two strings that represent the text and URL for an additional link that can be added to the consent banner.\n- The first string determines the text that will be displayed on the link and must be one of \t`cookiePolicy`, `doNotSellOrShare`, `imprint`, `googlePrivacyPolicy`, `privacyPolicy`, `privacyStatement`, `securityPolicy`, `storagePolicy`, `subjectRightsRequest`,     `termsAndConditions`, `termsOfService`, or `termsOfUse`,. <b>Note:</b> this string value cannot be the same as the `policyLinkText` value.\n- The second string is the relative or absolute URL that the link will navigate to when clicked.\n\nExample: `[['subjectRightsRequest', 'https://example.com/subject-rights-request']]`\n"
+              items:
+                type: array
+                minItems: 2
+                maxItems: 2
+                items:
+                  type: string
+            allowTimeout:
+              type: boolean
+              description: Enables or disables the automatic timeout of banners and dialogs that are on a timer. If disabled, the site visitor will need to interact with the banner or dialog to make it disappear.
+            amazonConsent:
+              type: boolean
+              description: When set to `true`, Amazon Consent Signal will be shared with Amazon Ads scripts on your site. If you’re not using Amazon Ads scripts, we recommend setting this to `false` or omitting this property.
+            ccpaRelaxed:
+              type: boolean
+              description: When enabled, visitors in California, Colorado, Connecticut, Utah, and Virginia will be shown consent banner format 1 and consent will be implied. When disabled, visitors in California, Colorado, Connecticut, Utah, and Virginia will be shown consent banner format 3 and explicit consent is required. For more information, see [US State Level Legislation Opt-Out Banner Format Setting](https://docs.osano.com/hc/en-us/articles/22469433588756-US-State-Level-Legislation-Opt-Out-Banner-Format-Setting)
+            codeSplitting:
+              type: boolean
+              description: When enabled, the `osano.js` script is segemented into a reduced initial payload with additional requests made as needed. This may help improve site rendering.
+            crossDomain:
+              type: boolean
+              description: When enabled, it allows multiple domains to be added to the configuration settings and allows initial consent to be shared across unrelated domains owned by the same entity. For more information, see [Cross Domain Support](https://docs.osano.com/cross-domain-support).
+            deleteStorageOnOptout:
+              type: boolean
+              description: When enabled, cookies and local storage items belonging to a consent category will be automatically deleted when an end user withdraws consent for that category. Essential category items are never deleted.
+            dntSupport:
+              type: boolean
+              description: Enables or disables honoring Do Not Track (DNT) signals from the site visitor's browser.
+            doNotSellCategories:
+              type: array
+              description: The consent categories that are opted out when the site visitor exercises the Do Not Sell option. Required when `enableDoNotSell` is `true`.
+              items:
+                type: string
+                enum:
+                - MARKETING
+                - ANALYTICS
+                - PERSONALIZATION
+            enableDoNotSell:
+              type: boolean
+              description: When set to `true`, the Do Not Sell opt-out experience is enabled for site visitors. Requires the `cmpDoNotSell` plan entitlement to disable.
+            enableDoNotSellDefault:
+              type: boolean
+              description: The default opt-out state applied for the Do Not Sell categories when a site visitor has not yet recorded a preference.
+            forcedClassifyEnabled:
+              type: boolean
+              description: When set to `true`, Osano will automatically block a list of curated scripts and cookies (in addition to (and superseding) your existing rules) in regions where their specific usage has been declared illegal by regulatory bodies. When false, Osano will respect existing classification settings. See [Block List](https://docs.osano.com/hc/en-us/articles/22469397117716-Block-list) for a list of blocked cookies.
+            forceManagePreferences:
+              type: boolean
+              description: When set to `true`, a "Manage Preferences" button will be present on banner templates 1 and 3. When set to `false`, banner templates 1 and 3 will not have a "Manage Preferences" button. For more information on banner templates, see [Consent Banner Gallery](https://docs.osano.com/hc/en-us/articles/21084783710996-Consent-Banner-Gallery).
+            googleConsent:
+              type: boolean
+              description: When enabled, Google Consent Mode for Google Analytics is supported. GCM must be implemented via Google configuration for this option to function. If you're unsure whether you're using GCM, it is recommended to set this to `false`. For more information, see [Google Consent Mode](https://docs.osano.com/google-consent).
+            gpcSupport:
+              type: boolean
+              description: When set to `true`, the Global Privacy Control (GPC) signal is honored. For more information, see [Global Privacy Control](https://docs.osano.com/global-privacy-controls-gpc)
+            iframeBlocking:
+              type: string
+              enum:
+              - ''
+              - debug
+              - permissive
+              - production
+              description: 'The mode for allowing or blocking iframes. Note: If `""` is selected, then iframes will not be blocked or discovered. If the top level mode is set to a lower level than the iframe mode, then the iframe mode will be ignored.
+
+                '
+            localStorageBlocking:
+              type: string
+              enum:
+              - ''
+              - debug
+              - permissive
+              - production
+              description: 'The mode for allowing or blocking local storage. Note: If `""` is selected, then local storage will not be blocked or discovered. If the top level mode is set to a lower level than the local storage mode, then the local storage mode will be ignored.
+
+                '
+            managePreferencesEnabled:
+              type: boolean
+              description: When set to `true`, First Layer Categories are disabled and users in EEA member countries and the UK won't see category toggles in the banner. When set to `false`, First Layer Categories are enabled and users in EEA member countries and the UK are shown cookie category toggles in the banner. For more information, see [First Layer Categories](https://docs.osano.com/first-layer-categories).
+            microsoftConsent:
+              type: boolean
+              description: When set to `true`, Osano will share user consent choices with Microsoft UET. Microsoft UET must be implemented on your website for this option to function. Please note that this signal is incompatible with the use of IAB TCF 2.x consent signals.
+            palette:
+              type: object
+              additionalProperties: false
+              description: The styling and color palette for the banner, drawer, and DNS (Do Not Sell) dialogs. Colors must be given in [CSS numerical format](https://www.w3.org/TR/css-color-3/#numerical) (hexadecimal, RGBa or HSLa). Color keywords are not supported. To remove a color, set the value to `null`.
+              properties:
+                buttonAcceptBackgroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the Accept button in the banner. If this is not set, it will fallback to the value set for `buttonBackgroundColor`.
+                buttonAcceptBackgroundColorHover:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the Accept button in the banner when hovered. If this is not set, it will fallback to the value set for `buttonBackgroundColorHover`.
+                buttonAcceptBorderColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The border color of the Accept button in the banner. If this is not set, it will fallback to the value set for `buttonBorderColor`.
+                buttonAcceptForegroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The text color of the Accept button in the banner. If this is not set, it will fallback to the value set for `buttonForegroundColor`.
+                buttonBackgroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the buttons.
+                buttonBackgroundColorHover:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the buttons when hovered.
+                buttonBorderColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The border color of the buttons. If this is not set, it will default to the value set for `buttonForegroundColor`.
+                buttonCloseColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The text color of the close button in the banner. If this is not set, it will fallback to the value set for `dialogForegroundColor`.
+                buttonDenyBackgroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the Deny button in the banner. If this is not set, it will fallback to the value set for `buttonBackgroundColor`.
+                buttonDenyBackgroundColorHover:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the Deny button in the banner when hovered. If this is not set, it will fallback to the value set for `buttonBackgroundColorHover`.
+                buttonDenyBorderColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The border color of the Deny button in the banner. If this is not set, it will fallback to the value set for `buttonBorderColor`.
+                buttonDenyForegroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The text color of the Deny button in the banner. If this is not set, it will fallback to the value set for `buttonForegroundColor`.
+                buttonRejectAllBackgroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the Reject All button in the banner. If this is not set, it will fallback to the value set for `buttonBackgroundColor`.
+                buttonRejectAllBackgroundColorHover:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the Reject All button in the banner when hovered. If this is not set, it will fallback to the value set for `buttonBackgroundColorHover`.
+                buttonRejectAllBorderColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The border color of the Reject All button in the banner. If this is not set, it will fallback to the value set for `buttonBorderColor`.
+                buttonRejectAllForegroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The text color of the Reject All button in the banner. If this is not set, it will fallback to the value set for `buttonForegroundColor`.
+                buttonForegroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The text color of the buttons.
+                buttonManageBackgroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the Manage Preferences button in the banner. If this is not set, it will fallback to the value set for `buttonBackgroundColor`.
+                buttonManageBorderColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The border color of the Manage Preferences button in the banner. If this is not set, it will fallback to the value set for `buttonBorderColor`.
+                buttonManageForegroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The text color of the Manage Preferences button in the banner. If this is not set, it will fallback to the value set for `buttonForegroundColor`.
+                buttonManageBackgroundColorHover:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the Manage Preferences button in the banner when hovered. If this is not set, it will fallback to the value set for `buttonBackgroundColorHover`.
+                dialogBackgroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the dialogs.
+                dialogForegroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The text color of the dialogs.
+                dialogGpcBackgroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the GPC opt-out indicator in the banner.
+                dialogGpcBorderColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The border color of the GPC opt-out indicator in the banner.
+                dialogGpcForegroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The text color of the GPC opt-out indicator in the banner.
+                dialogGpcColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The status dot color of the GPC opt-out indicator in the banner.
+                dialogType:
+                  type:
+                  - string
+                  - 'null'
+                  enum:
+                  - bar
+                  - box
+                  description: "The type of banner to display. \n- `bar`: A banner that appears at the top or bottom of the page.\n- `box`: A dialog that appears in the center of the page.\n"
+                displayPosition:
+                  type:
+                  - string
+                  - 'null'
+                  description: 'If the `dialogType` is `bar`, valid options are `top` and `bottom` and defaults to `top` if `displayPosition` is `null`.
+
+                    If the `dialogType` is `box`, then valid options are `top-left`, `top-right`, `bottom-left`, `bottom-right`, and `center` and defaults to `center` if `displayPosition` is `null`.
+
+                    '
+                gpcBackgroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the GPC opt-out widget.
+                gpcBorderColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The border color of the GPC opt-out widget.
+                gpcForegroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The text color of the GPC opt-out widget.
+                gpcColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The status dot color of the GPC opt-out widget.
+                gpcBackgroundColorHover:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the GPC opt-out widget when hovered.
+                infoDialogBackgroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the drawer and DNS dialogs. If this is not set, it will fallback to the value set for `dialogBackgroundColor`.
+                infoDialogForegroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The text color of the drawer and DNS dialogs. If this is not set, it will fallback to the value set for `dialogForegroundColor`.
+                infoDialogOverlayColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The overlay color of the drawer and DNS dialogs.
+                infoDialogButtonBackgroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the drawer and DNS dialogs buttons. If this is not set, it will fallback to the value set for `buttonBackgroundColor`.
+                infoDialogButtonBackgroundColorHover:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the drawer and DNS dialogs buttons when hovered. If this is not set, it will fallback to the value set for `buttonBackgroundColorHover`.
+                infoDialogButtonBorderColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The border color of the drawer and DNS dialogs buttons. If this is not set, it will fallback to the value set for `buttonBorderColor`.
+                infoDialogButtonCloseColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The text color of the close button in the drawer and DNS dialogs. If this is not set, it will fallback to the value set for `infoDialogForegroundColor`.
+                infoDialogButtonForegroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The text color of the drawer and DNS dialogs buttons. If this is not set, it will fallback to the value set for `buttonForegroundColor`.
+                infoDialogGpcBackgroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the GPC opt-out indicator in the drawer.
+                infoDialogGpcBorderColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The border color of the GPC opt-out indicator in the drawer.
+                infoDialogGpcForegroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The text color of the GPC opt-out indicator in the drawer.
+                infoDialogGpcColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The status dot color of the GPC opt-out indicator in the drawer.
+                infoDialogLinkColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The color of links in the drawer and DNS dialogs. If this is not set, it will fallback to the value set for `linkColor`.
+                infoDialogPosition:
+                  type:
+                  - string
+                  - 'null'
+                  description: The position of the drawer.
+                  enum:
+                  - right
+                  - left
+                infoDialogToggleOffTrackColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the toggle button in the drawer and DNS dialogs when it is in the disabled position. If this is not set, it will fallback to the value set for `toggleOffTrackColor`.
+                infoDialogToggleOffThumbColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The color of the toggle button indicator in the drawer and DNS dialogs when it is in the disabled position. If this is not set, it will fallback to the value set for `toggleOffThumbColor`.
+                infoDialogToggleOnTrackColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the toggle button in the drawer and DNS dialogs when it is in the enabled position. If this is not set, it will fallback to the value set for `toggleOnTrackColor`.
+                infoDialogToggleOnThumbColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The color of the toggle button indicator in the drawer and DNS dialogs when it is in the enabled position. If this is not set, it will fallback to the value set for `toggleOnThumbColor`.
+                linkColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The color of the links.
+                optOutWidgetPosition:
+                  type:
+                  - string
+                  - 'null'
+                  description: The position of the opt-out widget.
+                  enum:
+                  - right
+                  - left
+                toggleOffThumbColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The color of the toggle button indicators when they are in the disabled position.
+                toggleOffTrackColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the toggle buttons when they are in the disabled position.
+                toggleOnTrackColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The background color of the toggle buttons when they are in the enabled position.
+                toggleOnThumbColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The color of the toggle button indicators when they are in the enabled position.
+                toggleButtonOffColor:
+                  type:
+                  - string
+                  - 'null'
+                  deprecated: true
+                  description: The color of the toggle button indicators when they are in the disabled position. This property is deprecated. Please use `toggleOffThumbColor` instead.
+                toggleButtonOnColor:
+                  type:
+                  - string
+                  - 'null'
+                  deprecated: true
+                  description: The color of the toggle button indicators when they are in the enabled position. This property is deprecated. Please use `toggleOnThumbColor` instead.
+                toggleOffBackgroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  deprecated: true
+                  description: The background color of the toggle buttons when they are in the disabled position. This property is deprecated. Please use `toggleOffTrackColor` instead.
+                toggleOnBackgroundColor:
+                  type:
+                  - string
+                  - 'null'
+                  deprecated: true
+                  description: The background color of the toggle buttons when they are in the enabled position. This property is deprecated. Please use `toggleOnTrackColor` instead.
+                widgetPosition:
+                  type:
+                  - string
+                  - 'null'
+                  description: The position of the widget.
+                  enum:
+                  - right
+                  - left
+                focusOutlineColor:
+                  type:
+                  - string
+                  - 'null'
+                  description: The color of the focus outline for interactive elements in the banner, drawer, and DNS dialogs.
+            policyLinkInDrawer:
+              type: boolean
+              description: Enables or disables the presentation of the policy link in the preferences drawer.
+            policyLinkText:
+              type: string
+              enum:
+              - cookieNotice
+              - cookiePolicy
+              - storagePoloicy
+              - privacyNotice
+              - privacyPolicy
+              description: The text of the link displayed in the dialog (and optionally, in the drawer - see `policyLinkInDrawer` property) that links the site visitor to the url specified  in the `storagePolicyHref` property.
+            showConsentUuid:
+              type: boolean
+              description: When set to `true`, the end user’s consent UUID will be present in the Preference Drawer with a copy button. When disabled, an end user will need to access their Osano cookie in their browser to locate the consent UUID.
+            showOptOutWidget:
+              type: boolean
+              description: When set to `true`, the opt-out widget will be displayed on the site. When set to `false`, the opt-out widget will be hidden.
+            showWidget:
+              type: boolean
+              description: When set to `true`, the consent widget will be displayed on the site. When set to `false`, the widget will be hidden.
+            storagePolicyHref:
+              type: string
+              description: The URL for your site's privacy policy. Can be relative or absolute.
+            tattleSampling:
+              type: number
+              format: float
+              maximum: 1
+              minimum: 0
+              description: The percentage of visitors (0-1) for whom discoveries will be recorded. A value of 0 disables discovery recording, while a value of 1 records discoveries for all visitors.
+            timeoutSeconds:
+              type: integer
+              description: The number of seconds to wait before hiding the banner and saving default consent settings.
+            translations:
+              type: object
+              additionalProperties: false
+              description: Translation overrides for the configuration text strings.
+              properties:
+                messaging:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    categories:
+                      type: object
+                      additionalProperties: true
+                    closeButton:
+                      type: object
+                      additionalProperties: true
+                    default:
+                      type: object
+                      additionalProperties: true
+                    timer:
+                      type: object
+                      additionalProperties: true
+                    usageHow:
+                      type: object
+                      additionalProperties: true
+                    usageList:
+                      type: object
+                      additionalProperties: true
+                    usageWhat:
+                      type: object
+                      additionalProperties: true
+                    viewCookies:
+                      type: object
+                      additionalProperties: true
+                    viewDisclosures:
+                      type: object
+                      additionalProperties: true
+                drawer:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    description:
+                      type: object
+                      additionalProperties: true
+                    header:
+                      type: object
+                      additionalProperties: true
+                doNotSell:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    description:
+                      type: object
+                      additionalProperties: true
+                    header:
+                      type: object
+                      additionalProperties: true
+                categories:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    ANALYTICS:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        description:
+                          type: object
+                          additionalProperties: true
+                        label:
+                          type: object
+                          additionalProperties: true
+                    ESSENTIAL:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        description:
+                          type: object
+                          additionalProperties: true
+                        label:
+                          type: object
+                          additionalProperties: true
+                    MARKETING:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        description:
+                          type: object
+                          additionalProperties: true
+                        label:
+                          type: object
+                          additionalProperties: true
+                    OPT_OUT:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        description:
+                          type: object
+                          additionalProperties: true
+                        label:
+                          type: object
+                          additionalProperties: true
+                    PERSONALIZATION:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        description:
+                          type: object
+                          additionalProperties: true
+                        label:
+                          type: object
+                          additionalProperties: true
+                buttons:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    accept:
+                      type: object
+                      additionalProperties: true
+                    acceptAll:
+                      type: object
+                      additionalProperties: true
+                    deny:
+                      type: object
+                      additionalProperties: true
+                    denyAll:
+                      type: object
+                      additionalProperties: true
+                    denyNonEssential:
+                      type: object
+                      additionalProperties: true
+                    dialog:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        denyAll:
+                          type: object
+                          additionalProperties: false
+                          properties:
+                            fr:
+                              type: object
+                              additionalProperties: true
+                        openDrawer:
+                          type: object
+                          additionalProperties: false
+                          properties:
+                            fr:
+                              type: object
+                              additionalProperties: true
+                    managePreferences:
+                      type: object
+                      additionalProperties: true
+                    rejectNonEssential:
+                      type: object
+                      additionalProperties: true
+                    save:
+                      type: object
+                      additionalProperties: true
+                optOut:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    active:
+                      type: object
+                      additionalProperties: true
+                    honored:
+                      type: object
+                      additionalProperties: true
+                    signalActive:
+                      type: object
+                      additionalProperties: true
+                    signalHonored:
+                      type: object
+                      additionalProperties: true
+            usVariantMapping:
+              type: object
+              description: 'Maps US jurisdictions to the consent banner variant they get. Keys are lower-case state codes such as `us-ca`, plus the reserved key `defaults` for US jurisdictions the mapping does not list. Values are `one` (banner format 1, consent implied) or `three` (banner format 3, explicit consent). Unknown keys or values are rejected with `400`; there is no country-wide `us` key, use `defaults`. While a mapping is stored it is authoritative for every US visitor: a jurisdiction it does not list gets `defaults`, or `one` when `defaults` is unset. Osano''s curated per-state defaults and the legacy `ccpaRelaxed` boolean do not apply. Listing `us-ca` alone therefore gives California format 3 and every other state format 1, including states with active privacy laws. `ccpaRelaxed` applies only when no mapping is stored (`false` — curated per-state defaults; `true` — format 1 for all US states) and is never written by this field. A mapping with no usable entries is not stored, which hands control back to `ccpaRelaxed`. Requires the `cmpUsJurisdictionCustomization` plan entitlement: sending a non-empty mapping without it is rejected with `403` (`FE0004`), and a mapping stored before a plan downgrade is dropped on the next update or publish.'
+              additionalProperties:
+                type: string
+                enum:
+                - one
+                - three
+              properties:
+                defaults:
+                  type: string
+                  enum:
+                  - one
+                  - three
+              example:
+                us-ca: three
+                us-tx: three
+    CmpConfigResponseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CmpConfigResponse'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    CmpConfigResponse:
+      allOf:
+      - $ref: '#/components/schemas/CmpConfig'
+      - type: object
+        additionalProperties: false
+        required:
+        - configId
+        properties:
+          created:
+            type: integer
+            description: The unix epoch timestamp when the configuration was created.
+          updated:
+            type: integer
+            description: The unix epoch timestamp when the configuration was last updated.
+          publishStatus:
+            type: string
+            enum:
+            - unpublished
+            - in-progress
+            - published
+            - outdated
+            - error
+          lastPublished:
+            type: integer
+            description: The unix epoch timestamp when the configuration was last published.
+          publishedRevision:
+            type: integer
+          tattleRecordStopped:
+            type: boolean
+          configId:
+            type: string
+            description: The configuration ID.
+            format: uuid
+          customerId:
+            type: string
+            description: The customer ID associated with the configuration.
+    CmpRule:
+      type: object
+      minProperties: 1
+      properties:
+        classification:
+          type: string
+          enum:
+          - ANALYTICS
+          - BLACKLISTED
+          - ESSENTIAL
+          - HIDDEN
+          - MARKETING
+          - PERSONALIZATION
+        rule:
+          type: string
+          description: The type of the rule.
+          minLength: 3
+          maxLength: 1000
+        disclosure:
+          type: boolean
+          description: Whether the rule should be disclosed. If omitted, this property will default to `false`.
+        title:
+          type:
+          - string
+          - 'null'
+          description: The title of the rule. This is used in the consent disclosure in place of the rule when defined.
+          maxLength: 64
+        vendorName:
+          type:
+          - string
+          - 'null'
+          description: The value of the rule.
+          maxLength: 100
+        ruleType:
+          type:
+          - string
+          - 'null'
+          enum:
+          - FILENAME
+          - DOMAIN
+          - PATH
+          - REGEXP
+          - STARTS_WITH
+          - ENDS_WITH
+          - CONTAINS
+          - EXACT_MATCH
+          description: The type classification of the rule pattern.
+    CmpRuleResponseProperties:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          enum:
+          - cookie
+          - script
+          - iframe
+        ruleId:
+          type: integer
+          format: int32
+        configId:
+          type: string
+          format: uuid
+        vendorId:
+          type: string
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        ruleType:
+          type:
+          - string
+          - 'null'
+          enum:
+          - FILENAME
+          - DOMAIN
+          - PATH
+          - REGEXP
+          - STARTS_WITH
+          - ENDS_WITH
+          - CONTAINS
+          - EXACT_MATCH
+    CmpConfigWithDefaults:
+      allOf:
+      - $ref: '#/components/schemas/CmpConfig'
+      - type: object
+        required:
+        - name
+        - domains
+        - mode
+        - configuration
+        properties:
+          configuration:
+            required:
+            - storagePolicyHref
+            properties:
+              allowTimeout:
+                default: true
+              amazonConsent:
+                default: false
+              ccpaRelaxed:
+                default: false
+              codeSplitting:
+                default: false
+              crossDomain:
+                default: false
+              deleteStorageOnOptout:
+                default: false
+              dntSupport:
+                default: true
+              forcedClassifyEnabled:
+                default: true
+              forceManagePreferences:
+                default: true
+              googleConsent:
+                default: true
+              gpcSupport:
+                default: true
+              iframeBlocking:
+                default: ''
+              localStorageBlocking:
+                default: ''
+              managePreferencesEnabled:
+                default: false
+              microsoftConsent:
+                default: false
+              palette:
+                properties:
+                  buttonBackgroundColor:
+                    default: '#7A3FF1'
+                  buttonDenyBackgroundColor:
+                    default: '#7A3FF1'
+                  buttonDenyForegroundColor:
+                    default: '#FFFFFF'
+                  buttonForegroundColor:
+                    default: '#FFFFFF'
+                  dialogBackgroundColor:
+                    default: '#180D43'
+                  dialogForegroundColor:
+                    default: '#FFFFFF'
+                  dialogType:
+                    default: bar
+                  infoDialogBackgroundColor:
+                    default: '#180D43'
+                  infoDialogForegroundColor:
+                    default: '#FFFFFF'
+                  infoDialogPosition:
+                    default: right
+                  linkColor:
+                    default: '#37CD8F'
+                  optOutWidgetPosition:
+                    default: left
+                  toggleOnThumbColor:
+                    default: '#FFFFFF'
+                  toggleOffThumbColor:
+                    default: '#FFFFFF'
+                  toggleOnTrackColor:
+                    default: '#37CD8F'
+                  toggleOffTrackColor:
+                    default: '#7A3FF1'
+                  widgetPosition:
+                    default: right
+              policyLinkInDrawer:
+                default: false
+              policyLinkText:
+                default: privacyPolicy
+              showConsentUuid:
+                default: false
+              showOptOutWidget:
+                default: true
+              showWidget:
+                default: true
+              tattleSampling:
+                default: 1
+              timeoutSeconds:
+                default: 10
+    CmpCookieRule:
+      allOf:
+      - $ref: '#/components/schemas/CmpRule'
+      - type: object
+        properties:
+          description:
+            type:
+            - string
+            - 'null'
+            description: A description of the cookie to be used in disclosures.
+            maxLength: 1000
+          expiry:
+            type:
+            - string
+            - 'null'
+            description: The length of time that must elapse before the cookie expires.
+            maxLength: 50
+  parameters:
+    sortByParam:
+      name: sortBy
+      required: false
+      in: query
+      description: Specify a field to sort by. If omitted, the default sort order is used.
+      schema:
+        type: string
+        default: created
+        enum:
+        - name
+        - created
+        - updated
+        - lastPublished
+    cmpConfigTattleRecordStoppedParam:
+      name: tattleRecordStopped
+      required: false
+      in: query
+      description: The tattle record stopped status for the configuration.
+      schema:
+        type: boolean
+    cmpRulesStoreTypeParam:
+      name: type
+      in: query
+      description: The type of Rule to be returned. If omitted, all rule types are returned.
+      schema:
+        type: string
+        enum:
+        - cookie
+        - script
+        - iframe
+        - localStorage
+    cmpRulesClassificationParam:
+      name: classification
+      in: query
+      description: The type of rule classification to be returned.
+      schema:
+        type: string
+        enum:
+        - ESSENTIAL
+        - ANALYTICS
+        - MARKETING
+        - PERSONALIZATION
+        - HIDDEN
+        - BLACKLISTED
+    cmpConfigModeParam:
+      name: mode
+      required: false
+      in: query
+      description: The compliance mode for the configuration.
+      schema:
+        type: string
+        enum:
+        - debug
+        - permissive
+        - production
+    CmpConfigLimitParam:
+      name: limit
+      required: false
+      in: query
+      description: The number of items to return.
+      schema:
+        type: integer
+        format: int32
+        maximum: 1000
+        default: 100
+    domainsParam:
+      name: domains
+      required: false
+      in: query
+      description: 'A comma-separated list of domains to filter results by. If your domain has non-standard characters, please use Punycode encoding. The optional prefix can be used to specify how the filter is applied: any (default) - return results that match any of the specified domains; not - return results that do not match any of the specified domains; all - return results that match all of the specified domains. Example: "any:example.com,another-example.org" or "not:example.com,another-example.org" or "all:example.com,another-example.org"'
+      schema:
+        type: string
+        pattern: ^(?:(any|all|not):)?((?:(?!-)(?:xn--|_)?[A-Za-z\d-]{0,61}[A-Za-z\d]\.)+[A-Za-z]{2,6})(?:,((?:(?!-)(?:xn--|_)?[A-Za-z\d-]{0,61}[A-Za-z\d]\.)+[A-Za-z]{2,6}))*$
+      examples:
+        singleDomain:
+          value: example.com
+          summary: This example filters results to only include those associated with the specified domain.
+        multipleDomains:
+          value: example.com, another-example.org, sub.domain.co.uk
+          summary: This example filters results to include those associated with any of the specified domains.
+    limitParam:
+      name: limit
+      required: false
+      in: query
+      description: The number of items to return.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 500
+        default: 100
+    cmpDiscoveriesStoreTypeParam:
+      name: type
+      in: query
+      description: The type of Discovery to be returned. If omitted, only cookie type discoveries are returned.
+      schema:
+        type: string
+        default: cookie
+        enum:
+        - cookie
+        - script
+        - iframe
+        - localStorage
+    nextTokenParam:
+      name: next
+      required: false
+      in: query
+      description: The pagination token from the previous request.
+      schema:
+        type: string
+    orgIdsParam:
+      name: orgIds
+      required: false
+      in: query
+      description: 'A comma-separated list of organization UUIDs to filter results by. The optional prefix can be used to specify how the filter is applied: any (default) - return results that match any of the specified org IDs; na - return results that do not match any of the specified org IDs; all - return results that match all of the specified org IDs. Example: "any:uuid1,uuid2" or "not:uuid1,uuid2" or "all:uuid1,uuid2"'
+      schema:
+        type: string
+        pattern: ^(?:(any|all|not):)?((?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:,[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})*)$
+      examples:
+        noPrefix:
+          value: 123e4567-e89b-12d3-a456-426614174000,987e6543-e21b-12d3-a456-426614174999
+          summary: This example omits the prefix, which defaults to "any", to return results that match any of the specified org IDs.
+        any:
+          value: any:123e4567-e89b-12d3-a456-426614174000,987e6543-e21b-12d3-a456-426614174999
+          summary: This example uses the "any" prefix to return results that match any of the specified org IDs.
+        all:
+          value: all:123e4567-e89b-12d3-a456-426614174000,987e6543-e21b-12d3-a456-426614174999
+          summary: This example uses the "all" prefix to return results that match all of the specified org IDs.
+        not:
+          value: not:123e4567-e89b-12d3-a456-426614174000,987e6543-e21b-12d3-a456-426614174999
+          summary: This example uses the "not" prefix to return results that do not match any of the specified org IDs.
+    cmpConfigPublishStatusParam:
+      name: status
+      required: false
+      in: query
+      description: The publish status for the configuration.
+      schema:
+        type: string
+        enum:
+        - unpublished
+        - in-progress
+        - published
+        - outdated
+        - error
+  responses:
+    CmpRulesList:
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              items:
+                type: array
+                items:
+                  oneOf:
+                  - type: object
+                    allOf:
+                    - $ref: '#/components/schemas/CmpRule'
+                    - $ref: '#/components/schemas/CmpRuleResponseProperties'
+                  - type: object
+                    allOf:
+                    - $ref: '#/components/schemas/CmpCookieRule'
+                    - $ref: '#/components/schemas/CmpRuleResponseProperties'
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-osano-api-key
+x-tagGroups:
+- name: General
+  tags:
+  - cmp
+  - cmpRules
+  - connectors
+  - dsar
+  - dataDiscovery
+  - dsarActionItems
+  - subjectRightsPortal
+  - customerInsights
