@@ -318,36 +318,6 @@ apis:
     url: https://developers.osano.com/uc/core-api/openapi
   - type: SDK
     url: https://developers.osano.com/uc/js-sdk/
-- aid: osano:osano-datadiscovery-api
-  name: Osano Data Discovery API
-  description: Discover and manage data stores and personal data fields
-  humanURL: https://developers.osano.com/customer-rest-api
-  baseURL: https://api.osano.com
-  tags:
-  - Data Discovery
-  tags_raw:
-  - dataDiscovery
-  properties:
-  - type: OpenAPI
-    url: openapi/osano-datadiscovery-api-openapi.yml
-  - type: Documentation
-    url: https://developers.osano.com/customer-rest-api/developer-api-doc
-  - type: APIReference
-    url: https://developers.osano.com/customer-rest-api
-  - type: Authentication
-    url: authentication/osano-authentication.yml
-  - type: ErrorCatalog
-    url: errors/osano-problem-types.yml
-  - type: DataModel
-    url: data-model/osano-data-model.yml
-  - type: Conventions
-    url: conventions/osano-conventions.yml
-  - type: Documentation
-    url: https://developers.osano.com/uc/
-  - type: APIReference
-    url: https://developers.osano.com/uc/core-api/openapi
-  - type: SDK
-    url: https://developers.osano.com/uc/js-sdk/
 - aid: osano:osano-dsar-api
   name: Osano Dsar API
   description: Manage subject rights requests and data subject access requests
@@ -531,6 +501,35 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/osano-unified-consent-core-api-api-openapi.yml
+  - type: Documentation
+    url: https://developers.osano.com/customer-rest-api/developer-api-doc
+  - type: APIReference
+    url: https://developers.osano.com/customer-rest-api
+  - type: Authentication
+    url: authentication/osano-authentication.yml
+  - type: ErrorCatalog
+    url: errors/osano-problem-types.yml
+  - type: DataModel
+    url: data-model/osano-data-model.yml
+  - type: Conventions
+    url: conventions/osano-conventions.yml
+  - type: Documentation
+    url: https://developers.osano.com/uc/
+  - type: APIReference
+    url: https://developers.osano.com/uc/core-api/openapi
+  - type: SDK
+    url: https://developers.osano.com/uc/js-sdk/
+- aid: osano:osano-data-discovery-api
+  name: Osano Data Discovery API
+  description: Discover and manage data stores and personal data fields
+  humanURL: >-
+    https://developers.osano.com/cmp/javascript-api/developer-documentation-consent-javascript-api
+  baseURL: https://cmp.osano.com
+  tags:
+  - Data Discovery
+  properties:
+  - type: OpenAPI
+    url: openapi/osano-data-discovery-api-openapi.yml
   - type: Documentation
     url: https://developers.osano.com/customer-rest-api/developer-api-doc
   - type: APIReference
