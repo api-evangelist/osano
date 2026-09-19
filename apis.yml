@@ -468,6 +468,8 @@ apis:
   humanURL: https://developers.osano.com/customer-rest-api
   baseURL: https://api.osano.com
   tags:
+  - Tokens
+  tags_raw:
   - Token
   properties:
   - type: OpenAPI
