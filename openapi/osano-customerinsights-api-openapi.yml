@@ -4,34 +4,7 @@ info:
   version: 1.0.0
   description: '# Introduction
 
-    This is the Osano API. Use of this API is subject to the Osano API Terms of Service.
-
-
-    # Authentication
-
-    The Osano API uses API keys to authenticate requests that are generated on a per-user basis. All calls require a valid, unexpired API key.
-
-
-    API keys may be generated within the [Osano settings -> API Keys](https://my.osano.com/api-keys) page. You must be an admin or have the correct privileges to generate an API key.
-
-
-    Once generated, the API key should be included in the `x-osano-api-key` header of all requests.  For example:
-
-
-    ```
-
-    curl --header ''x-osano-api-key: <API_KEY>'' https://api.osano.com/v1/<API_PATH>
-
-    ```
-
-    # Pagination, Limits, and Sorting
-
-    Except where noted, all "list" resources will be sorted in descending order by creation time, and this may not be changed.  The number of results returned may be controlled via the limit param, but may not exceed 500.
-
-
-    Within the response of each "list" API call, there will be a "next" field, which represents the pagination token.  This token may be added as a query parameter, i.e. ?next=<...> to retrieve subsequent pages of the same resource.
-
-    '
+    This is the Osano API.'
   x-logo:
     url: https://www.osano.com/hubfs/Imported%20images/Logo.svg
     altText: Osano
@@ -76,6 +49,12 @@ components:
               items:
                 $ref: '#/components/schemas/CustomerInsights'
   schemas:
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
     CustomerInsights:
       type: object
       minProperties: 2
@@ -86,12 +65,6 @@ components:
         products:
           type: object
           description: Spotlight product-related metrics for the customer.
-    ErrorResponse:
-      type: object
-      additionalProperties: true
-      properties:
-        message:
-          type: string
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

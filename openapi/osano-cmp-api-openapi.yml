@@ -4,34 +4,7 @@ info:
   version: 1.0.0
   description: '# Introduction
 
-    This is the Osano API. Use of this API is subject to the Osano API Terms of Service.
-
-
-    # Authentication
-
-    The Osano API uses API keys to authenticate requests that are generated on a per-user basis. All calls require a valid, unexpired API key.
-
-
-    API keys may be generated within the [Osano settings -> API Keys](https://my.osano.com/api-keys) page. You must be an admin or have the correct privileges to generate an API key.
-
-
-    Once generated, the API key should be included in the `x-osano-api-key` header of all requests.  For example:
-
-
-    ```
-
-    curl --header ''x-osano-api-key: <API_KEY>'' https://api.osano.com/v1/<API_PATH>
-
-    ```
-
-    # Pagination, Limits, and Sorting
-
-    Except where noted, all "list" resources will be sorted in descending order by creation time, and this may not be changed.  The number of results returned may be controlled via the limit param, but may not exceed 500.
-
-
-    Within the response of each "list" API call, there will be a "next" field, which represents the pagination token.  This token may be added as a query parameter, i.e. ?next=<...> to retrieve subsequent pages of the same resource.
-
-    '
+    This is the Osano API.'
   x-logo:
     url: https://www.osano.com/hubfs/Imported%20images/Logo.svg
     altText: Osano
@@ -47,7 +20,7 @@ paths:
   /v1/cookie-consent/configs:
     get:
       summary: List Cookie Consent Configurations
-      description: Returns a list of Cookie Consent Configurations. Results are sorted in descending order by creation time by default. The sort by field can be overridden by specifying a `sortBy` param. The number of results returned may be controlled via the limit param, but may not exceed 1000.  The "next" object in the response may be used to retrieve subsequent pages of the same resource.
+      description: Returns a list of Cookie Consent Configurations. Results are sorted in descending order by creation time by default. The sort by field can be overridden by specifying a `sortBy` param. The number of results returned may be controlled via the limit param, but may not exceed 1000. The "next" object in the response may be used to retrieve subsequent pages of the same resource.
       tags:
       - cmp
       operationId: getConfigs
@@ -322,9 +295,7 @@ paths:
 
         - A maximum of 300 configs per customer account can be queued for publishing at a time.
 
-        - It''s recommended to send a batch of publish requests (up to 250 requests) every 30 minutes. Note: this is not the equivalent to sending X number of publish requests per minute over a 30 minute period."
-
-        '
+        - It''s recommended to send a batch of publish requests (up to 250 requests) every 30 minutes. Note: this is not the equivalent to sending X number of publish requests per minute over a 30 minute period."'
       tags:
       - cmp
       operationId: publishConfig
@@ -441,57 +412,189 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
+  parameters:
+    limitParam:
+      name: limit
+      required: false
+      in: query
+      description: The number of items to return.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 500
+        default: 100
+    cmpConfigTattleRecordStoppedParam:
+      name: tattleRecordStopped
+      required: false
+      in: query
+      description: The tattle record stopped status for the configuration.
+      schema:
+        type: boolean
+    CmpConfigLimitParam:
+      name: limit
+      required: false
+      in: query
+      description: The number of items to return.
+      schema:
+        type: integer
+        format: int32
+        maximum: 1000
+        default: 100
+    orgIdsParam:
+      name: orgIds
+      required: false
+      in: query
+      description: 'A comma-separated list of organization UUIDs to filter results by. The optional prefix can be used to specify how the filter is applied: any (default) - return results that match any of the specified org IDs; na - return results that do not match any of the specified org IDs; all - return results that match all of the specified org IDs. Example: "any:uuid1,uuid2" or "not:uuid1,uuid2" or "all:uuid1,uuid2"'
+      schema:
+        type: string
+        pattern: ^(?:(any|all|not):)?((?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:,[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})*)$
+      examples:
+        noPrefix:
+          value: 123e4567-e89b-12d3-a456-426614174000,987e6543-e21b-12d3-a456-426614174999
+          summary: This example omits the prefix, which defaults to "any", to return results that match any of the specified org IDs.
+        any:
+          value: any:123e4567-e89b-12d3-a456-426614174000,987e6543-e21b-12d3-a456-426614174999
+          summary: This example uses the "any" prefix to return results that match any of the specified org IDs.
+        all:
+          value: all:123e4567-e89b-12d3-a456-426614174000,987e6543-e21b-12d3-a456-426614174999
+          summary: This example uses the "all" prefix to return results that match all of the specified org IDs.
+        not:
+          value: not:123e4567-e89b-12d3-a456-426614174000,987e6543-e21b-12d3-a456-426614174999
+          summary: This example uses the "not" prefix to return results that do not match any of the specified org IDs.
+    cmpConfigPublishStatusParam:
+      name: status
+      required: false
+      in: query
+      description: The publish status for the configuration.
+      schema:
+        type: string
+        enum:
+        - unpublished
+        - in-progress
+        - published
+        - outdated
+        - error
+    cmpRulesStoreTypeParam:
+      name: type
+      in: query
+      description: The type of Rule to be returned. If omitted, all rule types are returned.
+      schema:
+        type: string
+        enum:
+        - cookie
+        - script
+        - iframe
+        - localStorage
+    cmpRulesClassificationParam:
+      name: classification
+      in: query
+      description: The type of rule classification to be returned.
+      schema:
+        type: string
+        enum:
+        - ESSENTIAL
+        - ANALYTICS
+        - MARKETING
+        - PERSONALIZATION
+        - HIDDEN
+        - BLACKLISTED
+    domainsParam:
+      name: domains
+      required: false
+      in: query
+      description: 'A comma-separated list of domains to filter results by. If your domain has non-standard characters, please use Punycode encoding. The optional prefix can be used to specify how the filter is applied: any (default) - return results that match any of the specified domains; not - return results that do not match any of the specified domains; all - return results that match all of the specified domains. Example: "any:example.com,another-example.org" or "not:example.com,another-example.org" or "all:example.com,another-example.org"'
+      schema:
+        type: string
+        pattern: ^(?:(any|all|not):)?((?:(?!-)(?:xn--|_)?[A-Za-z\d-]{0,61}[A-Za-z\d]\.)+[A-Za-z]{2,6})(?:,((?:(?!-)(?:xn--|_)?[A-Za-z\d-]{0,61}[A-Za-z\d]\.)+[A-Za-z]{2,6}))*$
+      examples:
+        singleDomain:
+          value: example.com
+          summary: This example filters results to only include those associated with the specified domain.
+        multipleDomains:
+          value: example.com, another-example.org, sub.domain.co.uk
+          summary: This example filters results to include those associated with any of the specified domains.
+    cmpDiscoveriesStoreTypeParam:
+      name: type
+      in: query
+      description: The type of Discovery to be returned. If omitted, only cookie type discoveries are returned.
+      schema:
+        type: string
+        default: cookie
+        enum:
+        - cookie
+        - script
+        - iframe
+        - localStorage
+    cmpConfigModeParam:
+      name: mode
+      required: false
+      in: query
+      description: The compliance mode for the configuration.
+      schema:
+        type: string
+        enum:
+        - debug
+        - permissive
+        - production
+    sortByParam:
+      name: sortBy
+      required: false
+      in: query
+      description: Specify a field to sort by. If omitted, the default sort order is used.
+      schema:
+        type: string
+        default: created
+        enum:
+        - name
+        - created
+        - updated
+        - lastPublished
+    nextTokenParam:
+      name: next
+      required: false
+      in: query
+      description: The pagination token from the previous request.
+      schema:
+        type: string
   schemas:
-    CmpDiscoveriesResponse:
+    CmpRuleResponseProperties:
       type: object
       additionalProperties: false
-      required:
-      - customerId
-      - configId
-      - storeKey
-      - storeType
-      - created
-      - updated
-      - scanOrigin
-      - firstPageSeen
       properties:
+        type:
+          type: string
+          enum:
+          - cookie
+          - script
+          - iframe
+        ruleId:
+          type: integer
+          format: int32
         configId:
           type: string
           format: uuid
-        customerId:
-          type: string
-        storeKey:
-          type: string
-        storeType:
+        vendorId:
           type: string
         created:
           type: string
           format: date-time
-          description: The date and time the discovery was created (displayed as "First Date Seen" in my.osano.com).
         updated:
           type: string
           format: date-time
-        scanOrigin:
+        ruleType:
           type:
           - string
           - 'null'
           enum:
-          - URL Scan
-          - osano.js
-          description: '"URL Scan" if it was discovered by a URL scan, "osano.js" if not, and null if the origin is not available (displayed as "Unknown" in my.osano.com).'
-        firstPageSeen:
-          type: string
-          format: URL
-        confidence:
-          type:
-          - string
-          - 'null'
-          enum:
-          - Unknown
-          - Low
-          - Medium
-          - High
-          description: The AI confidence level for the discovery classification. Only available for cookie type discoveries. "Unknown" if no AI confidence data is available.
+          - FILENAME
+          - DOMAIN
+          - PATH
+          - REGEXP
+          - STARTS_WITH
+          - ENDS_WITH
+          - CONTAINS
+          - EXACT_MATCH
     CmpDiscoveriesResponseList:
       type: object
       additionalProperties: false
@@ -502,12 +605,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CmpDiscoveriesResponse'
-    ErrorResponse:
-      type: object
-      additionalProperties: true
-      properties:
-        message:
-          type: string
     CmpConfig:
       type: object
       additionalProperties: false
@@ -1204,139 +1301,12 @@ components:
               example:
                 us-ca: three
                 us-tx: three
-    CmpConfigResponseList:
+    ErrorResponse:
       type: object
-      additionalProperties: false
-      required:
-      - items
+      additionalProperties: true
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/CmpConfigResponse'
-        next:
+        message:
           type: string
-          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
-    CmpConfigResponse:
-      allOf:
-      - $ref: '#/components/schemas/CmpConfig'
-      - type: object
-        additionalProperties: false
-        required:
-        - configId
-        properties:
-          created:
-            type: integer
-            description: The unix epoch timestamp when the configuration was created.
-          updated:
-            type: integer
-            description: The unix epoch timestamp when the configuration was last updated.
-          publishStatus:
-            type: string
-            enum:
-            - unpublished
-            - in-progress
-            - published
-            - outdated
-            - error
-          lastPublished:
-            type: integer
-            description: The unix epoch timestamp when the configuration was last published.
-          publishedRevision:
-            type: integer
-          tattleRecordStopped:
-            type: boolean
-          configId:
-            type: string
-            description: The configuration ID.
-            format: uuid
-          customerId:
-            type: string
-            description: The customer ID associated with the configuration.
-    CmpRule:
-      type: object
-      minProperties: 1
-      properties:
-        classification:
-          type: string
-          enum:
-          - ANALYTICS
-          - BLACKLISTED
-          - ESSENTIAL
-          - HIDDEN
-          - MARKETING
-          - PERSONALIZATION
-        rule:
-          type: string
-          description: The type of the rule.
-          minLength: 3
-          maxLength: 1000
-        disclosure:
-          type: boolean
-          description: Whether the rule should be disclosed. If omitted, this property will default to `false`.
-        title:
-          type:
-          - string
-          - 'null'
-          description: The title of the rule. This is used in the consent disclosure in place of the rule when defined.
-          maxLength: 64
-        vendorName:
-          type:
-          - string
-          - 'null'
-          description: The value of the rule.
-          maxLength: 100
-        ruleType:
-          type:
-          - string
-          - 'null'
-          enum:
-          - FILENAME
-          - DOMAIN
-          - PATH
-          - REGEXP
-          - STARTS_WITH
-          - ENDS_WITH
-          - CONTAINS
-          - EXACT_MATCH
-          description: The type classification of the rule pattern.
-    CmpRuleResponseProperties:
-      type: object
-      additionalProperties: false
-      properties:
-        type:
-          type: string
-          enum:
-          - cookie
-          - script
-          - iframe
-        ruleId:
-          type: integer
-          format: int32
-        configId:
-          type: string
-          format: uuid
-        vendorId:
-          type: string
-        created:
-          type: string
-          format: date-time
-        updated:
-          type: string
-          format: date-time
-        ruleType:
-          type:
-          - string
-          - 'null'
-          enum:
-          - FILENAME
-          - DOMAIN
-          - PATH
-          - REGEXP
-          - STARTS_WITH
-          - ENDS_WITH
-          - CONTAINS
-          - EXACT_MATCH
     CmpConfigWithDefaults:
       allOf:
       - $ref: '#/components/schemas/CmpConfig'
@@ -1431,6 +1401,19 @@ components:
                 default: 1
               timeoutSeconds:
                 default: 10
+    CmpConfigResponseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CmpConfigResponse'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
     CmpCookieRule:
       allOf:
       - $ref: '#/components/schemas/CmpRule'
@@ -1448,151 +1431,139 @@ components:
             - 'null'
             description: The length of time that must elapse before the cookie expires.
             maxLength: 50
-  parameters:
-    sortByParam:
-      name: sortBy
-      required: false
-      in: query
-      description: Specify a field to sort by. If omitted, the default sort order is used.
-      schema:
-        type: string
-        default: created
-        enum:
-        - name
-        - created
-        - updated
-        - lastPublished
-    cmpConfigTattleRecordStoppedParam:
-      name: tattleRecordStopped
-      required: false
-      in: query
-      description: The tattle record stopped status for the configuration.
-      schema:
-        type: boolean
-    cmpRulesStoreTypeParam:
-      name: type
-      in: query
-      description: The type of Rule to be returned. If omitted, all rule types are returned.
-      schema:
-        type: string
-        enum:
-        - cookie
-        - script
-        - iframe
-        - localStorage
-    cmpRulesClassificationParam:
-      name: classification
-      in: query
-      description: The type of rule classification to be returned.
-      schema:
-        type: string
-        enum:
-        - ESSENTIAL
-        - ANALYTICS
-        - MARKETING
-        - PERSONALIZATION
-        - HIDDEN
-        - BLACKLISTED
-    cmpConfigModeParam:
-      name: mode
-      required: false
-      in: query
-      description: The compliance mode for the configuration.
-      schema:
-        type: string
-        enum:
-        - debug
-        - permissive
-        - production
-    CmpConfigLimitParam:
-      name: limit
-      required: false
-      in: query
-      description: The number of items to return.
-      schema:
-        type: integer
-        format: int32
-        maximum: 1000
-        default: 100
-    domainsParam:
-      name: domains
-      required: false
-      in: query
-      description: 'A comma-separated list of domains to filter results by. If your domain has non-standard characters, please use Punycode encoding. The optional prefix can be used to specify how the filter is applied: any (default) - return results that match any of the specified domains; not - return results that do not match any of the specified domains; all - return results that match all of the specified domains. Example: "any:example.com,another-example.org" or "not:example.com,another-example.org" or "all:example.com,another-example.org"'
-      schema:
-        type: string
-        pattern: ^(?:(any|all|not):)?((?:(?!-)(?:xn--|_)?[A-Za-z\d-]{0,61}[A-Za-z\d]\.)+[A-Za-z]{2,6})(?:,((?:(?!-)(?:xn--|_)?[A-Za-z\d-]{0,61}[A-Za-z\d]\.)+[A-Za-z]{2,6}))*$
-      examples:
-        singleDomain:
-          value: example.com
-          summary: This example filters results to only include those associated with the specified domain.
-        multipleDomains:
-          value: example.com, another-example.org, sub.domain.co.uk
-          summary: This example filters results to include those associated with any of the specified domains.
-    limitParam:
-      name: limit
-      required: false
-      in: query
-      description: The number of items to return.
-      schema:
-        type: integer
-        format: int32
-        minimum: 1
-        maximum: 500
-        default: 100
-    cmpDiscoveriesStoreTypeParam:
-      name: type
-      in: query
-      description: The type of Discovery to be returned. If omitted, only cookie type discoveries are returned.
-      schema:
-        type: string
-        default: cookie
-        enum:
-        - cookie
-        - script
-        - iframe
-        - localStorage
-    nextTokenParam:
-      name: next
-      required: false
-      in: query
-      description: The pagination token from the previous request.
-      schema:
-        type: string
-    orgIdsParam:
-      name: orgIds
-      required: false
-      in: query
-      description: 'A comma-separated list of organization UUIDs to filter results by. The optional prefix can be used to specify how the filter is applied: any (default) - return results that match any of the specified org IDs; na - return results that do not match any of the specified org IDs; all - return results that match all of the specified org IDs. Example: "any:uuid1,uuid2" or "not:uuid1,uuid2" or "all:uuid1,uuid2"'
-      schema:
-        type: string
-        pattern: ^(?:(any|all|not):)?((?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:,[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})*)$
-      examples:
-        noPrefix:
-          value: 123e4567-e89b-12d3-a456-426614174000,987e6543-e21b-12d3-a456-426614174999
-          summary: This example omits the prefix, which defaults to "any", to return results that match any of the specified org IDs.
-        any:
-          value: any:123e4567-e89b-12d3-a456-426614174000,987e6543-e21b-12d3-a456-426614174999
-          summary: This example uses the "any" prefix to return results that match any of the specified org IDs.
-        all:
-          value: all:123e4567-e89b-12d3-a456-426614174000,987e6543-e21b-12d3-a456-426614174999
-          summary: This example uses the "all" prefix to return results that match all of the specified org IDs.
-        not:
-          value: not:123e4567-e89b-12d3-a456-426614174000,987e6543-e21b-12d3-a456-426614174999
-          summary: This example uses the "not" prefix to return results that do not match any of the specified org IDs.
-    cmpConfigPublishStatusParam:
-      name: status
-      required: false
-      in: query
-      description: The publish status for the configuration.
-      schema:
-        type: string
-        enum:
-        - unpublished
-        - in-progress
-        - published
-        - outdated
-        - error
+    CmpDiscoveriesResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - customerId
+      - configId
+      - storeKey
+      - storeType
+      - created
+      - updated
+      - scanOrigin
+      - firstPageSeen
+      properties:
+        configId:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+        storeKey:
+          type: string
+        storeType:
+          type: string
+        created:
+          type: string
+          format: date-time
+          description: The date and time the discovery was created (displayed as "First Date Seen" in my.osano.com).
+        updated:
+          type: string
+          format: date-time
+        scanOrigin:
+          type:
+          - string
+          - 'null'
+          enum:
+          - URL Scan
+          - osano.js
+          description: '"URL Scan" if it was discovered by a URL scan, "osano.js" if not, and null if the origin is not available (displayed as "Unknown" in my.osano.com).'
+        firstPageSeen:
+          type: string
+          format: URL
+        confidence:
+          type:
+          - string
+          - 'null'
+          enum:
+          - Unknown
+          - Low
+          - Medium
+          - High
+          description: The AI confidence level for the discovery classification. Only available for cookie type discoveries. "Unknown" if no AI confidence data is available.
+    CmpRule:
+      type: object
+      minProperties: 1
+      properties:
+        classification:
+          type: string
+          enum:
+          - ANALYTICS
+          - BLACKLISTED
+          - ESSENTIAL
+          - HIDDEN
+          - MARKETING
+          - PERSONALIZATION
+        rule:
+          type: string
+          description: The type of the rule.
+          minLength: 3
+          maxLength: 1000
+        disclosure:
+          type: boolean
+          description: Whether the rule should be disclosed. If omitted, this property will default to `false`.
+        title:
+          type:
+          - string
+          - 'null'
+          description: The title of the rule. This is used in the consent disclosure in place of the rule when defined.
+          maxLength: 64
+        vendorName:
+          type:
+          - string
+          - 'null'
+          description: The value of the rule.
+          maxLength: 100
+        ruleType:
+          type:
+          - string
+          - 'null'
+          enum:
+          - FILENAME
+          - DOMAIN
+          - PATH
+          - REGEXP
+          - STARTS_WITH
+          - ENDS_WITH
+          - CONTAINS
+          - EXACT_MATCH
+          description: The type classification of the rule pattern.
+    CmpConfigResponse:
+      allOf:
+      - $ref: '#/components/schemas/CmpConfig'
+      - type: object
+        additionalProperties: false
+        required:
+        - configId
+        properties:
+          created:
+            type: integer
+            description: The unix epoch timestamp when the configuration was created.
+          updated:
+            type: integer
+            description: The unix epoch timestamp when the configuration was last updated.
+          publishStatus:
+            type: string
+            enum:
+            - unpublished
+            - in-progress
+            - published
+            - outdated
+            - error
+          lastPublished:
+            type: integer
+            description: The unix epoch timestamp when the configuration was last published.
+          publishedRevision:
+            type: integer
+          tattleRecordStopped:
+            type: boolean
+          configId:
+            type: string
+            description: The configuration ID.
+            format: uuid
+          customerId:
+            type: string
+            description: The customer ID associated with the configuration.
   responses:
     CmpRulesList:
       description: Success

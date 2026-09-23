@@ -4,34 +4,7 @@ info:
   version: 1.0.0
   description: '# Introduction
 
-    This is the Osano API. Use of this API is subject to the Osano API Terms of Service.
-
-
-    # Authentication
-
-    The Osano API uses API keys to authenticate requests that are generated on a per-user basis. All calls require a valid, unexpired API key.
-
-
-    API keys may be generated within the [Osano settings -> API Keys](https://my.osano.com/api-keys) page. You must be an admin or have the correct privileges to generate an API key.
-
-
-    Once generated, the API key should be included in the `x-osano-api-key` header of all requests.  For example:
-
-
-    ```
-
-    curl --header ''x-osano-api-key: <API_KEY>'' https://api.osano.com/v1/<API_PATH>
-
-    ```
-
-    # Pagination, Limits, and Sorting
-
-    Except where noted, all "list" resources will be sorted in descending order by creation time, and this may not be changed.  The number of results returned may be controlled via the limit param, but may not exceed 500.
-
-
-    Within the response of each "list" API call, there will be a "next" field, which represents the pagination token.  This token may be added as a query parameter, i.e. ?next=<...> to retrieve subsequent pages of the same resource.
-
-    '
+    This is the Osano API.'
   x-logo:
     url: https://www.osano.com/hubfs/Imported%20images/Logo.svg
     altText: Osano
@@ -41,7 +14,7 @@ servers:
 security:
 - ApiKeyAuth: []
 tags:
-- name: dsar
+- name: DSAR
   x-displayName: Subject Rights
   description: Manage subject rights requests and data subject access requests
 paths:
@@ -50,7 +23,7 @@ paths:
       summary: List Subject Rights Request Types
       description: List standard Subject Rights Request Types and their applicable privacy laws.
       tags:
-      - dsar
+      - DSAR
       operationId: getRequestTypes
       parameters:
       - name: country
@@ -99,9 +72,9 @@ paths:
   /v1/subject-rights/requests:
     get:
       summary: List Subject Rights Requests
-      description: Query for Subject Rights Requests.  Results are sorted in descending order by creation time.  The number of results returned may be controlled via the limit param, but may not exceed 500.  The "next" object in the response may be used to retrieve subsequent pages of the same resource.
+      description: Query for Subject Rights Requests. Results are sorted in descending order by creation time. The number of results returned may be controlled via the limit param, but may not exceed 500. The "next" object in the response may be used to retrieve subsequent pages of the same resource.
       tags:
-      - dsar
+      - DSAR
       operationId: getDsars
       parameters:
       - $ref: '#/components/parameters/limitParam'
@@ -126,9 +99,9 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
     post:
       summary: Create New Subject Rights Request(s)
-      description: Create one or more Subject Rights Requests.  The maximum number of requests that may be created in a single call is 100.  Requests created through this API never send verification emails, regardless of initial status.  If the request is successful, the response will contain a list of the created requests.
+      description: Create one or more Subject Rights Requests. The maximum number of requests that may be created in a single call is 100. Requests created through this API never send verification emails, regardless of initial status. If the request is successful, the response will contain a list of the created requests.
       tags:
-      - dsar
+      - DSAR
       operationId: createDsars
       requestBody:
         description: The Subject Rights Request(s) to be created.
@@ -155,7 +128,7 @@ paths:
       summary: Return Detailed Subject Rights Request
       description: Get a detailed Subject Rights Request by ID.
       tags:
-      - dsar
+      - DSAR
       operationId: getDsar
       parameters:
       - name: dsarId
@@ -179,9 +152,9 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
     patch:
       summary: Update Subject Rights Request
-      description: Update metadata about a Subject Rights Request as specified.  A partial update may be performed.
+      description: Update metadata about a Subject Rights Request as specified. A partial update may be performed.
       tags:
-      - dsar
+      - DSAR
       operationId: updateDsar
       parameters:
       - name: dsarId
@@ -219,9 +192,9 @@ paths:
   /v1/subject-rights/requests/{dsarId}/identification:
     post:
       summary: Update Identification Photo
-      description: Updates the file used for Identity Verification within the Osano platform.  It should be an image.
+      description: Updates the file used for Identity Verification within the Osano platform. It should be an image.
       tags:
-      - dsar
+      - DSAR
       operationId: updateIdentityFile
       parameters:
       - name: dsarId
@@ -268,7 +241,7 @@ paths:
       summary: Get Request Summaries
       description: Query what summaries are available for this DSAR request before they are packaged and sent.
       tags:
-      - dsar
+      - DSAR
       operationId: getRequestSummaries
       parameters:
       - name: requestId
@@ -317,11 +290,9 @@ paths:
 
         - When the summary was created
 
-        - List of summary entries included in the archive
-
-        '
+        - List of summary entries included in the archive'
       tags:
-      - dsar
+      - DSAR
       operationId: getSummaryNotification
       parameters:
       - name: requestId
@@ -415,11 +386,9 @@ paths:
       summary: Send Summary Notification
       description: 'Package and send all summaries for this DSAR request. This also generates a PDF summary containing automated data discovery results formatted as tables (by data store) and manually uploaded files, in addition to a ZIP archive containing all summary files plus the PDF.
 
-        Subsequent POST requests to this endpoint for the DSAR request will do nothing, as the summaries have already been packaged and sent.
-
-        '
+        Subsequent POST requests to this endpoint for the DSAR request will do nothing, as the summaries have already been packaged and sent.'
       tags:
-      - dsar
+      - DSAR
       operationId: sendSummaryNotification
       parameters:
       - name: requestId
@@ -535,7 +504,7 @@ paths:
       summary: Create Activity Log Entry
       description: Create an offline activity log entry for a specific Subject Rights request
       tags:
-      - dsar
+      - DSAR
       operationId: postRequestActivityLog
       parameters:
       - name: requestId
@@ -567,167 +536,93 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
+  parameters:
+    limitParam:
+      name: limit
+      required: false
+      in: query
+      description: The number of items to return.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 500
+        default: 100
+    afterParam:
+      name: after
+      required: false
+      in: query
+      description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
+      schema:
+        type: string
+    dsarStatusParam:
+      name: status
+      required: false
+      in: query
+      description: Status filter for the request. Must be one of PENDING_EMAIL_VERIFICATION, PENDING_IDENTITY_VERIFICATION, IN_PROGRESS, IN_REVIEW, PENDING_APPEAL, COMPLETED, REJECTED, or REJECTED_AUTO.
+      schema:
+        type: string
+        enum:
+        - PENDING_EMAIL_VERIFICATION
+        - PENDING_IDENTITY_VERIFICATION
+        - IN_PROGRESS
+        - IN_REVIEW
+        - PENDING_APPEAL
+        - COMPLETED
+        - REJECTED
+        - REJECTED_AUTO
+    dsarRequestTypeParam:
+      name: requestType
+      required: false
+      in: query
+      description: Request type filter for the request. Must be one of DELETE, CORRECT, SUMMARIZE, DO_NOT_SELL, OPT_OUT, LIMIT_USE, OTHER, PORTABILITY, or CUSTOM_[1-5]
+      schema:
+        type: string
+        enum:
+        - DELETE
+        - CORRECT
+        - SUMMARIZE
+        - DO_NOT_SELL
+        - OPT_OUT
+        - LIMIT_USE
+        - OTHER
+        - PORTABILITY
+        - CUSTOM_1
+        - CUSTOM_2
+        - CUSTOM_3
+        - CUSTOM_4
+        - CUSTOM_5
+    dsarSourceParam:
+      name: source
+      required: false
+      in: query
+      description: Source filter for the request. Must be one of ADMIN, AGENT_WEB, API, CMP, CSV, EMAIL_INTAKE, or WEB.
+      schema:
+        type: string
+        enum:
+        - ADMIN
+        - AGENT_WEB
+        - API
+        - CMP
+        - CSV
+        - EMAIL_INTAKE
+        - WEB
+    formIdParam:
+      name: formId
+      required: false
+      in: query
+      description: Form identifier through which the Subject Rights Request was made.
+      schema:
+        type: integer
+        format: int32
+    nextTokenParam:
+      name: next
+      required: false
+      in: query
+      description: The pagination token from the previous request.
+      schema:
+        type: string
   schemas:
-    ApplicableLaw:
-      type: object
-      additionalProperties: false
-      required:
-      - name
-      - abbreviation
-      - effectiveDate
-      - jurisdictions
-      properties:
-        name:
-          type: string
-        abbreviation:
-          type:
-          - string
-          - 'null'
-        effectiveDate:
-          type: string
-          format: date-time
-        jurisdictions:
-          type: array
-          items:
-            $ref: '#/components/schemas/Jurisdiction'
-    RequestType:
-      type: object
-      additionalProperties: false
-      required:
-      - requestType
-      - requestTypeCategory
-      - applicableLaws
-      properties:
-        requestType:
-          type: string
-        requestTypeCategory:
-          type: string
-        applicableLaws:
-          type: array
-          items:
-            $ref: '#/components/schemas/ApplicableLaw'
-    Jurisdiction:
-      type: object
-      additionalProperties: false
-      required:
-      - country
-      properties:
-        country:
-          type: string
-        territory:
-          type: string
-    DsarUpdate:
-      type: object
-      additionalProperties: true
-      properties:
-        status:
-          type: string
-          enum:
-          - PENDING_EMAIL_VERIFICATION
-          - PENDING_IDENTITY_VERIFICATION
-          - IN_PROGRESS
-          - PENDING_APPEAL
-          - COMPLETED
-          - REJECTED
-          - REJECTED_AUTO
-          - IN_REVIEW
-        notes:
-          type: string
-          maxLength: 500
-        notify:
-          type: boolean
-          default: true
-          description: When set to true and status is COMPLETED or REJECTED, an email notification will be sent to the requestor. Defaults to true when status is COMPLETED or REJECTED, otherwise defaults to false.
-        content:
-          type:
-          - string
-          - 'null'
-          maxLength: 10000
-          description: Optional completion or rejection message to be emailed to the requestor. When status is COMPLETED or REJECTED, this message will be used as the completionMessage or rejectionReason in the notification. If omitted, the email notification handler will use a configured template. This message will be added to the portal conversation.
-        rejectionReasonCode:
-          type: string
-          description: Optional rejection reason code. Only applicable when status is REJECTED. Used to select a specific rejection template for the notification email.
-          enum:
-          - TECHNICALLY_INFEASIBLE
-          - REJECTED_APPEAL
-          - UNCOVERED_GEO
-          - DUPLICATE
-          - UNFOUNDED
-          - OTHER
-          - IDENTITY_NOT_VERIFIED
-    RequestTypeList:
-      type: object
-      additionalProperties: false
-      required:
-      - items
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/RequestType'
-    ActivityLogEntry:
-      type: object
-      additionalProperties: false
-      required:
-      - note
-      properties:
-        note:
-          type: string
-          description: The note or description of the activity
-        user:
-          type: string
-          description: The user who performed the action (defaults to API user if not provided)
-        timestamp:
-          type: string
-          format: date-time
-          description: When the action occurred (defaults to current timestamp if not provided)
-    DsarList:
-      type: array
-      maxItems: 100
-      items:
-        $ref: '#/components/schemas/Dsar'
-    ErrorResponse:
-      type: object
-      additionalProperties: true
-      properties:
-        message:
-          type: string
-    DsarResponse:
-      type: object
-      additionalProperties: false
-      required:
-      - dsarId
-      - status
-      - requestType
-      - requestSource
-      - due
-      - created
-      properties:
-        dsarId:
-          type: string
-        status:
-          type: string
-        requestType:
-          type: string
-        requestSource:
-          type: string
-        notes:
-          type: string
-        dsarDetails:
-          type: object
-        due:
-          type: string
-          format: date-time
-        created:
-          type: string
-          format: date-time
-        form:
-          type: object
-          properties:
-            formId:
-              type: integer
-            formName:
-              type: string
     Dsar:
       type: object
       additionalProperties: false
@@ -787,6 +682,60 @@ components:
               type: string
             family-name:
               type: string
+    ApplicableLaw:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - abbreviation
+      - effectiveDate
+      - jurisdictions
+      properties:
+        name:
+          type: string
+        abbreviation:
+          type:
+          - string
+          - 'null'
+        effectiveDate:
+          type: string
+          format: date-time
+        jurisdictions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Jurisdiction'
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
+    Jurisdiction:
+      type: object
+      additionalProperties: false
+      required:
+      - country
+      properties:
+        country:
+          type: string
+        territory:
+          type: string
+    RequestType:
+      type: object
+      additionalProperties: false
+      required:
+      - requestType
+      - requestTypeCategory
+      - applicableLaws
+      properties:
+        requestType:
+          type: string
+        requestTypeCategory:
+          type: string
+        applicableLaws:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicableLaw'
     DsarResponseList:
       type: object
       additionalProperties: false
@@ -800,92 +749,112 @@ components:
         next:
           type: string
           description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
-  parameters:
-    nextTokenParam:
-      name: next
-      required: false
-      in: query
-      description: The pagination token from the previous request.
-      schema:
-        type: string
-    afterParam:
-      name: after
-      required: false
-      in: query
-      description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
-      schema:
-        type: string
-    dsarSourceParam:
-      name: source
-      required: false
-      in: query
-      description: Source filter for the request. Must be one of ADMIN, AGENT_WEB, API, CMP, CSV, EMAIL_INTAKE, or WEB.
-      schema:
-        type: string
-        enum:
-        - ADMIN
-        - AGENT_WEB
-        - API
-        - CMP
-        - CSV
-        - EMAIL_INTAKE
-        - WEB
-    dsarStatusParam:
-      name: status
-      required: false
-      in: query
-      description: Status filter for the request. Must be one of PENDING_EMAIL_VERIFICATION, PENDING_IDENTITY_VERIFICATION, IN_PROGRESS, IN_REVIEW, PENDING_APPEAL, COMPLETED, REJECTED, or REJECTED_AUTO.
-      schema:
-        type: string
-        enum:
-        - PENDING_EMAIL_VERIFICATION
-        - PENDING_IDENTITY_VERIFICATION
-        - IN_PROGRESS
-        - IN_REVIEW
-        - PENDING_APPEAL
-        - COMPLETED
-        - REJECTED
-        - REJECTED_AUTO
-    dsarRequestTypeParam:
-      name: requestType
-      required: false
-      in: query
-      description: Request type filter for the request. Must be one of DELETE, CORRECT, SUMMARIZE, DO_NOT_SELL, OPT_OUT, LIMIT_USE, OTHER, PORTABILITY, or CUSTOM_[1-5]
-      schema:
-        type: string
-        enum:
-        - DELETE
-        - CORRECT
-        - SUMMARIZE
-        - DO_NOT_SELL
-        - OPT_OUT
-        - LIMIT_USE
-        - OTHER
-        - PORTABILITY
-        - CUSTOM_1
-        - CUSTOM_2
-        - CUSTOM_3
-        - CUSTOM_4
-        - CUSTOM_5
-    formIdParam:
-      name: formId
-      required: false
-      in: query
-      description: Form identifier through which the Subject Rights Request was made.
-      schema:
-        type: integer
-        format: int32
-    limitParam:
-      name: limit
-      required: false
-      in: query
-      description: The number of items to return.
-      schema:
-        type: integer
-        format: int32
-        minimum: 1
-        maximum: 500
-        default: 100
+    DsarUpdate:
+      type: object
+      additionalProperties: true
+      properties:
+        status:
+          type: string
+          enum:
+          - PENDING_EMAIL_VERIFICATION
+          - PENDING_IDENTITY_VERIFICATION
+          - IN_PROGRESS
+          - PENDING_APPEAL
+          - COMPLETED
+          - REJECTED
+          - REJECTED_AUTO
+          - IN_REVIEW
+        notes:
+          type: string
+          maxLength: 500
+        notify:
+          type: boolean
+          default: true
+          description: When set to true and status is COMPLETED or REJECTED, an email notification will be sent to the requestor. Defaults to true when status is COMPLETED or REJECTED, otherwise defaults to false.
+        content:
+          type:
+          - string
+          - 'null'
+          maxLength: 10000
+          description: Optional completion or rejection message to be emailed to the requestor. When status is COMPLETED or REJECTED, this message will be used as the completionMessage or rejectionReason in the notification. If omitted, the email notification handler will use a configured template. This message will be added to the portal conversation.
+        rejectionReasonCode:
+          type: string
+          description: Optional rejection reason code. Only applicable when status is REJECTED. Used to select a specific rejection template for the notification email.
+          enum:
+          - TECHNICALLY_INFEASIBLE
+          - REJECTED_APPEAL
+          - UNCOVERED_GEO
+          - DUPLICATE
+          - UNFOUNDED
+          - OTHER
+          - IDENTITY_NOT_VERIFIED
+    RequestTypeList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestType'
+    DsarList:
+      type: array
+      maxItems: 100
+      items:
+        $ref: '#/components/schemas/Dsar'
+    DsarResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - dsarId
+      - status
+      - requestType
+      - requestSource
+      - due
+      - created
+      properties:
+        dsarId:
+          type: string
+        status:
+          type: string
+        requestType:
+          type: string
+        requestSource:
+          type: string
+        notes:
+          type: string
+        dsarDetails:
+          type: object
+        due:
+          type: string
+          format: date-time
+        created:
+          type: string
+          format: date-time
+        form:
+          type: object
+          properties:
+            formId:
+              type: integer
+            formName:
+              type: string
+    ActivityLogEntry:
+      type: object
+      additionalProperties: false
+      required:
+      - note
+      properties:
+        note:
+          type: string
+          description: The note or description of the activity
+        user:
+          type: string
+          description: The user who performed the action (defaults to API user if not provided)
+        timestamp:
+          type: string
+          format: date-time
+          description: When the action occurred (defaults to current timestamp if not provided)
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
