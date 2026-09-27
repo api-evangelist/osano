@@ -413,6 +413,62 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   parameters:
+    cmpDiscoveriesStoreTypeParam:
+      name: type
+      in: query
+      description: The type of Discovery to be returned. If omitted, only cookie type discoveries are returned.
+      schema:
+        type: string
+        default: cookie
+        enum:
+        - cookie
+        - script
+        - iframe
+        - localStorage
+    cmpConfigTattleRecordStoppedParam:
+      name: tattleRecordStopped
+      required: false
+      in: query
+      description: The tattle record stopped status for the configuration.
+      schema:
+        type: boolean
+    cmpRulesClassificationParam:
+      name: classification
+      in: query
+      description: The type of rule classification to be returned.
+      schema:
+        type: string
+        enum:
+        - ESSENTIAL
+        - ANALYTICS
+        - MARKETING
+        - PERSONALIZATION
+        - HIDDEN
+        - BLACKLISTED
+    cmpConfigPublishStatusParam:
+      name: status
+      required: false
+      in: query
+      description: The publish status for the configuration.
+      schema:
+        type: string
+        enum:
+        - unpublished
+        - in-progress
+        - published
+        - outdated
+        - error
+    cmpConfigModeParam:
+      name: mode
+      required: false
+      in: query
+      description: The compliance mode for the configuration.
+      schema:
+        type: string
+        enum:
+        - debug
+        - permissive
+        - production
     limitParam:
       name: limit
       required: false
@@ -424,13 +480,52 @@ components:
         minimum: 1
         maximum: 500
         default: 100
-    cmpConfigTattleRecordStoppedParam:
-      name: tattleRecordStopped
+    cmpRulesStoreTypeParam:
+      name: type
+      in: query
+      description: The type of Rule to be returned. If omitted, all rule types are returned.
+      schema:
+        type: string
+        enum:
+        - cookie
+        - script
+        - iframe
+        - localStorage
+    nextTokenParam:
+      name: next
       required: false
       in: query
-      description: The tattle record stopped status for the configuration.
+      description: The pagination token from the previous request.
       schema:
-        type: boolean
+        type: string
+    domainsParam:
+      name: domains
+      required: false
+      in: query
+      description: 'A comma-separated list of domains to filter results by. If your domain has non-standard characters, please use Punycode encoding. The optional prefix can be used to specify how the filter is applied: any (default) - return results that match any of the specified domains; not - return results that do not match any of the specified domains; all - return results that match all of the specified domains. Example: "any:example.com,another-example.org" or "not:example.com,another-example.org" or "all:example.com,another-example.org"'
+      schema:
+        type: string
+        pattern: ^(?:(any|all|not):)?((?:(?!-)(?:xn--|_)?[A-Za-z\d-]{0,61}[A-Za-z\d]\.)+[A-Za-z]{2,6})(?:,((?:(?!-)(?:xn--|_)?[A-Za-z\d-]{0,61}[A-Za-z\d]\.)+[A-Za-z]{2,6}))*$
+      examples:
+        singleDomain:
+          value: example.com
+          summary: This example filters results to only include those associated with the specified domain.
+        multipleDomains:
+          value: example.com, another-example.org, sub.domain.co.uk
+          summary: This example filters results to include those associated with any of the specified domains.
+    sortByParam:
+      name: sortBy
+      required: false
+      in: query
+      description: Specify a field to sort by. If omitted, the default sort order is used.
+      schema:
+        type: string
+        default: created
+        enum:
+        - name
+        - created
+        - updated
+        - lastPublished
     CmpConfigLimitParam:
       name: limit
       required: false
@@ -462,126 +557,107 @@ components:
         not:
           value: not:123e4567-e89b-12d3-a456-426614174000,987e6543-e21b-12d3-a456-426614174999
           summary: This example uses the "not" prefix to return results that do not match any of the specified org IDs.
-    cmpConfigPublishStatusParam:
-      name: status
-      required: false
-      in: query
-      description: The publish status for the configuration.
-      schema:
-        type: string
-        enum:
-        - unpublished
-        - in-progress
-        - published
-        - outdated
-        - error
-    cmpRulesStoreTypeParam:
-      name: type
-      in: query
-      description: The type of Rule to be returned. If omitted, all rule types are returned.
-      schema:
-        type: string
-        enum:
-        - cookie
-        - script
-        - iframe
-        - localStorage
-    cmpRulesClassificationParam:
-      name: classification
-      in: query
-      description: The type of rule classification to be returned.
-      schema:
-        type: string
-        enum:
-        - ESSENTIAL
-        - ANALYTICS
-        - MARKETING
-        - PERSONALIZATION
-        - HIDDEN
-        - BLACKLISTED
-    domainsParam:
-      name: domains
-      required: false
-      in: query
-      description: 'A comma-separated list of domains to filter results by. If your domain has non-standard characters, please use Punycode encoding. The optional prefix can be used to specify how the filter is applied: any (default) - return results that match any of the specified domains; not - return results that do not match any of the specified domains; all - return results that match all of the specified domains. Example: "any:example.com,another-example.org" or "not:example.com,another-example.org" or "all:example.com,another-example.org"'
-      schema:
-        type: string
-        pattern: ^(?:(any|all|not):)?((?:(?!-)(?:xn--|_)?[A-Za-z\d-]{0,61}[A-Za-z\d]\.)+[A-Za-z]{2,6})(?:,((?:(?!-)(?:xn--|_)?[A-Za-z\d-]{0,61}[A-Za-z\d]\.)+[A-Za-z]{2,6}))*$
-      examples:
-        singleDomain:
-          value: example.com
-          summary: This example filters results to only include those associated with the specified domain.
-        multipleDomains:
-          value: example.com, another-example.org, sub.domain.co.uk
-          summary: This example filters results to include those associated with any of the specified domains.
-    cmpDiscoveriesStoreTypeParam:
-      name: type
-      in: query
-      description: The type of Discovery to be returned. If omitted, only cookie type discoveries are returned.
-      schema:
-        type: string
-        default: cookie
-        enum:
-        - cookie
-        - script
-        - iframe
-        - localStorage
-    cmpConfigModeParam:
-      name: mode
-      required: false
-      in: query
-      description: The compliance mode for the configuration.
-      schema:
-        type: string
-        enum:
-        - debug
-        - permissive
-        - production
-    sortByParam:
-      name: sortBy
-      required: false
-      in: query
-      description: Specify a field to sort by. If omitted, the default sort order is used.
-      schema:
-        type: string
-        default: created
-        enum:
-        - name
-        - created
-        - updated
-        - lastPublished
-    nextTokenParam:
-      name: next
-      required: false
-      in: query
-      description: The pagination token from the previous request.
-      schema:
-        type: string
   schemas:
-    CmpRuleResponseProperties:
+    CmpCookieRule:
+      allOf:
+      - $ref: '#/components/schemas/CmpRule'
+      - type: object
+        properties:
+          description:
+            type:
+            - string
+            - 'null'
+            description: A description of the cookie to be used in disclosures.
+            maxLength: 1000
+          expiry:
+            type:
+            - string
+            - 'null'
+            description: The length of time that must elapse before the cookie expires.
+            maxLength: 50
+    CmpDiscoveriesResponse:
       type: object
       additionalProperties: false
+      required:
+      - customerId
+      - configId
+      - storeKey
+      - storeType
+      - created
+      - updated
+      - scanOrigin
+      - firstPageSeen
       properties:
-        type:
-          type: string
-          enum:
-          - cookie
-          - script
-          - iframe
-        ruleId:
-          type: integer
-          format: int32
         configId:
           type: string
           format: uuid
-        vendorId:
+        customerId:
+          type: string
+        storeKey:
+          type: string
+        storeType:
           type: string
         created:
           type: string
           format: date-time
+          description: The date and time the discovery was created (displayed as "First Date Seen" in my.osano.com).
         updated:
           type: string
           format: date-time
+        scanOrigin:
+          type:
+          - string
+          - 'null'
+          enum:
+          - URL Scan
+          - osano.js
+          description: '"URL Scan" if it was discovered by a URL scan, "osano.js" if not, and null if the origin is not available (displayed as "Unknown" in my.osano.com).'
+        firstPageSeen:
+          type: string
+          format: URL
+        confidence:
+          type:
+          - string
+          - 'null'
+          enum:
+          - Unknown
+          - Low
+          - Medium
+          - High
+          description: The AI confidence level for the discovery classification. Only available for cookie type discoveries. "Unknown" if no AI confidence data is available.
+    CmpRule:
+      type: object
+      minProperties: 1
+      properties:
+        classification:
+          type: string
+          enum:
+          - ANALYTICS
+          - BLACKLISTED
+          - ESSENTIAL
+          - HIDDEN
+          - MARKETING
+          - PERSONALIZATION
+        rule:
+          type: string
+          description: The type of the rule.
+          minLength: 3
+          maxLength: 1000
+        disclosure:
+          type: boolean
+          description: Whether the rule should be disclosed. If omitted, this property will default to `false`.
+        title:
+          type:
+          - string
+          - 'null'
+          description: The title of the rule. This is used in the consent disclosure in place of the rule when defined.
+          maxLength: 64
+        vendorName:
+          type:
+          - string
+          - 'null'
+          description: The value of the rule.
+          maxLength: 100
         ruleType:
           type:
           - string
@@ -595,16 +671,107 @@ components:
           - ENDS_WITH
           - CONTAINS
           - EXACT_MATCH
-    CmpDiscoveriesResponseList:
+          description: The type classification of the rule pattern.
+    ErrorResponse:
       type: object
-      additionalProperties: false
-      required:
-      - items
+      additionalProperties: true
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/CmpDiscoveriesResponse'
+        message:
+          type: string
+    CmpConfigWithDefaults:
+      allOf:
+      - $ref: '#/components/schemas/CmpConfig'
+      - type: object
+        required:
+        - name
+        - domains
+        - mode
+        - configuration
+        properties:
+          configuration:
+            required:
+            - storagePolicyHref
+            properties:
+              allowTimeout:
+                default: true
+              amazonConsent:
+                default: false
+              ccpaRelaxed:
+                default: false
+              codeSplitting:
+                default: false
+              crossDomain:
+                default: false
+              deleteStorageOnOptout:
+                default: false
+              dntSupport:
+                default: true
+              forcedClassifyEnabled:
+                default: true
+              forceManagePreferences:
+                default: true
+              googleConsent:
+                default: true
+              gpcSupport:
+                default: true
+              iframeBlocking:
+                default: ''
+              localStorageBlocking:
+                default: ''
+              managePreferencesEnabled:
+                default: false
+              microsoftConsent:
+                default: false
+              palette:
+                properties:
+                  buttonBackgroundColor:
+                    default: '#7A3FF1'
+                  buttonDenyBackgroundColor:
+                    default: '#7A3FF1'
+                  buttonDenyForegroundColor:
+                    default: '#FFFFFF'
+                  buttonForegroundColor:
+                    default: '#FFFFFF'
+                  dialogBackgroundColor:
+                    default: '#180D43'
+                  dialogForegroundColor:
+                    default: '#FFFFFF'
+                  dialogType:
+                    default: bar
+                  infoDialogBackgroundColor:
+                    default: '#180D43'
+                  infoDialogForegroundColor:
+                    default: '#FFFFFF'
+                  infoDialogPosition:
+                    default: right
+                  linkColor:
+                    default: '#37CD8F'
+                  optOutWidgetPosition:
+                    default: left
+                  toggleOnThumbColor:
+                    default: '#FFFFFF'
+                  toggleOffThumbColor:
+                    default: '#FFFFFF'
+                  toggleOnTrackColor:
+                    default: '#37CD8F'
+                  toggleOffTrackColor:
+                    default: '#7A3FF1'
+                  widgetPosition:
+                    default: right
+              policyLinkInDrawer:
+                default: false
+              policyLinkText:
+                default: privacyPolicy
+              showConsentUuid:
+                default: false
+              showOptOutWidget:
+                default: true
+              showWidget:
+                default: true
+              tattleSampling:
+                default: 1
+              timeoutSeconds:
+                default: 10
     CmpConfig:
       type: object
       additionalProperties: false
@@ -1301,106 +1468,6 @@ components:
               example:
                 us-ca: three
                 us-tx: three
-    ErrorResponse:
-      type: object
-      additionalProperties: true
-      properties:
-        message:
-          type: string
-    CmpConfigWithDefaults:
-      allOf:
-      - $ref: '#/components/schemas/CmpConfig'
-      - type: object
-        required:
-        - name
-        - domains
-        - mode
-        - configuration
-        properties:
-          configuration:
-            required:
-            - storagePolicyHref
-            properties:
-              allowTimeout:
-                default: true
-              amazonConsent:
-                default: false
-              ccpaRelaxed:
-                default: false
-              codeSplitting:
-                default: false
-              crossDomain:
-                default: false
-              deleteStorageOnOptout:
-                default: false
-              dntSupport:
-                default: true
-              forcedClassifyEnabled:
-                default: true
-              forceManagePreferences:
-                default: true
-              googleConsent:
-                default: true
-              gpcSupport:
-                default: true
-              iframeBlocking:
-                default: ''
-              localStorageBlocking:
-                default: ''
-              managePreferencesEnabled:
-                default: false
-              microsoftConsent:
-                default: false
-              palette:
-                properties:
-                  buttonBackgroundColor:
-                    default: '#7A3FF1'
-                  buttonDenyBackgroundColor:
-                    default: '#7A3FF1'
-                  buttonDenyForegroundColor:
-                    default: '#FFFFFF'
-                  buttonForegroundColor:
-                    default: '#FFFFFF'
-                  dialogBackgroundColor:
-                    default: '#180D43'
-                  dialogForegroundColor:
-                    default: '#FFFFFF'
-                  dialogType:
-                    default: bar
-                  infoDialogBackgroundColor:
-                    default: '#180D43'
-                  infoDialogForegroundColor:
-                    default: '#FFFFFF'
-                  infoDialogPosition:
-                    default: right
-                  linkColor:
-                    default: '#37CD8F'
-                  optOutWidgetPosition:
-                    default: left
-                  toggleOnThumbColor:
-                    default: '#FFFFFF'
-                  toggleOffThumbColor:
-                    default: '#FFFFFF'
-                  toggleOnTrackColor:
-                    default: '#37CD8F'
-                  toggleOffTrackColor:
-                    default: '#7A3FF1'
-                  widgetPosition:
-                    default: right
-              policyLinkInDrawer:
-                default: false
-              policyLinkText:
-                default: privacyPolicy
-              showConsentUuid:
-                default: false
-              showOptOutWidget:
-                default: true
-              showWidget:
-                default: true
-              tattleSampling:
-                default: 1
-              timeoutSeconds:
-                default: 10
     CmpConfigResponseList:
       type: object
       additionalProperties: false
@@ -1414,106 +1481,40 @@ components:
         next:
           type: string
           description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
-    CmpCookieRule:
-      allOf:
-      - $ref: '#/components/schemas/CmpRule'
-      - type: object
-        properties:
-          description:
-            type:
-            - string
-            - 'null'
-            description: A description of the cookie to be used in disclosures.
-            maxLength: 1000
-          expiry:
-            type:
-            - string
-            - 'null'
-            description: The length of time that must elapse before the cookie expires.
-            maxLength: 50
-    CmpDiscoveriesResponse:
+    CmpDiscoveriesResponseList:
       type: object
       additionalProperties: false
       required:
-      - customerId
-      - configId
-      - storeKey
-      - storeType
-      - created
-      - updated
-      - scanOrigin
-      - firstPageSeen
+      - items
       properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CmpDiscoveriesResponse'
+    CmpRuleResponseProperties:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          enum:
+          - cookie
+          - script
+          - iframe
+        ruleId:
+          type: integer
+          format: int32
         configId:
           type: string
           format: uuid
-        customerId:
-          type: string
-        storeKey:
-          type: string
-        storeType:
+        vendorId:
           type: string
         created:
           type: string
           format: date-time
-          description: The date and time the discovery was created (displayed as "First Date Seen" in my.osano.com).
         updated:
           type: string
           format: date-time
-        scanOrigin:
-          type:
-          - string
-          - 'null'
-          enum:
-          - URL Scan
-          - osano.js
-          description: '"URL Scan" if it was discovered by a URL scan, "osano.js" if not, and null if the origin is not available (displayed as "Unknown" in my.osano.com).'
-        firstPageSeen:
-          type: string
-          format: URL
-        confidence:
-          type:
-          - string
-          - 'null'
-          enum:
-          - Unknown
-          - Low
-          - Medium
-          - High
-          description: The AI confidence level for the discovery classification. Only available for cookie type discoveries. "Unknown" if no AI confidence data is available.
-    CmpRule:
-      type: object
-      minProperties: 1
-      properties:
-        classification:
-          type: string
-          enum:
-          - ANALYTICS
-          - BLACKLISTED
-          - ESSENTIAL
-          - HIDDEN
-          - MARKETING
-          - PERSONALIZATION
-        rule:
-          type: string
-          description: The type of the rule.
-          minLength: 3
-          maxLength: 1000
-        disclosure:
-          type: boolean
-          description: Whether the rule should be disclosed. If omitted, this property will default to `false`.
-        title:
-          type:
-          - string
-          - 'null'
-          description: The title of the rule. This is used in the consent disclosure in place of the rule when defined.
-          maxLength: 64
-        vendorName:
-          type:
-          - string
-          - 'null'
-          description: The value of the rule.
-          maxLength: 100
         ruleType:
           type:
           - string
@@ -1527,7 +1528,6 @@ components:
           - ENDS_WITH
           - CONTAINS
           - EXACT_MATCH
-          description: The type classification of the rule pattern.
     CmpConfigResponse:
       allOf:
       - $ref: '#/components/schemas/CmpConfig'

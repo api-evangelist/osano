@@ -103,48 +103,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
-  responses:
-    CmpRulePatch:
-      description: Success
-      content:
-        application/json:
-          schema:
-            oneOf:
-            - type: object
-              allOf:
-              - $ref: '#/components/schemas/CmpRule'
-              - $ref: '#/components/schemas/CmpRuleResponseProperties'
-            - type: object
-              allOf:
-              - $ref: '#/components/schemas/CmpCookieRule'
-              - $ref: '#/components/schemas/CmpRuleResponseProperties'
-    CmpRulesList:
-      description: Success
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              items:
-                type: array
-                items:
-                  oneOf:
-                  - type: object
-                    allOf:
-                    - $ref: '#/components/schemas/CmpRule'
-                    - $ref: '#/components/schemas/CmpRuleResponseProperties'
-                  - type: object
-                    allOf:
-                    - $ref: '#/components/schemas/CmpCookieRule'
-                    - $ref: '#/components/schemas/CmpRuleResponseProperties'
   schemas:
-    CmpRuleRequiredProps:
-      allOf:
-      - $ref: '#/components/schemas/CmpRule'
-      - type: object
-        required:
-        - classification
-        - rule
     CmpCookieRuleRequiredProps:
       allOf:
       - $ref: '#/components/schemas/CmpCookieRule'
@@ -175,6 +134,43 @@ components:
       properties:
         message:
           type: string
+    CmpRuleResponseProperties:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          enum:
+          - cookie
+          - script
+          - iframe
+        ruleId:
+          type: integer
+          format: int32
+        configId:
+          type: string
+          format: uuid
+        vendorId:
+          type: string
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        ruleType:
+          type:
+          - string
+          - 'null'
+          enum:
+          - FILENAME
+          - DOMAIN
+          - PATH
+          - REGEXP
+          - STARTS_WITH
+          - ENDS_WITH
+          - CONTAINS
+          - EXACT_MATCH
     CmpRule:
       type: object
       minProperties: 1
@@ -222,53 +218,14 @@ components:
           - CONTAINS
           - EXACT_MATCH
           description: The type classification of the rule pattern.
-    CmpRuleResponseProperties:
-      type: object
-      additionalProperties: false
-      properties:
-        type:
-          type: string
-          enum:
-          - cookie
-          - script
-          - iframe
-        ruleId:
-          type: integer
-          format: int32
-        configId:
-          type: string
-          format: uuid
-        vendorId:
-          type: string
-        created:
-          type: string
-          format: date-time
-        updated:
-          type: string
-          format: date-time
-        ruleType:
-          type:
-          - string
-          - 'null'
-          enum:
-          - FILENAME
-          - DOMAIN
-          - PATH
-          - REGEXP
-          - STARTS_WITH
-          - ENDS_WITH
-          - CONTAINS
-          - EXACT_MATCH
+    CmpRuleRequiredProps:
+      allOf:
+      - $ref: '#/components/schemas/CmpRule'
+      - type: object
+        required:
+        - classification
+        - rule
   requestBodies:
-    CmpRulePatch:
-      description: The Cookie Consent Rule property(ies) to be updated.
-      required: true
-      content:
-        application/json:
-          schema:
-            anyOf:
-            - $ref: '#/components/schemas/CmpRule'
-            - $ref: '#/components/schemas/CmpCookieRule'
     CmpRulesPost:
       description: The Cookie Consent Rule(s) to be created and the ID(s) of the config(s) to create them for.
       required: true
@@ -306,6 +263,49 @@ components:
                 minItems: 1
                 items:
                   $ref: '#/components/schemas/CmpRuleRequiredProps'
+    CmpRulePatch:
+      description: The Cookie Consent Rule property(ies) to be updated.
+      required: true
+      content:
+        application/json:
+          schema:
+            anyOf:
+            - $ref: '#/components/schemas/CmpRule'
+            - $ref: '#/components/schemas/CmpCookieRule'
+  responses:
+    CmpRulePatch:
+      description: Success
+      content:
+        application/json:
+          schema:
+            oneOf:
+            - type: object
+              allOf:
+              - $ref: '#/components/schemas/CmpRule'
+              - $ref: '#/components/schemas/CmpRuleResponseProperties'
+            - type: object
+              allOf:
+              - $ref: '#/components/schemas/CmpCookieRule'
+              - $ref: '#/components/schemas/CmpRuleResponseProperties'
+    CmpRulesList:
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              items:
+                type: array
+                items:
+                  oneOf:
+                  - type: object
+                    allOf:
+                    - $ref: '#/components/schemas/CmpRule'
+                    - $ref: '#/components/schemas/CmpRuleResponseProperties'
+                  - type: object
+                    allOf:
+                    - $ref: '#/components/schemas/CmpCookieRule'
+                    - $ref: '#/components/schemas/CmpRuleResponseProperties'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

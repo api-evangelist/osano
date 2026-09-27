@@ -38,16 +38,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
-  responses:
-    CustomerInsightsResponseList:
-      description: Success
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              items:
-                $ref: '#/components/schemas/CustomerInsights'
   schemas:
     ErrorResponse:
       type: object
@@ -65,6 +55,16 @@ components:
         products:
           type: object
           description: Spotlight product-related metrics for the customer.
+  responses:
+    CustomerInsightsResponseList:
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              items:
+                $ref: '#/components/schemas/CustomerInsights'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

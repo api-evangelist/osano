@@ -336,11 +336,11 @@ components:
         minimum: 1
         maximum: 500
         default: 100
-    afterParam:
-      name: after
+    dsarIdParam:
+      name: dsarId
       required: false
       in: query
-      description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
+      description: The id of the Subject Rights request to filter by
       schema:
         type: string
     actionItemStatusParam:
@@ -355,11 +355,11 @@ components:
         - IN_PROGRESS
         - COMPLETED
         - REJECTED
-    dsarIdParam:
-      name: dsarId
+    afterParam:
+      name: after
       required: false
       in: query
-      description: The id of the Subject Rights request to filter by
+      description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
       schema:
         type: string
     nextTokenParam:
@@ -370,25 +370,6 @@ components:
       schema:
         type: string
   schemas:
-    ErrorResponse:
-      type: object
-      additionalProperties: true
-      properties:
-        message:
-          type: string
-    DsarActionItemResponseList:
-      type: object
-      additionalProperties: false
-      required:
-      - items
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/DsarActionItemResponse'
-        next:
-          type: string
-          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
     ActivityLogEntry:
       type: object
       additionalProperties: false
@@ -405,6 +386,60 @@ components:
           type: string
           format: date-time
           description: When the action occurred (defaults to current timestamp if not provided)
+    DsarActionItemUpdate:
+      type: object
+      additionalProperties: true
+      properties:
+        assignee:
+          type:
+          - string
+          - 'null'
+          format: email
+        status:
+          type: string
+          enum:
+          - IN_PROGRESS
+          - COMPLETED
+          - CLAIMED
+          - REJECTED
+        internalNotes:
+          type: string
+          maxLength: 500
+        resultsFound:
+          type: boolean
+          description: Should be provided when setting status to COMPLETED to indicate whether results were found during the data subject access request.
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
+    DsarSummaryResponseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DsarSummaryResponse'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    DsarActionItemResponseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DsarActionItemResponse'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
     DsarActionItemResponse:
       type: object
       additionalProperties: false
@@ -477,41 +512,6 @@ components:
           - AUTOMATED
           - MANUAL
           description: Indicates whether the action item is fulfilled via an automated connection (AUTOMATED) or a manual task (MANUAL).
-    DsarActionItemUpdate:
-      type: object
-      additionalProperties: true
-      properties:
-        assignee:
-          type:
-          - string
-          - 'null'
-          format: email
-        status:
-          type: string
-          enum:
-          - IN_PROGRESS
-          - COMPLETED
-          - CLAIMED
-          - REJECTED
-        internalNotes:
-          type: string
-          maxLength: 500
-        resultsFound:
-          type: boolean
-          description: Should be provided when setting status to COMPLETED to indicate whether results were found during the data subject access request.
-    DsarSummaryResponseList:
-      type: object
-      additionalProperties: false
-      required:
-      - items
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/DsarSummaryResponse'
-        next:
-          type: string
-          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
     DsarSummaryResponse:
       type: object
       additionalProperties: false

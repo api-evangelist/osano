@@ -187,6 +187,23 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    def-0:
+      type: object
+      properties:
+        privacyPolicy:
+          type: object
+          required:
+          - url
+          properties:
+            version:
+              type: string
+            url:
+              type: string
+        gpc:
+          type: integer
+          minimum: 0
+          maximum: 1
+      title: compliance
     def-4:
       type: object
       required:
@@ -226,76 +243,6 @@ components:
         lastConflictDate:
           type: string
       title: unified-consent
-    def-0:
-      type: object
-      properties:
-        privacyPolicy:
-          type: object
-          required:
-          - url
-          properties:
-            version:
-              type: string
-            url:
-              type: string
-        gpc:
-          type: integer
-          minimum: 0
-          maximum: 1
-      title: compliance
-    def-21:
-      type: object
-      properties:
-        gpc:
-          type: integer
-          minimum: 0
-          maximum: 1
-      title: gpc-compliance
-    def-1:
-      type: object
-      required:
-      - subject
-      - actions
-      - attributes
-      properties:
-        sessionToken:
-          type: string
-          description: Optional session token returned by the create profile endpoint.
-        subject:
-          type: object
-          properties:
-            verifiedId:
-              type: string
-              pattern: ^[^#% ]+$
-            anonymousId:
-              type: string
-              pattern: ^[^#% ]+$
-        compliance:
-          $ref: '#/components/schemas/def-0'
-        actions:
-          type: array
-          items:
-            type: object
-            required:
-            - target
-            - vendor
-            - action
-            properties:
-              target:
-                type: string
-              vendor:
-                type: string
-              action:
-                type: string
-              jurisdiction:
-                type: string
-        attributes:
-          type: object
-        origin:
-          type: string
-        jurisdiction:
-          type: string
-      title: create-consent
     def-22:
       type: object
       required:
@@ -349,6 +296,59 @@ components:
                 - string
                 - 'null'
       title: conflict
+    def-1:
+      type: object
+      required:
+      - subject
+      - actions
+      - attributes
+      properties:
+        sessionToken:
+          type: string
+          description: Optional session token returned by the create profile endpoint.
+        subject:
+          type: object
+          properties:
+            verifiedId:
+              type: string
+              pattern: ^[^#% ]+$
+            anonymousId:
+              type: string
+              pattern: ^[^#% ]+$
+        compliance:
+          $ref: '#/components/schemas/def-0'
+        actions:
+          type: array
+          items:
+            type: object
+            required:
+            - target
+            - vendor
+            - action
+            properties:
+              target:
+                type: string
+              vendor:
+                type: string
+              action:
+                type: string
+              jurisdiction:
+                type: string
+        attributes:
+          type: object
+        origin:
+          type: string
+        jurisdiction:
+          type: string
+      title: create-consent
+    def-21:
+      type: object
+      properties:
+        gpc:
+          type: integer
+          minimum: 0
+          maximum: 1
+      title: gpc-compliance
   securitySchemes:
     ucApiKey:
       description: Unified Consent API key

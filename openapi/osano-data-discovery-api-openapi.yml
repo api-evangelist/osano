@@ -338,22 +338,67 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
+  parameters:
+    dataStoresNameParam:
+      name: name
+      required: false
+      in: query
+      description: The name of the Data Stores to be returned.  Partial matches will also be returned.
+      schema:
+        type: string
+        maxLength: 64
+    connectorIdParam:
+      name: connectorId
+      required: false
+      in: query
+      description: Optional connector identifier to filter data stores by.  This value is ignored when the Data Store type is 'internal'.
+      schema:
+        type: integer
+        format: int32
+    afterParam:
+      name: after
+      required: false
+      in: query
+      description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
+      schema:
+        type: string
+    limitParam:
+      name: limit
+      required: false
+      in: query
+      description: The number of items to return.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 500
+        default: 100
+    dataStoresTypeParam:
+      name: type
+      required: false
+      in: query
+      description: The type of the Data Stores to be returned.  If omitted, all Data Stores are returned.
+      schema:
+        type: string
+        enum:
+        - internal
+        - saas
+        - onprem
+    nextTokenParam:
+      name: next
+      required: false
+      in: query
+      description: The pagination token from the previous request.
+      schema:
+        type: string
+    dataStoresActiveParam:
+      name: active
+      required: false
+      in: query
+      description: The active status of the Data Stores to be returned.  If omitted, only active Data Stores are returned.
+      schema:
+        type: boolean
   schemas:
-    Connector:
-      type: object
-      additionalProperties: false
-      required:
-      - connectorId
-      - productName
-      - authType
-      properties:
-        connectorId:
-          type: integer
-          format: int32
-        productName:
-          type: string
-        authType:
-          type: string
     DataStoreFieldResponse:
       type: object
       additionalProperties: false
@@ -375,50 +420,6 @@ components:
         created:
           type: string
           format: date-time
-    DataStoreOwner:
-      type: object
-      additionalProperties: true
-      required:
-      - email
-      properties:
-        email:
-          type: string
-          format: email
-          minLength: 5
-          maxLength: 100
-        primary:
-          type: boolean
-    DataStoreField:
-      type: object
-      additionalProperties: false
-      properties:
-        name:
-          type: string
-          minLength: 1
-        path:
-          type:
-          - string
-          - 'null'
-        classification:
-          type:
-          - string
-          - 'null'
-          maxLength: 32
-          example: NAME
-          description: This field should be capitalized
-    DataStoreResponseList:
-      type: object
-      additionalProperties: false
-      required:
-      - items
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/DataStoreResponse'
-        next:
-          type: string
-          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
     DataStoreUpdate:
       type: object
       additionalProperties: true
@@ -467,42 +468,21 @@ components:
           type:
           - object
           - 'null'
-    ErrorResponse:
+    Connector:
       type: object
-      additionalProperties: true
-      properties:
-        message:
-          type: string
-    DataStoreLabels:
-      type: object
-      additionalProperties: true
+      additionalProperties: false
       required:
-      - name
+      - connectorId
+      - productName
+      - authType
       properties:
-        name:
+        connectorId:
+          type: integer
+          format: int32
+        productName:
           type: string
-          minLength: 1
-          maxLength: 50
-        labelId:
-          type:
-          - string
-          - 'null'
-          format: uuid
-    DataStorePurposesOfProcessing:
-      type: object
-      additionalProperties: true
-      required:
-      - name
-      properties:
-        name:
+        authType:
           type: string
-          minLength: 1
-          maxLength: 50
-        processingPurposeId:
-          type:
-          - string
-          - 'null'
-          format: uuid
     DataStore:
       type: object
       additionalProperties: true
@@ -529,23 +509,6 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/DataStoreOwner'
-    DataStoreFields:
-      type: array
-      items:
-        $ref: '#/components/schemas/DataStoreField'
-    DataStoreLabelsResponseList:
-      type: object
-      additionalProperties: false
-      required:
-      - items
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/DataStoreLabels'
-        next:
-          type: string
-          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
     DataStoreFieldResponseList:
       type: object
       additionalProperties: false
@@ -556,6 +519,40 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DataStoreFieldResponse'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    DataStoreLabels:
+      type: object
+      additionalProperties: true
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        labelId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
+    DataStoreLabelsResponseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataStoreLabels'
         next:
           type: string
           description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
@@ -615,66 +612,69 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DataStoreLabels'
-  parameters:
-    limitParam:
-      name: limit
-      required: false
-      in: query
-      description: The number of items to return.
-      schema:
-        type: integer
-        format: int32
-        minimum: 1
-        maximum: 500
-        default: 100
-    afterParam:
-      name: after
-      required: false
-      in: query
-      description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
-      schema:
-        type: string
-    connectorIdParam:
-      name: connectorId
-      required: false
-      in: query
-      description: Optional connector identifier to filter data stores by.  This value is ignored when the Data Store type is 'internal'.
-      schema:
-        type: integer
-        format: int32
-    dataStoresActiveParam:
-      name: active
-      required: false
-      in: query
-      description: The active status of the Data Stores to be returned.  If omitted, only active Data Stores are returned.
-      schema:
-        type: boolean
-    dataStoresNameParam:
-      name: name
-      required: false
-      in: query
-      description: The name of the Data Stores to be returned.  Partial matches will also be returned.
-      schema:
-        type: string
-        maxLength: 64
-    nextTokenParam:
-      name: next
-      required: false
-      in: query
-      description: The pagination token from the previous request.
-      schema:
-        type: string
-    dataStoresTypeParam:
-      name: type
-      required: false
-      in: query
-      description: The type of the Data Stores to be returned.  If omitted, all Data Stores are returned.
-      schema:
-        type: string
-        enum:
-        - internal
-        - saas
-        - onprem
+    DataStoreField:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          minLength: 1
+        path:
+          type:
+          - string
+          - 'null'
+        classification:
+          type:
+          - string
+          - 'null'
+          maxLength: 32
+          example: NAME
+          description: This field should be capitalized
+    DataStoreResponseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataStoreResponse'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    DataStoreFields:
+      type: array
+      items:
+        $ref: '#/components/schemas/DataStoreField'
+    DataStoreOwner:
+      type: object
+      additionalProperties: true
+      required:
+      - email
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 5
+          maxLength: 100
+        primary:
+          type: boolean
+    DataStorePurposesOfProcessing:
+      type: object
+      additionalProperties: true
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        processingPurposeId:
+          type:
+          - string
+          - 'null'
+          format: uuid
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
