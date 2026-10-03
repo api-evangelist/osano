@@ -125,6 +125,13 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   parameters:
+    nextTokenParam:
+      name: next
+      required: false
+      in: query
+      description: The pagination token from the previous request.
+      schema:
+        type: string
     limitParam:
       name: limit
       required: false
@@ -136,25 +143,18 @@ components:
         minimum: 1
         maximum: 500
         default: 100
-    afterParam:
-      name: after
-      required: false
-      in: query
-      description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
-      schema:
-        type: string
-    nextTokenParam:
-      name: next
-      required: false
-      in: query
-      description: The pagination token from the previous request.
-      schema:
-        type: string
     messageIdParam:
       name: messageId
       required: true
       in: path
       description: The id of the message to update
+      schema:
+        type: string
+    afterParam:
+      name: after
+      required: false
+      in: query
+      description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
       schema:
         type: string
   schemas:
@@ -172,6 +172,31 @@ components:
       properties:
         message:
           type: string
+    PatchPortalMessagesResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - messageId
+      - updated
+      properties:
+        messageId:
+          type: number
+        updated:
+          type: string
+          format: date-time
+    PortalMessagesResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortalMessagesList'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
     PortalMessagesList:
       type: object
       additionalProperties: false
@@ -206,18 +231,6 @@ components:
                 type: string
               fileExt:
                 type: string
-    PatchPortalMessagesResponse:
-      type: object
-      additionalProperties: false
-      required:
-      - messageId
-      - updated
-      properties:
-        messageId:
-          type: number
-        updated:
-          type: string
-          format: date-time
     PatchPortalMessage:
       type: object
       additionalProperties: false
@@ -226,19 +239,6 @@ components:
       properties:
         read:
           type: boolean
-    PortalMessagesResponse:
-      type: object
-      additionalProperties: false
-      required:
-      - items
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/PortalMessagesList'
-        next:
-          type: string
-          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

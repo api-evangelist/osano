@@ -537,17 +537,21 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   parameters:
-    limitParam:
-      name: limit
+    nextTokenParam:
+      name: next
       required: false
       in: query
-      description: The number of items to return.
+      description: The pagination token from the previous request.
+      schema:
+        type: string
+    formIdParam:
+      name: formId
+      required: false
+      in: query
+      description: Form identifier through which the Subject Rights Request was made.
       schema:
         type: integer
         format: int32
-        minimum: 1
-        maximum: 500
-        default: 100
     dsarRequestTypeParam:
       name: requestType
       required: false
@@ -569,21 +573,6 @@ components:
         - CUSTOM_3
         - CUSTOM_4
         - CUSTOM_5
-    dsarSourceParam:
-      name: source
-      required: false
-      in: query
-      description: Source filter for the request. Must be one of ADMIN, AGENT_WEB, API, CMP, CSV, EMAIL_INTAKE, or WEB.
-      schema:
-        type: string
-        enum:
-        - ADMIN
-        - AGENT_WEB
-        - API
-        - CMP
-        - CSV
-        - EMAIL_INTAKE
-        - WEB
     afterParam:
       name: after
       required: false
@@ -591,21 +580,6 @@ components:
       description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
       schema:
         type: string
-    nextTokenParam:
-      name: next
-      required: false
-      in: query
-      description: The pagination token from the previous request.
-      schema:
-        type: string
-    formIdParam:
-      name: formId
-      required: false
-      in: query
-      description: Form identifier through which the Subject Rights Request was made.
-      schema:
-        type: integer
-        format: int32
     dsarStatusParam:
       name: status
       required: false
@@ -622,6 +596,32 @@ components:
         - COMPLETED
         - REJECTED
         - REJECTED_AUTO
+    limitParam:
+      name: limit
+      required: false
+      in: query
+      description: The number of items to return.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 500
+        default: 100
+    dsarSourceParam:
+      name: source
+      required: false
+      in: query
+      description: Source filter for the request. Must be one of ADMIN, AGENT_WEB, API, CMP, CSV, EMAIL_INTAKE, or WEB.
+      schema:
+        type: string
+        enum:
+        - ADMIN
+        - AGENT_WEB
+        - API
+        - CMP
+        - CSV
+        - EMAIL_INTAKE
+        - WEB
   schemas:
     ActivityLogEntry:
       type: object
@@ -639,6 +639,108 @@ components:
           type: string
           format: date-time
           description: When the action occurred (defaults to current timestamp if not provided)
+    DsarResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - dsarId
+      - status
+      - requestType
+      - requestSource
+      - due
+      - created
+      properties:
+        dsarId:
+          type: string
+        status:
+          type: string
+        requestType:
+          type: string
+        requestSource:
+          type: string
+        notes:
+          type: string
+        dsarDetails:
+          type: object
+        due:
+          type: string
+          format: date-time
+        created:
+          type: string
+          format: date-time
+        form:
+          type: object
+          properties:
+            formId:
+              type: integer
+            formName:
+              type: string
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
+    RequestTypeList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestType'
+    ApplicableLaw:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - abbreviation
+      - effectiveDate
+      - jurisdictions
+      properties:
+        name:
+          type: string
+        abbreviation:
+          type:
+          - string
+          - 'null'
+        effectiveDate:
+          type: string
+          format: date-time
+        jurisdictions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Jurisdiction'
+    DsarResponseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DsarResponse'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    Jurisdiction:
+      type: object
+      additionalProperties: false
+      required:
+      - country
+      properties:
+        country:
+          type: string
+        territory:
+          type: string
+    DsarList:
+      type: array
+      maxItems: 100
+      items:
+        $ref: '#/components/schemas/Dsar'
     Dsar:
       type: object
       additionalProperties: false
@@ -698,49 +800,6 @@ components:
               type: string
             family-name:
               type: string
-    Jurisdiction:
-      type: object
-      additionalProperties: false
-      required:
-      - country
-      properties:
-        country:
-          type: string
-        territory:
-          type: string
-    DsarList:
-      type: array
-      maxItems: 100
-      items:
-        $ref: '#/components/schemas/Dsar'
-    ApplicableLaw:
-      type: object
-      additionalProperties: false
-      required:
-      - name
-      - abbreviation
-      - effectiveDate
-      - jurisdictions
-      properties:
-        name:
-          type: string
-        abbreviation:
-          type:
-          - string
-          - 'null'
-        effectiveDate:
-          type: string
-          format: date-time
-        jurisdictions:
-          type: array
-          items:
-            $ref: '#/components/schemas/Jurisdiction'
-    ErrorResponse:
-      type: object
-      additionalProperties: true
-      properties:
-        message:
-          type: string
     DsarUpdate:
       type: object
       additionalProperties: true
@@ -780,29 +839,6 @@ components:
           - UNFOUNDED
           - OTHER
           - IDENTITY_NOT_VERIFIED
-    DsarResponseList:
-      type: object
-      additionalProperties: false
-      required:
-      - items
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/DsarResponse'
-        next:
-          type: string
-          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
-    RequestTypeList:
-      type: object
-      additionalProperties: false
-      required:
-      - items
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/RequestType'
     RequestType:
       type: object
       additionalProperties: false
@@ -819,42 +855,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ApplicableLaw'
-    DsarResponse:
-      type: object
-      additionalProperties: false
-      required:
-      - dsarId
-      - status
-      - requestType
-      - requestSource
-      - due
-      - created
-      properties:
-        dsarId:
-          type: string
-        status:
-          type: string
-        requestType:
-          type: string
-        requestSource:
-          type: string
-        notes:
-          type: string
-        dsarDetails:
-          type: object
-        due:
-          type: string
-          format: date-time
-        created:
-          type: string
-          format: date-time
-        form:
-          type: object
-          properties:
-            formId:
-              type: integer
-            formName:
-              type: string
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

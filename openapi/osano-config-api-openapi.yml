@@ -70,30 +70,90 @@ components:
           items:
             $ref: '#/components/schemas/def-18'
       title: cui-text-customization
-    def-17:
+    def-9:
       type: object
       properties:
-        manualTitle:
+        fontFamily:
           type: string
-        manualAgreeLabel:
+        color:
           type: string
-        manualDropdownPlaceholder:
+        backgroundColor:
           type: string
-        manualDropdownLabel:
+      title: config-typography
+    def-12:
+      type: object
+      properties:
+        title:
           type: string
-        confirmationTitle:
+        description:
           type: string
-        confirmationDescriptionKnown:
+        cancelButton:
           type: string
-        confirmationDescriptionUnknown:
+        submitButton:
           type: string
-        confirmationDropdownPlaceholder:
+        emailInputLabel:
           type: string
-        confirmationDropdownLabel:
+        emailInputRequiredText:
           type: string
-        confirmationAgreeLabel:
+        emailInputPlaceholder:
           type: string
-      title: geolocation-modal
+        backButton:
+          type: string
+        profileFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/def-11'
+        emailSelector:
+          type: string
+        phoneSelector:
+          type: string
+        phoneInputLabel:
+          type: string
+      title: sign-up-page
+    def-7:
+      type: object
+      properties:
+        connection:
+          type: object
+          properties:
+            label:
+              type: string
+            value:
+              type: string
+        operation:
+          type: object
+          properties:
+            label:
+              type: string
+            value:
+              type: string
+        additionalFields:
+          type: boolean
+        fields:
+          type: object
+        protocolValue:
+          type: array
+          items:
+            type: string
+      title: uc-integration
+    def-8:
+      type: object
+      properties:
+        privacyProtocolId:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        integrations:
+          type: array
+          items:
+            $ref: '#/components/schemas/def-7'
+        enabled:
+          type: boolean
+        trigger:
+          type: string
+      title: privacy-protocol
     def-15:
       type: object
       properties:
@@ -112,16 +172,90 @@ components:
         cancelButton:
           type: string
       title: validation-modal
-    def-18:
+    def-16:
       type: object
       properties:
         title:
           type: string
-        route:
+        description:
           type: string
-        key:
+        disclaimer:
           type: string
-      title: navigation-item
+        inputLabel:
+          type: string
+        inputPlaceholder:
+          type: string
+        submitButton:
+          type: string
+        cancelButton:
+          type: string
+      title: sms-validation-modal
+    def-13:
+      type: object
+      properties:
+        title:
+          type: string
+        submitButton:
+          type: string
+        modalTitle:
+          type: string
+        modalDescription:
+          type: string
+        modalCloseButton:
+          type: string
+        modalNextButton:
+          type: string
+        modalNextDescription:
+          type: string
+        noConsentsTitle:
+          type: string
+        noConsentsDescription:
+          type: string
+        verificationFactorInputDescription:
+          type: string
+        emailInputLabel:
+          type: string
+        emailInputPlaceholder:
+          type: string
+        verificationFactorInputSubmitButton:
+          type: string
+        emailSelector:
+          type: string
+        phoneSelector:
+          type: string
+      title: consents-page
+    def-14:
+      type: object
+      properties:
+        title:
+          type: string
+        submitButton:
+          type: string
+        modalTitle:
+          type: string
+        modalDescription:
+          type: string
+        modalCloseButton:
+          type: string
+        modalNextButton:
+          type: string
+        modalNextDescription:
+          type: string
+        submitButtonDisabledDescription:
+          type: string
+        verificationFactorInputDescription:
+          type: string
+        emailInputLabel:
+          type: string
+        emailInputPlaceholder:
+          type: string
+        verificationFactorInputSubmitButton:
+          type: string
+        emailSelector:
+          type: string
+        phoneSelector:
+          type: string
+      title: preferences-page
     def-10:
       type: object
       properties:
@@ -146,6 +280,16 @@ components:
         verificationFactorInputSubmitButton:
           type: string
       title: welcome-page
+    def-18:
+      type: object
+      properties:
+        title:
+          type: string
+        route:
+          type: string
+        key:
+          type: string
+      title: navigation-item
     def-20:
       type: object
       properties:
@@ -214,130 +358,6 @@ components:
           items:
             $ref: '#/components/schemas/def-19'
       title: uc-config
-    def-16:
-      type: object
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        disclaimer:
-          type: string
-        inputLabel:
-          type: string
-        inputPlaceholder:
-          type: string
-        submitButton:
-          type: string
-        cancelButton:
-          type: string
-      title: sms-validation-modal
-    def-12:
-      type: object
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        cancelButton:
-          type: string
-        submitButton:
-          type: string
-        emailInputLabel:
-          type: string
-        emailInputRequiredText:
-          type: string
-        emailInputPlaceholder:
-          type: string
-        backButton:
-          type: string
-        profileFields:
-          type: array
-          items:
-            $ref: '#/components/schemas/def-11'
-        emailSelector:
-          type: string
-        phoneSelector:
-          type: string
-        phoneInputLabel:
-          type: string
-      title: sign-up-page
-    def-7:
-      type: object
-      properties:
-        connection:
-          type: object
-          properties:
-            label:
-              type: string
-            value:
-              type: string
-        operation:
-          type: object
-          properties:
-            label:
-              type: string
-            value:
-              type: string
-        additionalFields:
-          type: boolean
-        fields:
-          type: object
-        protocolValue:
-          type: array
-          items:
-            type: string
-      title: uc-integration
-    def-14:
-      type: object
-      properties:
-        title:
-          type: string
-        submitButton:
-          type: string
-        modalTitle:
-          type: string
-        modalDescription:
-          type: string
-        modalCloseButton:
-          type: string
-        modalNextButton:
-          type: string
-        modalNextDescription:
-          type: string
-        submitButtonDisabledDescription:
-          type: string
-        verificationFactorInputDescription:
-          type: string
-        emailInputLabel:
-          type: string
-        emailInputPlaceholder:
-          type: string
-        verificationFactorInputSubmitButton:
-          type: string
-        emailSelector:
-          type: string
-        phoneSelector:
-          type: string
-      title: preferences-page
-    def-8:
-      type: object
-      properties:
-        privacyProtocolId:
-          type: string
-        name:
-          type: string
-        type:
-          type: string
-        integrations:
-          type: array
-          items:
-            $ref: '#/components/schemas/def-7'
-        enabled:
-          type: boolean
-        trigger:
-          type: string
-      title: privacy-protocol
     def-11:
       type: object
       properties:
@@ -354,50 +374,30 @@ components:
         errorMessage:
           type: string
       title: profile-field
-    def-13:
+    def-17:
       type: object
       properties:
-        title:
+        manualTitle:
           type: string
-        submitButton:
+        manualAgreeLabel:
           type: string
-        modalTitle:
+        manualDropdownPlaceholder:
           type: string
-        modalDescription:
+        manualDropdownLabel:
           type: string
-        modalCloseButton:
+        confirmationTitle:
           type: string
-        modalNextButton:
+        confirmationDescriptionKnown:
           type: string
-        modalNextDescription:
+        confirmationDescriptionUnknown:
           type: string
-        noConsentsTitle:
+        confirmationDropdownPlaceholder:
           type: string
-        noConsentsDescription:
+        confirmationDropdownLabel:
           type: string
-        verificationFactorInputDescription:
+        confirmationAgreeLabel:
           type: string
-        emailInputLabel:
-          type: string
-        emailInputPlaceholder:
-          type: string
-        verificationFactorInputSubmitButton:
-          type: string
-        emailSelector:
-          type: string
-        phoneSelector:
-          type: string
-      title: consents-page
-    def-9:
-      type: object
-      properties:
-        fontFamily:
-          type: string
-        color:
-          type: string
-        backgroundColor:
-          type: string
-      title: config-typography
+      title: geolocation-modal
   securitySchemes:
     ucApiKey:
       description: Unified Consent API key

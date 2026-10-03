@@ -204,67 +204,6 @@ components:
           minimum: 0
           maximum: 1
       title: compliance
-    def-4:
-      type: object
-      required:
-      - subjectId
-      - brandId
-      - actions
-      - attributes
-      properties:
-        subjectId:
-          type: string
-        brandId:
-          type: string
-        channelIds:
-          type: array
-          items:
-            type: string
-        compliance:
-          $ref: '#/components/schemas/def-0'
-        actions:
-          type: array
-          items:
-            type: object
-            required:
-            - target
-            - vendor
-            - action
-            properties:
-              target:
-                type: string
-              vendor:
-                type: string
-              action:
-                type: string
-        attributes: {}
-        lastUpdateDate:
-          type: string
-        lastConflictDate:
-          type: string
-      title: unified-consent
-    def-22:
-      type: object
-      required:
-      - subject
-      - attributes
-      properties:
-        subject:
-          type: object
-          properties:
-            verifiedId:
-              type: string
-              pattern: ^[^#% ]+$
-            anonymousId:
-              type: string
-              pattern: ^[^#% ]+$
-        compliance:
-          $ref: '#/components/schemas/def-21'
-        attributes:
-          type: object
-        jurisdiction:
-          type: string
-      title: create-gpc-consent
     def-3:
       type: object
       properties:
@@ -341,6 +280,28 @@ components:
         jurisdiction:
           type: string
       title: create-consent
+    def-22:
+      type: object
+      required:
+      - subject
+      - attributes
+      properties:
+        subject:
+          type: object
+          properties:
+            verifiedId:
+              type: string
+              pattern: ^[^#% ]+$
+            anonymousId:
+              type: string
+              pattern: ^[^#% ]+$
+        compliance:
+          $ref: '#/components/schemas/def-21'
+        attributes:
+          type: object
+        jurisdiction:
+          type: string
+      title: create-gpc-consent
     def-21:
       type: object
       properties:
@@ -349,6 +310,45 @@ components:
           minimum: 0
           maximum: 1
       title: gpc-compliance
+    def-4:
+      type: object
+      required:
+      - subjectId
+      - brandId
+      - actions
+      - attributes
+      properties:
+        subjectId:
+          type: string
+        brandId:
+          type: string
+        channelIds:
+          type: array
+          items:
+            type: string
+        compliance:
+          $ref: '#/components/schemas/def-0'
+        actions:
+          type: array
+          items:
+            type: object
+            required:
+            - target
+            - vendor
+            - action
+            properties:
+              target:
+                type: string
+              vendor:
+                type: string
+              action:
+                type: string
+        attributes: {}
+        lastUpdateDate:
+          type: string
+        lastConflictDate:
+          type: string
+      title: unified-consent
   securitySchemes:
     ucApiKey:
       description: Unified Consent API key

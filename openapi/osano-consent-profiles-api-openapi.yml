@@ -81,6 +81,37 @@ components:
           minimum: 0
           maximum: 1
       title: compliance
+    def-3:
+      type: object
+      properties:
+        type:
+          type: string
+        resolution:
+          type: string
+        actionsInConflict:
+          type: array
+          items:
+            type: object
+            properties:
+              target:
+                type: string
+              vendor:
+                type: string
+              action:
+                type: string
+              consentId:
+                type:
+                - string
+                - 'null'
+              channelId:
+                type:
+                - string
+                - 'null'
+              createdAt:
+                type:
+                - string
+                - 'null'
+      title: conflict
     def-4:
       type: object
       required:
@@ -120,37 +151,6 @@ components:
         lastConflictDate:
           type: string
       title: unified-consent
-    def-3:
-      type: object
-      properties:
-        type:
-          type: string
-        resolution:
-          type: string
-        actionsInConflict:
-          type: array
-          items:
-            type: object
-            properties:
-              target:
-                type: string
-              vendor:
-                type: string
-              action:
-                type: string
-              consentId:
-                type:
-                - string
-                - 'null'
-              channelId:
-                type:
-                - string
-                - 'null'
-              createdAt:
-                type:
-                - string
-                - 'null'
-      title: conflict
   securitySchemes:
     ucApiKey:
       description: Unified Consent API key

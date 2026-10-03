@@ -104,36 +104,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
-    CmpCookieRuleRequiredProps:
-      allOf:
-      - $ref: '#/components/schemas/CmpCookieRule'
-      - type: object
-        required:
-        - classification
-        - rule
-    CmpCookieRule:
-      allOf:
-      - $ref: '#/components/schemas/CmpRule'
-      - type: object
-        properties:
-          description:
-            type:
-            - string
-            - 'null'
-            description: A description of the cookie to be used in disclosures.
-            maxLength: 1000
-          expiry:
-            type:
-            - string
-            - 'null'
-            description: The length of time that must elapse before the cookie expires.
-            maxLength: 50
-    ErrorResponse:
-      type: object
-      additionalProperties: true
-      properties:
-        message:
-          type: string
     CmpRuleResponseProperties:
       type: object
       additionalProperties: false
@@ -171,6 +141,26 @@ components:
           - ENDS_WITH
           - CONTAINS
           - EXACT_MATCH
+    CmpCookieRuleRequiredProps:
+      allOf:
+      - $ref: '#/components/schemas/CmpCookieRule'
+      - type: object
+        required:
+        - classification
+        - rule
+    CmpRuleRequiredProps:
+      allOf:
+      - $ref: '#/components/schemas/CmpRule'
+      - type: object
+        required:
+        - classification
+        - rule
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
     CmpRule:
       type: object
       minProperties: 1
@@ -218,13 +208,23 @@ components:
           - CONTAINS
           - EXACT_MATCH
           description: The type classification of the rule pattern.
-    CmpRuleRequiredProps:
+    CmpCookieRule:
       allOf:
       - $ref: '#/components/schemas/CmpRule'
       - type: object
-        required:
-        - classification
-        - rule
+        properties:
+          description:
+            type:
+            - string
+            - 'null'
+            description: A description of the cookie to be used in disclosures.
+            maxLength: 1000
+          expiry:
+            type:
+            - string
+            - 'null'
+            description: The length of time that must elapse before the cookie expires.
+            maxLength: 50
   requestBodies:
     CmpRulesPost:
       description: The Cookie Consent Rule(s) to be created and the ID(s) of the config(s) to create them for.
@@ -273,20 +273,6 @@ components:
             - $ref: '#/components/schemas/CmpRule'
             - $ref: '#/components/schemas/CmpCookieRule'
   responses:
-    CmpRulePatch:
-      description: Success
-      content:
-        application/json:
-          schema:
-            oneOf:
-            - type: object
-              allOf:
-              - $ref: '#/components/schemas/CmpRule'
-              - $ref: '#/components/schemas/CmpRuleResponseProperties'
-            - type: object
-              allOf:
-              - $ref: '#/components/schemas/CmpCookieRule'
-              - $ref: '#/components/schemas/CmpRuleResponseProperties'
     CmpRulesList:
       description: Success
       content:
@@ -306,6 +292,20 @@ components:
                     allOf:
                     - $ref: '#/components/schemas/CmpCookieRule'
                     - $ref: '#/components/schemas/CmpRuleResponseProperties'
+    CmpRulePatch:
+      description: Success
+      content:
+        application/json:
+          schema:
+            oneOf:
+            - type: object
+              allOf:
+              - $ref: '#/components/schemas/CmpRule'
+              - $ref: '#/components/schemas/CmpRuleResponseProperties'
+            - type: object
+              allOf:
+              - $ref: '#/components/schemas/CmpCookieRule'
+              - $ref: '#/components/schemas/CmpRuleResponseProperties'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
