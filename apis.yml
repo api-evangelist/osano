@@ -564,6 +564,9 @@ apis:
   - type: SDK
     url: https://developers.osano.com/uc/js-sdk/
 common:
+- type: CapabilityMap
+  url: capabilities/osano-capability-edges.yml
+  name: Osano Business Capability Map
 - type: Overlay
   url: overlays/osano-customer-rest-api-overlay.yaml
 - type: Overlay
