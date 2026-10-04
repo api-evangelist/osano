@@ -537,13 +537,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   parameters:
-    nextTokenParam:
-      name: next
-      required: false
-      in: query
-      description: The pagination token from the previous request.
-      schema:
-        type: string
     formIdParam:
       name: formId
       required: false
@@ -552,6 +545,44 @@ components:
       schema:
         type: integer
         format: int32
+    dsarStatusParam:
+      name: status
+      required: false
+      in: query
+      description: Status filter for the request. Must be one of PENDING_EMAIL_VERIFICATION, PENDING_IDENTITY_VERIFICATION, IN_PROGRESS, IN_REVIEW, PENDING_APPEAL, COMPLETED, REJECTED, or REJECTED_AUTO.
+      schema:
+        type: string
+        enum:
+        - PENDING_EMAIL_VERIFICATION
+        - PENDING_IDENTITY_VERIFICATION
+        - IN_PROGRESS
+        - IN_REVIEW
+        - PENDING_APPEAL
+        - COMPLETED
+        - REJECTED
+        - REJECTED_AUTO
+    dsarSourceParam:
+      name: source
+      required: false
+      in: query
+      description: Source filter for the request. Must be one of ADMIN, AGENT_WEB, API, CMP, CSV, EMAIL_INTAKE, or WEB.
+      schema:
+        type: string
+        enum:
+        - ADMIN
+        - AGENT_WEB
+        - API
+        - CMP
+        - CSV
+        - EMAIL_INTAKE
+        - WEB
+    nextTokenParam:
+      name: next
+      required: false
+      in: query
+      description: The pagination token from the previous request.
+      schema:
+        type: string
     dsarRequestTypeParam:
       name: requestType
       required: false
@@ -580,22 +611,6 @@ components:
       description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
       schema:
         type: string
-    dsarStatusParam:
-      name: status
-      required: false
-      in: query
-      description: Status filter for the request. Must be one of PENDING_EMAIL_VERIFICATION, PENDING_IDENTITY_VERIFICATION, IN_PROGRESS, IN_REVIEW, PENDING_APPEAL, COMPLETED, REJECTED, or REJECTED_AUTO.
-      schema:
-        type: string
-        enum:
-        - PENDING_EMAIL_VERIFICATION
-        - PENDING_IDENTITY_VERIFICATION
-        - IN_PROGRESS
-        - IN_REVIEW
-        - PENDING_APPEAL
-        - COMPLETED
-        - REJECTED
-        - REJECTED_AUTO
     limitParam:
       name: limit
       required: false
@@ -607,22 +622,23 @@ components:
         minimum: 1
         maximum: 500
         default: 100
-    dsarSourceParam:
-      name: source
-      required: false
-      in: query
-      description: Source filter for the request. Must be one of ADMIN, AGENT_WEB, API, CMP, CSV, EMAIL_INTAKE, or WEB.
-      schema:
-        type: string
-        enum:
-        - ADMIN
-        - AGENT_WEB
-        - API
-        - CMP
-        - CSV
-        - EMAIL_INTAKE
-        - WEB
   schemas:
+    RequestType:
+      type: object
+      additionalProperties: false
+      required:
+      - requestType
+      - requestTypeCategory
+      - applicableLaws
+      properties:
+        requestType:
+          type: string
+        requestTypeCategory:
+          type: string
+        applicableLaws:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicableLaw'
     ActivityLogEntry:
       type: object
       additionalProperties: false
@@ -639,6 +655,55 @@ components:
           type: string
           format: date-time
           description: When the action occurred (defaults to current timestamp if not provided)
+    Jurisdiction:
+      type: object
+      additionalProperties: false
+      required:
+      - country
+      properties:
+        country:
+          type: string
+        territory:
+          type: string
+    DsarUpdate:
+      type: object
+      additionalProperties: true
+      properties:
+        status:
+          type: string
+          enum:
+          - PENDING_EMAIL_VERIFICATION
+          - PENDING_IDENTITY_VERIFICATION
+          - IN_PROGRESS
+          - PENDING_APPEAL
+          - COMPLETED
+          - REJECTED
+          - REJECTED_AUTO
+          - IN_REVIEW
+        notes:
+          type: string
+          maxLength: 500
+        notify:
+          type: boolean
+          default: true
+          description: When set to true and status is COMPLETED or REJECTED, an email notification will be sent to the requestor. Defaults to true when status is COMPLETED or REJECTED, otherwise defaults to false.
+        content:
+          type:
+          - string
+          - 'null'
+          maxLength: 10000
+          description: Optional completion or rejection message to be emailed to the requestor. When status is COMPLETED or REJECTED, this message will be used as the completionMessage or rejectionReason in the notification. If omitted, the email notification handler will use a configured template. This message will be added to the portal conversation.
+        rejectionReasonCode:
+          type: string
+          description: Optional rejection reason code. Only applicable when status is REJECTED. Used to select a specific rejection template for the notification email.
+          enum:
+          - TECHNICALLY_INFEASIBLE
+          - REJECTED_APPEAL
+          - UNCOVERED_GEO
+          - DUPLICATE
+          - UNFOUNDED
+          - OTHER
+          - IDENTITY_NOT_VERIFIED
     DsarResponse:
       type: object
       additionalProperties: false
@@ -675,13 +740,12 @@ components:
               type: integer
             formName:
               type: string
-    ErrorResponse:
-      type: object
-      additionalProperties: true
-      properties:
-        message:
-          type: string
-    RequestTypeList:
+    DsarList:
+      type: array
+      maxItems: 100
+      items:
+        $ref: '#/components/schemas/Dsar'
+    DsarResponseList:
       type: object
       additionalProperties: false
       required:
@@ -690,7 +754,16 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/RequestType'
+            $ref: '#/components/schemas/DsarResponse'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
     ApplicableLaw:
       type: object
       additionalProperties: false
@@ -713,34 +786,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Jurisdiction'
-    DsarResponseList:
-      type: object
-      additionalProperties: false
-      required:
-      - items
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/DsarResponse'
-        next:
-          type: string
-          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
-    Jurisdiction:
-      type: object
-      additionalProperties: false
-      required:
-      - country
-      properties:
-        country:
-          type: string
-        territory:
-          type: string
-    DsarList:
-      type: array
-      maxItems: 100
-      items:
-        $ref: '#/components/schemas/Dsar'
     Dsar:
       type: object
       additionalProperties: false
@@ -800,61 +845,16 @@ components:
               type: string
             family-name:
               type: string
-    DsarUpdate:
-      type: object
-      additionalProperties: true
-      properties:
-        status:
-          type: string
-          enum:
-          - PENDING_EMAIL_VERIFICATION
-          - PENDING_IDENTITY_VERIFICATION
-          - IN_PROGRESS
-          - PENDING_APPEAL
-          - COMPLETED
-          - REJECTED
-          - REJECTED_AUTO
-          - IN_REVIEW
-        notes:
-          type: string
-          maxLength: 500
-        notify:
-          type: boolean
-          default: true
-          description: When set to true and status is COMPLETED or REJECTED, an email notification will be sent to the requestor. Defaults to true when status is COMPLETED or REJECTED, otherwise defaults to false.
-        content:
-          type:
-          - string
-          - 'null'
-          maxLength: 10000
-          description: Optional completion or rejection message to be emailed to the requestor. When status is COMPLETED or REJECTED, this message will be used as the completionMessage or rejectionReason in the notification. If omitted, the email notification handler will use a configured template. This message will be added to the portal conversation.
-        rejectionReasonCode:
-          type: string
-          description: Optional rejection reason code. Only applicable when status is REJECTED. Used to select a specific rejection template for the notification email.
-          enum:
-          - TECHNICALLY_INFEASIBLE
-          - REJECTED_APPEAL
-          - UNCOVERED_GEO
-          - DUPLICATE
-          - UNFOUNDED
-          - OTHER
-          - IDENTITY_NOT_VERIFIED
-    RequestType:
+    RequestTypeList:
       type: object
       additionalProperties: false
       required:
-      - requestType
-      - requestTypeCategory
-      - applicableLaws
+      - items
       properties:
-        requestType:
-          type: string
-        requestTypeCategory:
-          type: string
-        applicableLaws:
+        items:
           type: array
           items:
-            $ref: '#/components/schemas/ApplicableLaw'
+            $ref: '#/components/schemas/RequestType'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

@@ -43,41 +43,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
-  schemas:
-    Connector:
-      type: object
-      additionalProperties: false
-      required:
-      - connectorId
-      - productName
-      - authType
-      properties:
-        connectorId:
-          type: integer
-          format: int32
-        productName:
-          type: string
-        authType:
-          type: string
-    ErrorResponse:
-      type: object
-      additionalProperties: true
-      properties:
-        message:
-          type: string
-    ConnectorList:
-      type: object
-      additionalProperties: false
-      required:
-      - items
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/Connector'
-        next:
-          type: string
-          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
   parameters:
     nextTokenParam:
       name: next
@@ -86,16 +51,6 @@ components:
       description: The pagination token from the previous request.
       schema:
         type: string
-    connectorTypeParam:
-      name: type
-      required: false
-      in: query
-      description: The type of Connectors to be returned.  By default, all Connectors are returned.
-      schema:
-        type: string
-        enum:
-        - saas
-        - onprem
     productNameParam:
       name: name
       required: false
@@ -115,6 +70,51 @@ components:
         minimum: 1
         maximum: 500
         default: 100
+    connectorTypeParam:
+      name: type
+      required: false
+      in: query
+      description: The type of Connectors to be returned.  By default, all Connectors are returned.
+      schema:
+        type: string
+        enum:
+        - saas
+        - onprem
+  schemas:
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
+    ConnectorList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Connector'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    Connector:
+      type: object
+      additionalProperties: false
+      required:
+      - connectorId
+      - productName
+      - authType
+      properties:
+        connectorId:
+          type: integer
+          format: int32
+        productName:
+          type: string
+        authType:
+          type: string
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

@@ -75,6 +75,16 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    def-6:
+      type: object
+      properties:
+        jurisdictions:
+          type: array
+          items:
+            type: string
+        collection:
+          $ref: '#/components/schemas/def-5'
+      title: config-collections-response
     def-5:
       type: object
       properties:
@@ -109,16 +119,6 @@ components:
             type: object
             additionalProperties: true
       title: config-collection
-    def-6:
-      type: object
-      properties:
-        jurisdictions:
-          type: array
-          items:
-            type: string
-        collection:
-          $ref: '#/components/schemas/def-5'
-      title: config-collections-response
   securitySchemes:
     ucApiKey:
       description: Unified Consent API key

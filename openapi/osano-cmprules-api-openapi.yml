@@ -104,63 +104,23 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
-    CmpRuleResponseProperties:
-      type: object
-      additionalProperties: false
-      properties:
-        type:
-          type: string
-          enum:
-          - cookie
-          - script
-          - iframe
-        ruleId:
-          type: integer
-          format: int32
-        configId:
-          type: string
-          format: uuid
-        vendorId:
-          type: string
-        created:
-          type: string
-          format: date-time
-        updated:
-          type: string
-          format: date-time
-        ruleType:
-          type:
-          - string
-          - 'null'
-          enum:
-          - FILENAME
-          - DOMAIN
-          - PATH
-          - REGEXP
-          - STARTS_WITH
-          - ENDS_WITH
-          - CONTAINS
-          - EXACT_MATCH
-    CmpCookieRuleRequiredProps:
-      allOf:
-      - $ref: '#/components/schemas/CmpCookieRule'
-      - type: object
-        required:
-        - classification
-        - rule
-    CmpRuleRequiredProps:
+    CmpCookieRule:
       allOf:
       - $ref: '#/components/schemas/CmpRule'
       - type: object
-        required:
-        - classification
-        - rule
-    ErrorResponse:
-      type: object
-      additionalProperties: true
-      properties:
-        message:
-          type: string
+        properties:
+          description:
+            type:
+            - string
+            - 'null'
+            description: A description of the cookie to be used in disclosures.
+            maxLength: 1000
+          expiry:
+            type:
+            - string
+            - 'null'
+            description: The length of time that must elapse before the cookie expires.
+            maxLength: 50
     CmpRule:
       type: object
       minProperties: 1
@@ -208,23 +168,63 @@ components:
           - CONTAINS
           - EXACT_MATCH
           description: The type classification of the rule pattern.
-    CmpCookieRule:
+    CmpRuleRequiredProps:
       allOf:
       - $ref: '#/components/schemas/CmpRule'
       - type: object
-        properties:
-          description:
-            type:
-            - string
-            - 'null'
-            description: A description of the cookie to be used in disclosures.
-            maxLength: 1000
-          expiry:
-            type:
-            - string
-            - 'null'
-            description: The length of time that must elapse before the cookie expires.
-            maxLength: 50
+        required:
+        - classification
+        - rule
+    CmpCookieRuleRequiredProps:
+      allOf:
+      - $ref: '#/components/schemas/CmpCookieRule'
+      - type: object
+        required:
+        - classification
+        - rule
+    CmpRuleResponseProperties:
+      type: object
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          enum:
+          - cookie
+          - script
+          - iframe
+        ruleId:
+          type: integer
+          format: int32
+        configId:
+          type: string
+          format: uuid
+        vendorId:
+          type: string
+        created:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        ruleType:
+          type:
+          - string
+          - 'null'
+          enum:
+          - FILENAME
+          - DOMAIN
+          - PATH
+          - REGEXP
+          - STARTS_WITH
+          - ENDS_WITH
+          - CONTAINS
+          - EXACT_MATCH
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
   requestBodies:
     CmpRulesPost:
       description: The Cookie Consent Rule(s) to be created and the ID(s) of the config(s) to create them for.

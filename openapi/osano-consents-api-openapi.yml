@@ -187,54 +187,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    def-0:
-      type: object
-      properties:
-        privacyPolicy:
-          type: object
-          required:
-          - url
-          properties:
-            version:
-              type: string
-            url:
-              type: string
-        gpc:
-          type: integer
-          minimum: 0
-          maximum: 1
-      title: compliance
-    def-3:
-      type: object
-      properties:
-        type:
-          type: string
-        resolution:
-          type: string
-        actionsInConflict:
-          type: array
-          items:
-            type: object
-            properties:
-              target:
-                type: string
-              vendor:
-                type: string
-              action:
-                type: string
-              consentId:
-                type:
-                - string
-                - 'null'
-              channelId:
-                type:
-                - string
-                - 'null'
-              createdAt:
-                type:
-                - string
-                - 'null'
-      title: conflict
     def-1:
       type: object
       required:
@@ -280,6 +232,45 @@ components:
         jurisdiction:
           type: string
       title: create-consent
+    def-3:
+      type: object
+      properties:
+        type:
+          type: string
+        resolution:
+          type: string
+        actionsInConflict:
+          type: array
+          items:
+            type: object
+            properties:
+              target:
+                type: string
+              vendor:
+                type: string
+              action:
+                type: string
+              consentId:
+                type:
+                - string
+                - 'null'
+              channelId:
+                type:
+                - string
+                - 'null'
+              createdAt:
+                type:
+                - string
+                - 'null'
+      title: conflict
+    def-21:
+      type: object
+      properties:
+        gpc:
+          type: integer
+          minimum: 0
+          maximum: 1
+      title: gpc-compliance
     def-22:
       type: object
       required:
@@ -302,14 +293,23 @@ components:
         jurisdiction:
           type: string
       title: create-gpc-consent
-    def-21:
+    def-0:
       type: object
       properties:
+        privacyPolicy:
+          type: object
+          required:
+          - url
+          properties:
+            version:
+              type: string
+            url:
+              type: string
         gpc:
           type: integer
           minimum: 0
           maximum: 1
-      title: gpc-compliance
+      title: compliance
     def-4:
       type: object
       required:
