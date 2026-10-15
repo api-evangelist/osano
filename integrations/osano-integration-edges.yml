@@ -2,6 +2,7 @@ generated: '2026-10-14'
 method: searched
 checked:
 - okta/integrations/okta-integration-edges.yml
+- shopify/integrations/shopify-integration-edges.yml
 source:
 - okta/integrations/okta-integration-edges.yml
 edges:
@@ -26,3 +27,21 @@ edges:
   - OKTA_VERIFIED
   features:
   - SAML
+- partner_name: Shopify (own)
+  partner: shopify
+  partner_match: mirror
+  mirror_match: domain
+  type: marketplace
+  relationship: platform-app
+  direction: third-party
+  channel: partner-built
+  marketplace: own
+  evidence: https://apps.shopify.com/osano-cmp
+  mirror_of: shopify/integrations/shopify-integration-edges.yml
+  apps:
+  - Osano Cookie Consent
+  listing_count: 1
+  detected: '2026-10-15'
+  detected_by: mirror-platform-listings.py
+  publisher_verified:
+  - Built for Shopify
