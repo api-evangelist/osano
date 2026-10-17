@@ -536,93 +536,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
-  parameters:
-    formIdParam:
-      name: formId
-      required: false
-      in: query
-      description: Form identifier through which the Subject Rights Request was made.
-      schema:
-        type: integer
-        format: int32
-    dsarStatusParam:
-      name: status
-      required: false
-      in: query
-      description: Status filter for the request. Must be one of PENDING_EMAIL_VERIFICATION, PENDING_IDENTITY_VERIFICATION, IN_PROGRESS, IN_REVIEW, PENDING_APPEAL, COMPLETED, REJECTED, or REJECTED_AUTO.
-      schema:
-        type: string
-        enum:
-        - PENDING_EMAIL_VERIFICATION
-        - PENDING_IDENTITY_VERIFICATION
-        - IN_PROGRESS
-        - IN_REVIEW
-        - PENDING_APPEAL
-        - COMPLETED
-        - REJECTED
-        - REJECTED_AUTO
-    dsarSourceParam:
-      name: source
-      required: false
-      in: query
-      description: Source filter for the request. Must be one of ADMIN, AGENT_WEB, API, CMP, CSV, EMAIL_INTAKE, or WEB.
-      schema:
-        type: string
-        enum:
-        - ADMIN
-        - AGENT_WEB
-        - API
-        - CMP
-        - CSV
-        - EMAIL_INTAKE
-        - WEB
-    nextTokenParam:
-      name: next
-      required: false
-      in: query
-      description: The pagination token from the previous request.
-      schema:
-        type: string
-    dsarRequestTypeParam:
-      name: requestType
-      required: false
-      in: query
-      description: Request type filter for the request. Must be one of DELETE, CORRECT, SUMMARIZE, DO_NOT_SELL, OPT_OUT, LIMIT_USE, OTHER, PORTABILITY, or CUSTOM_[1-5]
-      schema:
-        type: string
-        enum:
-        - DELETE
-        - CORRECT
-        - SUMMARIZE
-        - DO_NOT_SELL
-        - OPT_OUT
-        - LIMIT_USE
-        - OTHER
-        - PORTABILITY
-        - CUSTOM_1
-        - CUSTOM_2
-        - CUSTOM_3
-        - CUSTOM_4
-        - CUSTOM_5
-    afterParam:
-      name: after
-      required: false
-      in: query
-      description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
-      schema:
-        type: string
-    limitParam:
-      name: limit
-      required: false
-      in: query
-      description: The number of items to return.
-      schema:
-        type: integer
-        format: int32
-        minimum: 1
-        maximum: 500
-        default: 100
   schemas:
+    RequestTypeList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequestType'
+    DsarList:
+      type: array
+      maxItems: 100
+      items:
+        $ref: '#/components/schemas/Dsar'
     RequestType:
       type: object
       additionalProperties: false
@@ -639,32 +568,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ApplicableLaw'
-    ActivityLogEntry:
-      type: object
-      additionalProperties: false
-      required:
-      - note
-      properties:
-        note:
-          type: string
-          description: The note or description of the activity
-        user:
-          type: string
-          description: The user who performed the action (defaults to API user if not provided)
-        timestamp:
-          type: string
-          format: date-time
-          description: When the action occurred (defaults to current timestamp if not provided)
-    Jurisdiction:
-      type: object
-      additionalProperties: false
-      required:
-      - country
-      properties:
-        country:
-          type: string
-        territory:
-          type: string
     DsarUpdate:
       type: object
       additionalProperties: true
@@ -704,88 +607,12 @@ components:
           - UNFOUNDED
           - OTHER
           - IDENTITY_NOT_VERIFIED
-    DsarResponse:
-      type: object
-      additionalProperties: false
-      required:
-      - dsarId
-      - status
-      - requestType
-      - requestSource
-      - due
-      - created
-      properties:
-        dsarId:
-          type: string
-        status:
-          type: string
-        requestType:
-          type: string
-        requestSource:
-          type: string
-        notes:
-          type: string
-        dsarDetails:
-          type: object
-        due:
-          type: string
-          format: date-time
-        created:
-          type: string
-          format: date-time
-        form:
-          type: object
-          properties:
-            formId:
-              type: integer
-            formName:
-              type: string
-    DsarList:
-      type: array
-      maxItems: 100
-      items:
-        $ref: '#/components/schemas/Dsar'
-    DsarResponseList:
-      type: object
-      additionalProperties: false
-      required:
-      - items
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/DsarResponse'
-        next:
-          type: string
-          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
     ErrorResponse:
       type: object
       additionalProperties: true
       properties:
         message:
           type: string
-    ApplicableLaw:
-      type: object
-      additionalProperties: false
-      required:
-      - name
-      - abbreviation
-      - effectiveDate
-      - jurisdictions
-      properties:
-        name:
-          type: string
-        abbreviation:
-          type:
-          - string
-          - 'null'
-        effectiveDate:
-          type: string
-          format: date-time
-        jurisdictions:
-          type: array
-          items:
-            $ref: '#/components/schemas/Jurisdiction'
     Dsar:
       type: object
       additionalProperties: false
@@ -845,7 +672,55 @@ components:
               type: string
             family-name:
               type: string
-    RequestTypeList:
+    ApplicableLaw:
+      type: object
+      additionalProperties: false
+      required:
+      - name
+      - abbreviation
+      - effectiveDate
+      - jurisdictions
+      properties:
+        name:
+          type: string
+        abbreviation:
+          type:
+          - string
+          - 'null'
+        effectiveDate:
+          type: string
+          format: date-time
+        jurisdictions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Jurisdiction'
+    Jurisdiction:
+      type: object
+      additionalProperties: false
+      required:
+      - country
+      properties:
+        country:
+          type: string
+        territory:
+          type: string
+    ActivityLogEntry:
+      type: object
+      additionalProperties: false
+      required:
+      - note
+      properties:
+        note:
+          type: string
+          description: The note or description of the activity
+        user:
+          type: string
+          description: The user who performed the action (defaults to API user if not provided)
+        timestamp:
+          type: string
+          format: date-time
+          description: When the action occurred (defaults to current timestamp if not provided)
+    DsarResponseList:
       type: object
       additionalProperties: false
       required:
@@ -854,7 +729,132 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/RequestType'
+            $ref: '#/components/schemas/DsarResponse'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    DsarResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - dsarId
+      - status
+      - requestType
+      - requestSource
+      - due
+      - created
+      properties:
+        dsarId:
+          type: string
+        status:
+          type: string
+        requestType:
+          type: string
+        requestSource:
+          type: string
+        notes:
+          type: string
+        dsarDetails:
+          type: object
+        due:
+          type: string
+          format: date-time
+        created:
+          type: string
+          format: date-time
+        form:
+          type: object
+          properties:
+            formId:
+              type: integer
+            formName:
+              type: string
+  parameters:
+    formIdParam:
+      name: formId
+      required: false
+      in: query
+      description: Form identifier through which the Subject Rights Request was made.
+      schema:
+        type: integer
+        format: int32
+    dsarSourceParam:
+      name: source
+      required: false
+      in: query
+      description: Source filter for the request. Must be one of ADMIN, AGENT_WEB, API, CMP, CSV, EMAIL_INTAKE, or WEB.
+      schema:
+        type: string
+        enum:
+        - ADMIN
+        - AGENT_WEB
+        - API
+        - CMP
+        - CSV
+        - EMAIL_INTAKE
+        - WEB
+    dsarRequestTypeParam:
+      name: requestType
+      required: false
+      in: query
+      description: Request type filter for the request. Must be one of DELETE, CORRECT, SUMMARIZE, DO_NOT_SELL, OPT_OUT, LIMIT_USE, OTHER, PORTABILITY, or CUSTOM_[1-5]
+      schema:
+        type: string
+        enum:
+        - DELETE
+        - CORRECT
+        - SUMMARIZE
+        - DO_NOT_SELL
+        - OPT_OUT
+        - LIMIT_USE
+        - OTHER
+        - PORTABILITY
+        - CUSTOM_1
+        - CUSTOM_2
+        - CUSTOM_3
+        - CUSTOM_4
+        - CUSTOM_5
+    dsarStatusParam:
+      name: status
+      required: false
+      in: query
+      description: Status filter for the request. Must be one of PENDING_EMAIL_VERIFICATION, PENDING_IDENTITY_VERIFICATION, IN_PROGRESS, IN_REVIEW, PENDING_APPEAL, COMPLETED, REJECTED, or REJECTED_AUTO.
+      schema:
+        type: string
+        enum:
+        - PENDING_EMAIL_VERIFICATION
+        - PENDING_IDENTITY_VERIFICATION
+        - IN_PROGRESS
+        - IN_REVIEW
+        - PENDING_APPEAL
+        - COMPLETED
+        - REJECTED
+        - REJECTED_AUTO
+    nextTokenParam:
+      name: next
+      required: false
+      in: query
+      description: The pagination token from the previous request.
+      schema:
+        type: string
+    limitParam:
+      name: limit
+      required: false
+      in: query
+      description: The number of items to return.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 500
+        default: 100
+    afterParam:
+      name: after
+      required: false
+      in: query
+      description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
+      schema:
+        type: string
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

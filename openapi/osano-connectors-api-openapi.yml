@@ -44,6 +44,16 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   parameters:
+    connectorTypeParam:
+      name: type
+      required: false
+      in: query
+      description: The type of Connectors to be returned.  By default, all Connectors are returned.
+      schema:
+        type: string
+        enum:
+        - saas
+        - onprem
     nextTokenParam:
       name: next
       required: false
@@ -51,14 +61,6 @@ components:
       description: The pagination token from the previous request.
       schema:
         type: string
-    productNameParam:
-      name: name
-      required: false
-      in: query
-      description: Product name to filter by.  This may return partial matches.
-      schema:
-        type: string
-        maxLength: 64
     limitParam:
       name: limit
       required: false
@@ -70,23 +72,15 @@ components:
         minimum: 1
         maximum: 500
         default: 100
-    connectorTypeParam:
-      name: type
+    productNameParam:
+      name: name
       required: false
       in: query
-      description: The type of Connectors to be returned.  By default, all Connectors are returned.
+      description: Product name to filter by.  This may return partial matches.
       schema:
         type: string
-        enum:
-        - saas
-        - onprem
+        maxLength: 64
   schemas:
-    ErrorResponse:
-      type: object
-      additionalProperties: true
-      properties:
-        message:
-          type: string
     ConnectorList:
       type: object
       additionalProperties: false
@@ -100,6 +94,12 @@ components:
         next:
           type: string
           description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
     Connector:
       type: object
       additionalProperties: false

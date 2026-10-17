@@ -324,68 +324,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
-  parameters:
-    nextTokenParam:
-      name: next
-      required: false
-      in: query
-      description: The pagination token from the previous request.
-      schema:
-        type: string
-    dsarIdParam:
-      name: dsarId
-      required: false
-      in: query
-      description: The id of the Subject Rights request to filter by
-      schema:
-        type: string
-    afterParam:
-      name: after
-      required: false
-      in: query
-      description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
-      schema:
-        type: string
-    limitParam:
-      name: limit
-      required: false
-      in: query
-      description: The number of items to return.
-      schema:
-        type: integer
-        format: int32
-        minimum: 1
-        maximum: 500
-        default: 100
-    actionItemStatusParam:
-      name: status
-      required: false
-      in: query
-      description: Status filter for the request. Must be one of CLAIMED, IN_PROGRESS, COMPLETED, or REJECTED.
-      schema:
-        type: string
-        enum:
-        - CLAIMED
-        - IN_PROGRESS
-        - COMPLETED
-        - REJECTED
   schemas:
-    ActivityLogEntry:
-      type: object
-      additionalProperties: false
-      required:
-      - note
-      properties:
-        note:
-          type: string
-          description: The note or description of the activity
-        user:
-          type: string
-          description: The user who performed the action (defaults to API user if not provided)
-        timestamp:
-          type: string
-          format: date-time
-          description: When the action occurred (defaults to current timestamp if not provided)
     DsarActionItemUpdate:
       type: object
       additionalProperties: true
@@ -421,6 +360,63 @@ components:
         next:
           type: string
           description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    DsarSummaryResponseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DsarSummaryResponse'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    DsarSummaryResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - dsarSummaryId
+      - dsarId
+      - fileName
+      - fileType
+      - manual
+      - created
+      properties:
+        dsarSummaryId:
+          type: string
+        dsarId:
+          type: string
+        dataStore:
+          type:
+          - object
+          - 'null'
+          description: The data store associated with the summary entry. Null for manual task action items.
+          properties:
+            dataStoreId:
+              type: number
+            name:
+              type: string
+        task:
+          type:
+          - object
+          - 'null'
+          description: The manual task associated with the summary entry. Null for automated action items.
+          properties:
+            taskId:
+              type: number
+            name:
+              type: string
+        fileName:
+          type: string
+        fileType:
+          type: string
+        manual:
+          type: boolean
+        created:
+          type: string
+          format: date-time
     DsarActionItemResponse:
       type: object
       additionalProperties: false
@@ -493,69 +489,73 @@ components:
           - AUTOMATED
           - MANUAL
           description: Indicates whether the action item is fulfilled via an automated connection (AUTOMATED) or a manual task (MANUAL).
-    DsarSummaryResponse:
-      type: object
-      additionalProperties: false
-      required:
-      - dsarSummaryId
-      - dsarId
-      - fileName
-      - fileType
-      - manual
-      - created
-      properties:
-        dsarSummaryId:
-          type: string
-        dsarId:
-          type: string
-        dataStore:
-          type:
-          - object
-          - 'null'
-          description: The data store associated with the summary entry. Null for manual task action items.
-          properties:
-            dataStoreId:
-              type: number
-            name:
-              type: string
-        task:
-          type:
-          - object
-          - 'null'
-          description: The manual task associated with the summary entry. Null for automated action items.
-          properties:
-            taskId:
-              type: number
-            name:
-              type: string
-        fileName:
-          type: string
-        fileType:
-          type: string
-        manual:
-          type: boolean
-        created:
-          type: string
-          format: date-time
     ErrorResponse:
       type: object
       additionalProperties: true
       properties:
         message:
           type: string
-    DsarSummaryResponseList:
+    ActivityLogEntry:
       type: object
       additionalProperties: false
       required:
-      - items
+      - note
       properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/DsarSummaryResponse'
-        next:
+        note:
           type: string
-          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+          description: The note or description of the activity
+        user:
+          type: string
+          description: The user who performed the action (defaults to API user if not provided)
+        timestamp:
+          type: string
+          format: date-time
+          description: When the action occurred (defaults to current timestamp if not provided)
+  parameters:
+    actionItemStatusParam:
+      name: status
+      required: false
+      in: query
+      description: Status filter for the request. Must be one of CLAIMED, IN_PROGRESS, COMPLETED, or REJECTED.
+      schema:
+        type: string
+        enum:
+        - CLAIMED
+        - IN_PROGRESS
+        - COMPLETED
+        - REJECTED
+    afterParam:
+      name: after
+      required: false
+      in: query
+      description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
+      schema:
+        type: string
+    limitParam:
+      name: limit
+      required: false
+      in: query
+      description: The number of items to return.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 500
+        default: 100
+    nextTokenParam:
+      name: next
+      required: false
+      in: query
+      description: The pagination token from the previous request.
+      schema:
+        type: string
+    dsarIdParam:
+      name: dsarId
+      required: false
+      in: query
+      description: The id of the Subject Rights request to filter by
+      schema:
+        type: string
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

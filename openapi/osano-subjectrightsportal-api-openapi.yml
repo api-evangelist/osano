@@ -124,39 +124,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
-  parameters:
-    nextTokenParam:
-      name: next
-      required: false
-      in: query
-      description: The pagination token from the previous request.
-      schema:
-        type: string
-    messageIdParam:
-      name: messageId
-      required: true
-      in: path
-      description: The id of the message to update
-      schema:
-        type: string
-    afterParam:
-      name: after
-      required: false
-      in: query
-      description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
-      schema:
-        type: string
-    limitParam:
-      name: limit
-      required: false
-      in: query
-      description: The number of items to return.
-      schema:
-        type: integer
-        format: int32
-        minimum: 1
-        maximum: 500
-        default: 100
   schemas:
     PortalMessagesResponse:
       type: object
@@ -171,6 +138,26 @@ components:
         next:
           type: string
           description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    PatchPortalMessagesResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - messageId
+      - updated
+      properties:
+        messageId:
+          type: number
+        updated:
+          type: string
+          format: date-time
+    PortalMessage:
+      type: object
+      additionalProperties: false
+      required:
+      - content
+      properties:
+        content:
+          type: string
     PortalMessagesList:
       type: object
       additionalProperties: false
@@ -205,26 +192,6 @@ components:
                 type: string
               fileExt:
                 type: string
-    PortalMessage:
-      type: object
-      additionalProperties: false
-      required:
-      - content
-      properties:
-        content:
-          type: string
-    PatchPortalMessagesResponse:
-      type: object
-      additionalProperties: false
-      required:
-      - messageId
-      - updated
-      properties:
-        messageId:
-          type: number
-        updated:
-          type: string
-          format: date-time
     ErrorResponse:
       type: object
       additionalProperties: true
@@ -239,6 +206,39 @@ components:
       properties:
         read:
           type: boolean
+  parameters:
+    afterParam:
+      name: after
+      required: false
+      in: query
+      description: Specify UTC date and time in ISO-8601 format (e.g. 2021-01-01T00:00:00Z) to filter items created after this date.
+      schema:
+        type: string
+    nextTokenParam:
+      name: next
+      required: false
+      in: query
+      description: The pagination token from the previous request.
+      schema:
+        type: string
+    limitParam:
+      name: limit
+      required: false
+      in: query
+      description: The number of items to return.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 500
+        default: 100
+    messageIdParam:
+      name: messageId
+      required: true
+      in: path
+      description: The id of the message to update
+      schema:
+        type: string
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

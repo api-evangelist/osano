@@ -339,6 +339,118 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
+    DataStoreResponseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataStoreResponse'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    DataStoreLabelsResponseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataStoreLabels'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    DataStoreFieldResponseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataStoreFieldResponse'
+        next:
+          type: string
+          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
+    DataStorePurposesOfProcessing:
+      type: object
+      additionalProperties: true
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        processingPurposeId:
+          type:
+          - string
+          - 'null'
+          format: uuid
+    DataStoreUpdate:
+      type: object
+      additionalProperties: true
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 64
+        description:
+          type:
+          - string
+          - 'null'
+          minLength: 3
+          maxLength: 256
+        alias:
+          type:
+          - string
+          - 'null'
+          minLength: 3
+          maxLength: 64
+        countryIso:
+          type:
+          - string
+          - 'null'
+          minLength: 2
+          maxLength: 2
+          description: ISO 3166-1 alpha-2 code
+        owners:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataStoreOwner'
+        purposesOfProcessing:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/DataStorePurposesOfProcessing'
+        labels:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/DataStoreLabels'
+          description: Full replacement of the labels associated with this data store. Send the complete desired list of labels. Omit this field to leave labels unchanged. Send an empty array or null to remove all labels. Orphaned labels (not associated with any data store) are automatically deleted; labels still in use by other data stores are preserved.
+        metadata:
+          type:
+          - object
+          - 'null'
+    DataStoreFields:
+      type: array
+      items:
+        $ref: '#/components/schemas/DataStoreField'
+    ErrorResponse:
+      type: object
+      additionalProperties: true
+      properties:
+        message:
+          type: string
     DataStoreResponse:
       type: object
       additionalProperties: true
@@ -395,7 +507,28 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DataStoreLabels'
-    DataStorePurposesOfProcessing:
+    DataStoreFieldResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - fieldId
+      - name
+      - path
+      - created
+      properties:
+        fieldId:
+          type: integer
+          format: int32
+        name:
+          type: string
+        path:
+          type: string
+        classification:
+          type: string
+        created:
+          type: string
+          format: date-time
+    DataStoreLabels:
       type: object
       additionalProperties: true
       required:
@@ -405,26 +538,11 @@ components:
           type: string
           minLength: 1
           maxLength: 50
-        processingPurposeId:
+        labelId:
           type:
           - string
           - 'null'
           format: uuid
-    Connector:
-      type: object
-      additionalProperties: false
-      required:
-      - connectorId
-      - productName
-      - authType
-      properties:
-        connectorId:
-          type: integer
-          format: int32
-        productName:
-          type: string
-        authType:
-          type: string
     DataStoreField:
       type: object
       additionalProperties: false
@@ -443,19 +561,6 @@ components:
           maxLength: 32
           example: NAME
           description: This field should be capitalized
-    DataStoreResponseList:
-      type: object
-      additionalProperties: false
-      required:
-      - items
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/DataStoreResponse'
-        next:
-          type: string
-          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
     DataStore:
       type: object
       additionalProperties: true
@@ -482,54 +587,21 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/DataStoreOwner'
-    DataStoreUpdate:
+    Connector:
       type: object
-      additionalProperties: true
+      additionalProperties: false
+      required:
+      - connectorId
+      - productName
+      - authType
       properties:
-        name:
+        connectorId:
+          type: integer
+          format: int32
+        productName:
           type: string
-          minLength: 3
-          maxLength: 64
-        description:
-          type:
-          - string
-          - 'null'
-          minLength: 3
-          maxLength: 256
-        alias:
-          type:
-          - string
-          - 'null'
-          minLength: 3
-          maxLength: 64
-        countryIso:
-          type:
-          - string
-          - 'null'
-          minLength: 2
-          maxLength: 2
-          description: ISO 3166-1 alpha-2 code
-        owners:
-          type: array
-          items:
-            $ref: '#/components/schemas/DataStoreOwner'
-        purposesOfProcessing:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/DataStorePurposesOfProcessing'
-        labels:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/DataStoreLabels'
-          description: Full replacement of the labels associated with this data store. Send the complete desired list of labels. Omit this field to leave labels unchanged. Send an empty array or null to remove all labels. Orphaned labels (not associated with any data store) are automatically deleted; labels still in use by other data stores are preserved.
-        metadata:
-          type:
-          - object
-          - 'null'
+        authType:
+          type: string
     DataStoreOwner:
       type: object
       additionalProperties: true
@@ -543,79 +615,14 @@ components:
           maxLength: 100
         primary:
           type: boolean
-    DataStoreFields:
-      type: array
-      items:
-        $ref: '#/components/schemas/DataStoreField'
-    DataStoreFieldResponseList:
-      type: object
-      additionalProperties: false
-      required:
-      - items
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/DataStoreFieldResponse'
-        next:
-          type: string
-          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
-    DataStoreLabels:
-      type: object
-      additionalProperties: true
-      required:
-      - name
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 50
-        labelId:
-          type:
-          - string
-          - 'null'
-          format: uuid
-    DataStoreFieldResponse:
-      type: object
-      additionalProperties: false
-      required:
-      - fieldId
-      - name
-      - path
-      - created
-      properties:
-        fieldId:
-          type: integer
-          format: int32
-        name:
-          type: string
-        path:
-          type: string
-        classification:
-          type: string
-        created:
-          type: string
-          format: date-time
-    DataStoreLabelsResponseList:
-      type: object
-      additionalProperties: false
-      required:
-      - items
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/DataStoreLabels'
-        next:
-          type: string
-          description: A token which may be appended to subsequent requests to retrieve the next page of results, i.e. ?next=...
-    ErrorResponse:
-      type: object
-      additionalProperties: true
-      properties:
-        message:
-          type: string
   parameters:
+    nextTokenParam:
+      name: next
+      required: false
+      in: query
+      description: The pagination token from the previous request.
+      schema:
+        type: string
     dataStoresActiveParam:
       name: active
       required: false
@@ -631,35 +638,6 @@ components:
       schema:
         type: string
         maxLength: 64
-    dataStoresTypeParam:
-      name: type
-      required: false
-      in: query
-      description: The type of the Data Stores to be returned.  If omitted, all Data Stores are returned.
-      schema:
-        type: string
-        enum:
-        - internal
-        - saas
-        - onprem
-    limitParam:
-      name: limit
-      required: false
-      in: query
-      description: The number of items to return.
-      schema:
-        type: integer
-        format: int32
-        minimum: 1
-        maximum: 500
-        default: 100
-    nextTokenParam:
-      name: next
-      required: false
-      in: query
-      description: The pagination token from the previous request.
-      schema:
-        type: string
     afterParam:
       name: after
       required: false
@@ -675,6 +653,28 @@ components:
       schema:
         type: integer
         format: int32
+    limitParam:
+      name: limit
+      required: false
+      in: query
+      description: The number of items to return.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 500
+        default: 100
+    dataStoresTypeParam:
+      name: type
+      required: false
+      in: query
+      description: The type of the Data Stores to be returned.  If omitted, all Data Stores are returned.
+      schema:
+        type: string
+        enum:
+        - internal
+        - saas
+        - onprem
   securitySchemes:
     ApiKeyAuth:
       type: apiKey

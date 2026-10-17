@@ -187,6 +187,98 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    def-4:
+      type: object
+      required:
+      - subjectId
+      - brandId
+      - actions
+      - attributes
+      properties:
+        subjectId:
+          type: string
+        brandId:
+          type: string
+        channelIds:
+          type: array
+          items:
+            type: string
+        compliance:
+          $ref: '#/components/schemas/def-0'
+        actions:
+          type: array
+          items:
+            type: object
+            required:
+            - target
+            - vendor
+            - action
+            properties:
+              target:
+                type: string
+              vendor:
+                type: string
+              action:
+                type: string
+        attributes: {}
+        lastUpdateDate:
+          type: string
+        lastConflictDate:
+          type: string
+      title: unified-consent
+    def-3:
+      type: object
+      properties:
+        type:
+          type: string
+        resolution:
+          type: string
+        actionsInConflict:
+          type: array
+          items:
+            type: object
+            properties:
+              target:
+                type: string
+              vendor:
+                type: string
+              action:
+                type: string
+              consentId:
+                type:
+                - string
+                - 'null'
+              channelId:
+                type:
+                - string
+                - 'null'
+              createdAt:
+                type:
+                - string
+                - 'null'
+      title: conflict
+    def-22:
+      type: object
+      required:
+      - subject
+      - attributes
+      properties:
+        subject:
+          type: object
+          properties:
+            verifiedId:
+              type: string
+              pattern: ^[^#% ]+$
+            anonymousId:
+              type: string
+              pattern: ^[^#% ]+$
+        compliance:
+          $ref: '#/components/schemas/def-21'
+        attributes:
+          type: object
+        jurisdiction:
+          type: string
+      title: create-gpc-consent
     def-1:
       type: object
       required:
@@ -232,67 +324,6 @@ components:
         jurisdiction:
           type: string
       title: create-consent
-    def-3:
-      type: object
-      properties:
-        type:
-          type: string
-        resolution:
-          type: string
-        actionsInConflict:
-          type: array
-          items:
-            type: object
-            properties:
-              target:
-                type: string
-              vendor:
-                type: string
-              action:
-                type: string
-              consentId:
-                type:
-                - string
-                - 'null'
-              channelId:
-                type:
-                - string
-                - 'null'
-              createdAt:
-                type:
-                - string
-                - 'null'
-      title: conflict
-    def-21:
-      type: object
-      properties:
-        gpc:
-          type: integer
-          minimum: 0
-          maximum: 1
-      title: gpc-compliance
-    def-22:
-      type: object
-      required:
-      - subject
-      - attributes
-      properties:
-        subject:
-          type: object
-          properties:
-            verifiedId:
-              type: string
-              pattern: ^[^#% ]+$
-            anonymousId:
-              type: string
-              pattern: ^[^#% ]+$
-        compliance:
-          $ref: '#/components/schemas/def-21'
-        attributes:
-          type: object
-        jurisdiction:
-          type: string
-      title: create-gpc-consent
     def-0:
       type: object
       properties:
@@ -310,45 +341,14 @@ components:
           minimum: 0
           maximum: 1
       title: compliance
-    def-4:
+    def-21:
       type: object
-      required:
-      - subjectId
-      - brandId
-      - actions
-      - attributes
       properties:
-        subjectId:
-          type: string
-        brandId:
-          type: string
-        channelIds:
-          type: array
-          items:
-            type: string
-        compliance:
-          $ref: '#/components/schemas/def-0'
-        actions:
-          type: array
-          items:
-            type: object
-            required:
-            - target
-            - vendor
-            - action
-            properties:
-              target:
-                type: string
-              vendor:
-                type: string
-              action:
-                type: string
-        attributes: {}
-        lastUpdateDate:
-          type: string
-        lastConflictDate:
-          type: string
-      title: unified-consent
+        gpc:
+          type: integer
+          minimum: 0
+          maximum: 1
+      title: gpc-compliance
   securitySchemes:
     ucApiKey:
       description: Unified Consent API key
