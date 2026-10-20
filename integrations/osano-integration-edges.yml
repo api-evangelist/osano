@@ -1,5 +1,11 @@
-generated: '2026-10-14'
+generated: '2026-10-20'
 method: searched
+source:
+- okta/integrations/okta-integration-edges.yml
+- https://zapier.com/apps/osano/integrations
+- https://n8n.io/integrations/osano/
+- https://composio.dev/toolkits/osano
+- https://monid.ai/tools/osano
 checked:
 - https://api.nuget.org/v3
 - https://crates.io/api/v1
@@ -10,8 +16,12 @@ checked:
 - https://rubygems.org/api/v1
 - okta/integrations/okta-integration-edges.yml
 - shopify/integrations/shopify-integration-edges.yml
-source:
-- okta/integrations/okta-integration-edges.yml
+- https://composio.dev/toolkits/osano
+- https://monid.ai/tools/osano
+- https://n8n.io/integrations/osano/
+- https://zapier.com/apps/osano/integrations
+summary: null
+marketplace_apps: []
 edges:
 - partner_name: Okta (own)
   partner: okta
@@ -91,3 +101,4 @@ edges:
     detected: '2026-10-18'
   detected_by: sweep-official-sdks.py
   first_seen: '2026-10-18'
+templates: []
